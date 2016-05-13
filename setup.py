@@ -7,21 +7,20 @@ import os
 CONTAINING_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
 setup(
-    name='qidata',
-    version=open(os.path.join(CONTAINING_DIRECTORY,"qidata/VERSION")).read().split()[0],
+    name='qidata_file',
+    version=open(os.path.join(CONTAINING_DIRECTORY,"qidata_file/VERSION")).read().split()[0],
     author='Louis-Kenzo Cahier',
     author_email='lkcahier@aldebaran.com',
-    packages=['qidata', 'qidata.commands', 'qidata.gui', 'qidata.annotationitems', 'qidata.qiq'],
-    package_data={"qidata":["VERSION"]},
-    scripts=['bin/qidata'],
+    packages=['qidata_file', 'qidata_file.qiq'],
+    package_data={"qidata_file":["VERSION"]},
     url='.',
     license='LICENSE.txt',
-    description='Dataset management CLI',
+    description='Uses XMP library to store data_objects instances in files metadata fields.',
     long_description=open(os.path.join(CONTAINING_DIRECTORY,'README.md')).read(),
     test_suite="tests",
     install_requires=[
-        "PySide >= 1.2.2",
-        "python-xmp-toolkit >= 2.0.1",
+        "xmp >= 0.1",
+        "qidata_objects >= 0.1",
         "argcomplete >= 1.1.0"
     ]
 )

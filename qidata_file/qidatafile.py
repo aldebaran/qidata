@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from qidata.xmp import XMPFile, XMPMetadata, ALDEBARAN_NS
-from qidata.annotationitems import makeAnnotationItems, AnnotationTypes
+from xmp.xmp import XMPFile, XMPMetadata, ALDEBARAN_NS
+from qidata_objects import makeDataObject, DataObjectTypes
 
-class DataItem(object):
+class QiDataFile(object):
 
     # ───────────
     # Constructor
@@ -25,11 +25,11 @@ class DataItem(object):
         if self.__annotations is None:
             self.__annotations = dict()
             with self.xmp_file as tmp:
-                for annotationClassName in AnnotationTypes:
+                for annotationClassName in DataObjectTypes:
                     self.__annotations[annotationClassName] = []
                     try:
                         for annotation in self.metadata[annotationClassName]:
-                            obj = makeAnnotationItems(annotationClassName, annotation.info.value)
+                            obj = makeDataObject(annotationClassName, annotation.info.value)
                             loc = annotation.location.value
                             self.__unicodeListToFloatList(loc)
                             self.__annotations[annotationClassName].append([obj, loc])
