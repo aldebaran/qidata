@@ -1,2 +1,2 @@
-**qidata** is a data management CLI.
+Library containing data objects definition
 
