@@ -13,9 +13,10 @@ setup(
     author_email='lkcahier@aldebaran.com',
     packages=['qidata_file', 'qidata_file.qiq'],
     package_data={"qidata_file":["VERSION"]},
+    scripts=['bin/qidata_file'],
     url='.',
     license='LICENSE.txt',
-    description='Uses XMP library to store data_objects instances in files metadata fields.',
+    description='Analyze QiDataObjects stored in QiDataFiles.',
     long_description=open(os.path.join(CONTAINING_DIRECTORY,'README.md')).read(),
     test_suite="tests",
     install_requires=[
@@ -24,4 +25,3 @@ setup(
         "argcomplete >= 1.1.0"
     ]
 )
-
