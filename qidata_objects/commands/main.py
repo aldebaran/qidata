@@ -12,14 +12,14 @@ except ImportError:
 from .qidata_objects import QiDataObjectsCommand
 from .. import version, DataObjectTypes
 
-DESCRIPTION = "QiData objects definition package"
+DESCRIPTION = "QiData objects definition tools"
 
-def parser():
-    parser = argparse.ArgumentParser(description=DESCRIPTION)
-    subparsers = parser.add_subparsers()
+def make_command_parser(parent_parser=argparse.ArgumentParser(description=DESCRIPTION)):
 
-    parser.add_argument("-v", "--version", action=version.VersionAction, nargs=0,
-                        help="print xmp release version number")
+    subparsers = parent_parser.add_subparsers()
+
+    parent_parser.add_argument("-v", "--version", action=version.VersionAction, nargs=0,
+                        help="print QiData objects release version number")
 
     # ────────────────
     # show sub-command
@@ -35,6 +35,6 @@ def parser():
     list_parser = subparsers.add_parser("list", description="show all available types")
     list_parser.set_defaults(func=QiDataObjectsCommand.list)
 
-    return parser
+    return parent_parser
 
-main_parser = parser()
+main_parser = make_command_parser()
