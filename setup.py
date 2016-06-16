@@ -11,7 +11,7 @@ setup(
     version=open(os.path.join(CONTAINING_DIRECTORY,"qidata_file/VERSION")).read().split()[0],
     author='Louis-Kenzo Cahier',
     author_email='lkcahier@aldebaran.com',
-    packages=['qidata_file', 'qidata_file.qiq'],
+    packages=['qidata_file', 'qidata_file.commands', 'qidata_file.qiq'],
     package_data={"qidata_file":["VERSION"]},
     scripts=['bin/qidata_file'],
     url='.',
