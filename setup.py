@@ -11,7 +11,7 @@ setup(
     version=open(os.path.join(CONTAINING_DIRECTORY,"qidata_objects/VERSION")).read().split()[0],
     author='Surya Ambrose',
     author_email='sambrose@aldebaran.com',
-    packages=['qidata_objects'],
+    packages=['qidata_objects', 'qidata_objects.commands'],
     package_data={"qidata_objects":["VERSION"]},
     scripts=['bin/qidata_objects'],
     url='.',
