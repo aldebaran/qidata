@@ -20,8 +20,7 @@ setup(
     long_description=open(os.path.join(CONTAINING_DIRECTORY,'README.md')).read(),
     test_suite="tests",
     install_requires=[
-        "annotator >= 0.1",
-        "PySide >= 1.2.2",
+        "annotator >= 0.1.1",
         "argcomplete >= 1.1.0"
     ]
 )
