@@ -11,8 +11,7 @@ class QiDataFilesCommand:
 	@staticmethod
 	def show(args):
 		throwIfAbsent(args.file)
-		input_file_path = args.file
-		qidata_file = QiDataFile(input_file_path)
+		qidata_file = QiDataFile(args.file)
 		with qidata_file as p:
 			if p.metadata.children:
 				print p.metadata

@@ -17,18 +17,10 @@ SANDBOX_FOLDER = "/tmp/qidata/"
 # Groundtruth
 
 JPG_PHOTO = "SpringNebula.jpg"
-JPG_PHOTO_NS_UIDS = [
-	libxmp.consts.XMP_NS_EXIF,
-	libxmp.consts.XMP_NS_TIFF,
-	libxmp.consts.XMP_NS_XMP,
-	libxmp.consts.XMP_NS_Photoshop
-]
-JPG_PHOTO_NS_LEN = {
-	libxmp.consts.XMP_NS_EXIF      : 31,
-	libxmp.consts.XMP_NS_TIFF      : 7,
-	libxmp.consts.XMP_NS_XMP       : 3,
-	libxmp.consts.XMP_NS_Photoshop : 1,
-}
+QIDATA_V1 = "qidatafile_v1.png"
+
+
+QIDATA_TEST_FILE = QIDATA_V1
 
 # ─────────
 # Utilities
@@ -48,3 +40,16 @@ def sandboxed(file_path):
 	shutil.copyfile(source_path, tmp_path)
 
 	return tmp_path
+
+def verifyAnnotations(qidata_file, annotator):
+	from qidata_objects import Person
+	annotations = qidata_file.annotations
+	assert(annotations.has_key(annotator))
+	assert(annotations[annotator].has_key("Person"))
+	assert(len(annotations[annotator]["Person"][0])==2)
+	assert(isinstance(annotations[annotator]["Person"][0][0], Person))
+	person = annotations[annotator]["Person"][0][0]
+	location = annotations[annotator]["Person"][0][1]
+	assert(person.id == 0)
+	assert(person.name == "yfukuda")
+	assert(location == [[4.0, 25.0],[154.0, 235.0]])
