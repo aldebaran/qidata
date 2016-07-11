@@ -19,9 +19,10 @@ SANDBOX_FOLDER = "/tmp/qidata/"
 JPG_PHOTO = "SpringNebula.jpg"
 QIDATA_V1 = "qidatafile_v1.png"
 QIDATA_V2 = "qidatafile_v2.png"
+QIDATA_V3 = "qidatafile_v3.png"
 
 
-QIDATA_TEST_FILE = QIDATA_V2
+QIDATA_TEST_FILE = QIDATA_V3
 
 # ─────────
 # Utilities

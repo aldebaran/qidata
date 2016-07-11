@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from xmp.xmp import XMPFile, XMPMetadata, ALDEBARAN_NS
+from xmp.xmp import XMPFile, registerNamespace
 from qidata_objects import makeDataObject, DataObjectTypes
 
+QIDATA_NS=u"http://softbank-robotics.com/qidata/1"
+registerNamespace(QIDATA_NS, "qidata")
 
 def open(file_path, mode="r"):
     """
@@ -66,7 +68,7 @@ class QiDataFile:
         """
         Return metadata content in raw form
         """
-        return self.xmp_file.metadata[ALDEBARAN_NS]
+        return self.xmp_file.metadata[QIDATA_NS]
 
     @property
     def annotations(self):
