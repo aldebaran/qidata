@@ -55,3 +55,11 @@ def verifyAnnotations(qidata_file, annotator):
 	assert(person.id == 0)
 	assert(person.name == "yfukuda")
 	assert(location == [[4.0, 25.0],[154.0, 235.0]])
+
+def sha1(file_path):
+	import hashlib
+	hasher = hashlib.sha1()
+	with open(file_path,'rb') as file:
+		file_data = file.read()
+	hasher.update(file_data)
+	return hasher.hexdigest()

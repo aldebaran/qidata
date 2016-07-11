@@ -29,6 +29,19 @@ def make_command_parser(parent_parser=argparse.ArgumentParser(description=DESCRI
     if has_argcomplete: file_argument.completer = argcomplete.completers.FilesCompleter()
     show_parser.set_defaults(func=QiDataFilesCommand.show)
 
+    # ────────────────
+    # convert sub-command
+
+    convert_parser = subparsers.add_parser("convert",
+                            description="Updates Qidata files metadata to fit the newest convention",
+                            help="Updates Qidata files metadata to fit the newest convention")
+    file_argument = convert_parser.add_argument("file", help="what to examine")
+    annotator_argument = convert_parser.add_argument("--annotator",
+                            help="user who annotated this file (mandatory for V1 files)")
+
+    if has_argcomplete: file_argument.completer = argcomplete.completers.FilesCompleter()
+    convert_parser.set_defaults(func=QiDataFilesCommand.convert)
+
     return parent_parser
 
 main_parser = make_command_parser()

@@ -5,6 +5,7 @@ import os.path
 
 # Qidata
 from ..qidatafile import QiDataFile
+from ..conversion import qidataFileConversionToCurrentVersion
 
 class QiDataFilesCommand:
 
@@ -17,6 +18,11 @@ class QiDataFilesCommand:
 				print p.metadata
 			else:
 				print "No QiDataObjects"
+
+	@staticmethod
+	def convert(args):
+		throwIfAbsent(args.file)
+		qidataFileConversionToCurrentVersion(args.file, vars(args))
 
 # ───────
 # Helpers
