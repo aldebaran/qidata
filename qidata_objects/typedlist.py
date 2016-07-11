@@ -1,11 +1,20 @@
 # -*- coding: utf-8 -*-
 
 class TypedList(list):
+    """
+    Contains a list of typed objects.
+    """
 
     # ───────────
     # Constructor
 
     def __init__(self, typename, args=[]):
+        """
+        Create a TypedList
+
+        @typename  : Type to be accepted in the list (type or class)
+        @args      : List of initialization arguments (can be empty)
+        """
         self.__typename = typename
         for element in args:
             if(not isinstance(element, self.__typename)):

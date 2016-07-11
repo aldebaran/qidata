@@ -1,28 +1,41 @@
 # -*- coding: utf-8 -*-
 
 """
-This package contains different classes representing structured dataTypes for annotated datasets.
+This package contains different classes representing structured dataTypes.
 """
 
 from person import Person
 from face import Face
 from typedlist import TypedList
 
-def makeDataObject(dataObjectName, data = None):
-    if dataObjectName == "Person":
+def makeDataObject(qiDataObjectName, data = None):
+    """
+    QiDataObjects factory
+    This is the prefered way to create QiDataObjects. Objects that
+    can be created by this method are the ones in `DataObjectTypes`
+
+    @qiDataObjectName : requested object to build's name (str)
+    @data           : data to prefill to created object (dict)
+    """
+    if qiDataObjectName == "Person":
         return Person() if data is None else Person.fromDict(data)
-    elif dataObjectName == "Face":
+    elif qiDataObjectName == "Face":
         return Face() if data is None else Face.fromDict(data)
     else:
-        raise TypeError("Required annotation item (%s) does not exist"%dataObjectName)
+        raise TypeError("Required annotation item (%s) does not exist"%qiDataObjectName)
 
-def printHelp(dataObjectName):
-    if dataObjectName == "Person":
+def printHelp(qiqiDataObjectName):
+    """
+    Print some help on the requested QiDataObject
+
+    @qiqiDataObjectName : object name on which help is requested
+    """
+    if qiqiDataObjectName == "Person":
         help(Person)
-    elif dataObjectName == "Face":
+    elif qiqiDataObjectName == "Face":
         help(Face)
     else:
-        raise TypeError("Required annotation item (%s) does not exist"%dataObjectName)
+        raise TypeError("Required annotation item (%s) does not exist"%qiDataObjectName)
 
 # ––––––––––––––––––––––––––––
 # List of available data types
