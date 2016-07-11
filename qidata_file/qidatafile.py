@@ -30,7 +30,7 @@ class QiDataFile:
         """
 
         self.xmp_file = XMPFile(file_path, rw=(mode=="w"))
-        self.__annotations = None
+        self._annotations = None
         self.is_closed = True
         self.open()
 
@@ -73,25 +73,41 @@ class QiDataFile:
         """
         Return metadata content in the form of a dict containing QiDataObjects or built-in types.
         """
-        if self.__annotations is None:
-            self.__annotations = dict()
-            with self.xmp_file as tmp:
+        from collections import OrderedDict
+        if self._annotations is None:
+            self._annotations = OrderedDict()
+
+        if self.metadata.children:
+            data = self.metadata.value
+            self._removePrefix(data)
+            for annotatorID in data.keys():
+                self._annotations[annotatorID] = dict()
                 for annotationClassName in DataObjectTypes:
-                    self.__annotations[annotationClassName] = []
+                    self._annotations[annotatorID][annotationClassName] = []
                     try:
-                        for annotation in self.metadata[annotationClassName]:
-                            obj = makeDataObject(annotationClassName, annotation.info.value)
-                            loc = annotation.location.value
-                            self.__unicodeListToFloatList(loc)
-                            self.__annotations[annotationClassName].append([obj, loc])
+                        for annotation in data[annotatorID][annotationClassName]:
+                            obj = makeDataObject(annotationClassName, annotation["info"])
+                            loc = annotation["location"]
+                            self._unicodeListToBuiltInList(loc)
+                            self._annotations[annotatorID][annotationClassName].append([obj, loc])
 
                     except KeyError, e:
                         # annotationClassName does not exist in file => it's ok
                         pass
 
-        return self.__annotations
+        return self._annotations
+
 
     @property
+    def annotators(self):
+        """
+        Return the list of annotators for this file
+        """
+        out = []
+        if self.metadata.children:
+            for qualifiedAnnotatorID in self.metadata.children.keys():
+                out.append(qualifiedAnnotatorID.split(":")[1])
+        return out
 
     # ──────────
     # Public API
@@ -112,18 +128,20 @@ class QiDataFile:
         self.is_closed = True
 
     def save_annotations(self):
-        with self.xmp_file as tmp:
-            for (annotationClassName, annotations) in self.__annotations.iteritems():
-                self.metadata[annotationClassName] = []
-                for annotation in annotations:
-                    tmp_dict = dict(info=annotation[0].toDict(), location=annotation[1])
-                    tmp_dict["info"]["version"] = annotation[0].version
-                    self.metadata.__getattr__(annotationClassName).append(tmp_dict)
+        with self.xmp_file as _:
+            for (annotation_maker, annotations) in self._annotations.iteritems():
+                for (annotationClassName, typed_annotations) in annotations.iteritems():
+                    self.metadata[annotation_maker] = dict()
+                    self.metadata[annotation_maker][annotationClassName] = []
+                    for annotation in typed_annotations:
+                        tmp_dict = dict(info=annotation[0].toDict(), location=annotation[1])
+                        tmp_dict["info"]["version"] = annotation[0].version
+                        self.metadata[annotation_maker].__getattr__(annotationClassName).append(tmp_dict)
 
     # ───────────
     # Private API
 
-    def __unicodeListToBuiltInList(self, list_to_convert):
+    def _unicodeListToBuiltInList(self, list_to_convert):
         """
         Convert a list containing unicode values into a list of built-in types
 
@@ -131,22 +149,22 @@ class QiDataFile:
 
         :Example:
 
-        >>> __unicodeListToBuiltInList(["1"])
+        >>> _unicodeListToBuiltInList(["1"])
         [1]
-        >>> __unicodeListToBuiltInList(["1.0", "1"])
+        >>> _unicodeListToBuiltInList(["1.0", "1"])
         [1.0, 1]
-        >>> __unicodeListToBuiltInList(["a",["1","2.0"]])
+        >>> _unicodeListToBuiltInList(["a",["1","2.0"]])
         ["a", [1, 2.0]]
         """
         if type(list_to_convert) != list:
-            raise TypeError("__unicodeListToBuiltInList can only hande lists")
+            raise TypeError("_unicodeListToBuiltInList can only hande lists")
         for i in range(0,len(list_to_convert)):
             if type(list_to_convert[i]) == list:
-                self.__unicodeListToBuiltInList(list_to_convert[i])
+                self._unicodeListToBuiltInList(list_to_convert[i])
             elif type(list_to_convert[i]) in [unicode, str]:
-                list_to_convert[i] = __unicodeToBuiltInType(list_to_convert[i])
+                list_to_convert[i] = self._unicodeToBuiltInType(list_to_convert[i])
 
-    def __unicodeToBuiltInType(self, input_to_convert):
+    def _unicodeToBuiltInType(self, input_to_convert):
         """
         Convert a string into a string, a float or an int depending on the string
 
@@ -154,11 +172,11 @@ class QiDataFile:
 
         :Example:
 
-        >>> __unicodeToBuiltInType("1")
+        >>> _unicodeToBuiltInType("1")
         1
-        >>> __unicodeToBuiltInType("1.0")
+        >>> _unicodeToBuiltInType("1.0")
         1.0
-        >>> __unicodeToBuiltInType("a")
+        >>> _unicodeToBuiltInType("a")
         'a'
         """
         if type(input_to_convert) not in [str, unicode]:
@@ -180,6 +198,16 @@ class QiDataFile:
         # Input could not be converted so it's probably a string, return it as is.
         return input_to_convert
 
+    def _removePrefix(self, data):
+        from collections import OrderedDict
+        if isinstance(data, OrderedDict):
+            keys = data.keys()
+            for key in data.keys():
+                self._removePrefix(data[key])
+                data[key.split(":")[-1]] = data.pop(key)
+        elif isinstance(data, list):
+            for element in data:
+                self._removePrefix(element)
 
 
     # ───────────────
