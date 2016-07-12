@@ -6,6 +6,7 @@ import os.path
 # Qidata
 from ..qidatafile import QiDataFile
 from ..conversion import qidataFileConversionToCurrentVersion
+from ..version import identifyFileAnnotationVersion
 
 class QiDataFilesCommand:
 
@@ -24,6 +25,12 @@ class QiDataFilesCommand:
 		for file in args.file:
 			throwIfAbsent(file)
 			qidataFileConversionToCurrentVersion(file, vars(args))
+
+	@staticmethod
+	def version(args):
+		for file in args.file:
+			throwIfAbsent(file)
+			print "%s: %s"%(file, identifyFileAnnotationVersion(file))
 
 # ───────
 # Helpers

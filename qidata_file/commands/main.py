@@ -42,6 +42,17 @@ def make_command_parser(parent_parser=argparse.ArgumentParser(description=DESCRI
     if has_argcomplete: file_argument.completer = argcomplete.completers.FilesCompleter()
     convert_parser.set_defaults(func=QiDataFilesCommand.convert)
 
+    # ───────────────────
+    # version sub-command
+
+    version_parser = subparsers.add_parser("version",
+                            description="Identify Qidata file version",
+                            help="Identify Qidata file version")
+    file_argument = version_parser.add_argument("file", nargs="+", help="what to examine")
+
+    if has_argcomplete: file_argument.completer = argcomplete.completers.FilesCompleter()
+    version_parser.set_defaults(func=QiDataFilesCommand.version)
+
     return parent_parser
 
 main_parser = make_command_parser()
