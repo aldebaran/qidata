@@ -21,8 +21,9 @@ class QiDataFilesCommand:
 
 	@staticmethod
 	def convert(args):
-		throwIfAbsent(args.file)
-		qidataFileConversionToCurrentVersion(args.file, vars(args))
+		for file in args.file:
+			throwIfAbsent(file)
+			qidataFileConversionToCurrentVersion(file, vars(args))
 
 # ───────
 # Helpers

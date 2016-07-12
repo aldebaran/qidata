@@ -35,7 +35,7 @@ def make_command_parser(parent_parser=argparse.ArgumentParser(description=DESCRI
     convert_parser = subparsers.add_parser("convert",
                             description="Updates Qidata files metadata to fit the newest convention",
                             help="Updates Qidata files metadata to fit the newest convention")
-    file_argument = convert_parser.add_argument("file", help="what to examine")
+    file_argument = convert_parser.add_argument("file", nargs="+", help="what to examine")
     annotator_argument = convert_parser.add_argument("--annotator",
                             help="user who annotated this file (mandatory for V1 files)")
 
