@@ -13,7 +13,7 @@ def open(file_path, mode="r"):
     """
     return QiDataFile(file_path, mode)
 
-class QiDataFile:
+class QiDataFile(object):
 
     # ───────────
     # Constructor

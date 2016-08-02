@@ -4,7 +4,6 @@
 import unittest
 # Qidata
 from qidata_file import qidatafile
-import xmp
 from . import fixtures
 
 class File(unittest.TestCase):
