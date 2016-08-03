@@ -80,3 +80,15 @@ class MetadataWriting(unittest.TestCase):
 		assert(person.id == 1)
 		assert(person.name == "name")
 		assert(location == [[1.0, 2.0],[20.0, 25.0]])
+
+	def test_deletion(self):
+		annotations = self.jpg_data_item.annotations
+		for annotator in annotations.keys():
+			annotations.pop(annotator)
+		self.jpg_data_item.save()
+		self.jpg_data_item.close()
+		self.jpg_data_item = qidatafile.open(self.jpg_data_path)
+
+		annotations = self.jpg_data_item.annotations
+		assert(not annotations.has_key("sambrose"))
+

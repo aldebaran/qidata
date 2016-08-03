@@ -131,6 +131,8 @@ class QiDataFile(object):
 
     def save(self):
         with self.xmp_file as _:
+            for key in self.xmp_file.metadata[QIDATA_NS].children:
+                self.xmp_file.metadata[QIDATA_NS].pop(key)
             for (annotation_maker, annotations) in self._annotations.iteritems():
                 for (annotationClassName, typed_annotations) in annotations.iteritems():
                     self.metadata[annotation_maker] = dict()
