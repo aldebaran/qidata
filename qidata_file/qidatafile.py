@@ -75,28 +75,6 @@ class QiDataFile(object):
         """
         Return metadata content in the form of a dict containing QiDataObjects or built-in types.
         """
-        from collections import OrderedDict
-        if self._annotations is None:
-            self._annotations = OrderedDict()
-
-        if self.metadata.children:
-            data = self.metadata.value
-            self._removePrefix(data)
-            for annotatorID in data.keys():
-                self._annotations[annotatorID] = dict()
-                for annotationClassName in DataObjectTypes:
-                    self._annotations[annotatorID][annotationClassName] = []
-                    try:
-                        for annotation in data[annotatorID][annotationClassName]:
-                            obj = makeDataObject(annotationClassName, annotation["info"])
-                            loc = annotation["location"]
-                            self._unicodeListToBuiltInList(loc)
-                            self._annotations[annotatorID][annotationClassName].append([obj, loc])
-
-                    except KeyError, e:
-                        # annotationClassName does not exist in file => it's ok
-                        pass
-
         return self._annotations
 
 
@@ -120,6 +98,7 @@ class QiDataFile(object):
         """
         self.xmp_file.__enter__()
         self.is_closed = False
+        self.load()
         return self
 
     def close(self):
@@ -141,6 +120,30 @@ class QiDataFile(object):
                         tmp_dict = dict(info=annotation[0].toDict(), location=annotation[1])
                         tmp_dict["info"]["version"] = annotation[0].version
                         self.metadata[annotation_maker].__getattr__(annotationClassName).append(tmp_dict)
+
+    def load(self):
+        """
+        Load metadata from XMPFile into local `annotations` property
+        """
+        from collections import OrderedDict
+        self._annotations = OrderedDict()
+        if self.metadata.children:
+            data = self.metadata.value
+            self._removePrefix(data)
+            for annotatorID in data.keys():
+                self._annotations[annotatorID] = dict()
+                for annotationClassName in DataObjectTypes:
+                    self._annotations[annotatorID][annotationClassName] = []
+                    try:
+                        for annotation in data[annotatorID][annotationClassName]:
+                            obj = makeDataObject(annotationClassName, annotation["info"])
+                            loc = annotation["location"]
+                            self._unicodeListToBuiltInList(loc)
+                            self._annotations[annotatorID][annotationClassName].append([obj, loc])
+
+                    except KeyError, e:
+                        # annotationClassName does not exist in file => it's ok
+                        pass
 
     # ───────────
     # Private API

@@ -92,3 +92,13 @@ class MetadataWriting(unittest.TestCase):
 		annotations = self.jpg_data_item.annotations
 		assert(not annotations.has_key("sambrose"))
 
+	def test_reload(self):
+		from qidata_objects import Person
+		annotations = self.jpg_data_item.annotations
+		test_person = [Person("name", 1), [[1.0, 2.0],[20.0, 25.0]]]
+		annotations["jdoe"]=dict()
+		annotations["jdoe"]["Person"]=[test_person]
+		assert(self.jpg_data_item.annotations.has_key("jdoe"))
+		self.jpg_data_item.load()
+		assert(not self.jpg_data_item.annotations.has_key("jdoe"))
+

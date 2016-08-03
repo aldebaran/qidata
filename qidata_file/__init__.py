@@ -105,6 +105,21 @@
     >>> myFile.close()
 
 
+    In case you are not happy with your changes and they have not been saved
+    yet, it is always possible to cancel them by reloading the file.
+
+    :Example:
+    >>> from qidata_file import qidatafile
+    >>> from qidata_objects import Person
+    >>> myFile = qidatafile.open("path/to/file", "w")
+    >>> annotations = myFile.annotations
+    >>> annotations["key_that_did_not_exist_before"]=0
+    >>> myFile.load()
+    >>> annotations = myFile.annotations
+    >>> annotations.has_key("key_that_did_not_exist_before")
+    False
+
+
     Upgrading a QiDataFile
     ----------------------
 
