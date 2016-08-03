@@ -109,6 +109,9 @@ class QiDataFile(object):
         self.is_closed = True
 
     def save(self):
+        """
+        Save changes made to annotations
+        """
         with self.xmp_file as _:
             for key in self.xmp_file.metadata[QIDATA_NS].children:
                 self.xmp_file.metadata[QIDATA_NS].pop(key)
@@ -206,6 +209,11 @@ class QiDataFile(object):
         return input_to_convert
 
     def _removePrefix(self, data):
+        """
+        Removes prefix parts of keys imported from XMP files.
+
+        This function is recursive
+        """
         from collections import OrderedDict
         if isinstance(data, OrderedDict):
             keys = data.keys()

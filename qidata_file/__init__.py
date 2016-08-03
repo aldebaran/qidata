@@ -155,12 +155,20 @@ LOOKUP_ITEM_MODEL = {
 }
 
 def isSupported(dataPath):
+    """
+    Return True if file extension can be opened as QiDataFile
+    """
     for pattern in LOOKUP_ITEM_MODEL:
         if pattern.match(dataPath):
             return True
     return False
 
 def openQiDataFile(path):
+    """
+    Create, open and return a proper QiDataFile depending on file type
+
+    This is a workaround and will be removed as soon as possible.
+    """
     for pattern in LOOKUP_ITEM_MODEL:
         if pattern.match(path):
             return LOOKUP_ITEM_MODEL[pattern](path)
