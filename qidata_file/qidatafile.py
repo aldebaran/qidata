@@ -112,17 +112,16 @@ class QiDataFile(object):
         """
         Save changes made to annotations
         """
-        with self.xmp_file as _:
-            for key in self.xmp_file.metadata[QIDATA_NS].children:
-                self.xmp_file.metadata[QIDATA_NS].pop(key)
-            for (annotation_maker, annotations) in self._annotations.iteritems():
-                for (annotationClassName, typed_annotations) in annotations.iteritems():
-                    self.metadata[annotation_maker] = dict()
-                    self.metadata[annotation_maker][annotationClassName] = []
-                    for annotation in typed_annotations:
-                        tmp_dict = dict(info=annotation[0].toDict(), location=annotation[1])
-                        tmp_dict["info"]["version"] = annotation[0].version
-                        self.metadata[annotation_maker].__getattr__(annotationClassName).append(tmp_dict)
+        for key in self.xmp_file.metadata[QIDATA_NS].children:
+            self.xmp_file.metadata[QIDATA_NS].pop(key)
+        for (annotation_maker, annotations) in self._annotations.iteritems():
+            for (annotationClassName, typed_annotations) in annotations.iteritems():
+                self.metadata[annotation_maker] = dict()
+                self.metadata[annotation_maker][annotationClassName] = []
+                for annotation in typed_annotations:
+                    tmp_dict = dict(info=annotation[0].toDict(), location=annotation[1])
+                    tmp_dict["info"]["version"] = annotation[0].version
+                    self.metadata[annotation_maker].__getattr__(annotationClassName).append(tmp_dict)
 
     def load(self):
         """
