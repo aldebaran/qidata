@@ -129,7 +129,7 @@ class QiDataFile(object):
         self.xmp_file.__exit__(None, None, None)
         self.is_closed = True
 
-    def save_annotations(self):
+    def save(self):
         with self.xmp_file as _:
             for (annotation_maker, annotations) in self._annotations.iteritems():
                 for (annotationClassName, typed_annotations) in annotations.iteritems():

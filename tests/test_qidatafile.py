@@ -48,7 +48,7 @@ class MetadataReading(unittest.TestCase):
 		test_person = [Person("name", 1), [[1.0, 2.0],[20.0, 25.0]]]
 		annotations["jdoe"]=dict()
 		annotations["jdoe"]["Person"]=[test_person]
-		self.jpg_data_item.save_annotations()
+		self.jpg_data_item.save()
 		self.jpg_data_item.close()
 		self.jpg_data_item = qidatafile.open(self.jpg_data_path)
 
@@ -66,7 +66,7 @@ class MetadataWriting(unittest.TestCase):
 		test_person = [Person("name", 1), [[1.0, 2.0],[20.0, 25.0]]]
 		annotations["jdoe"]=dict()
 		annotations["jdoe"]["Person"]=[test_person]
-		self.jpg_data_item.save_annotations()
+		self.jpg_data_item.save()
 		self.jpg_data_item.close()
 		self.jpg_data_item = qidatafile.open(self.jpg_data_path)
 

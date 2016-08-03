@@ -101,7 +101,7 @@
     ... else:
     ...     annotations["jdoe"]["Person"] = [(myObject, [0,0])]
     ... 
-    >>> myFile.save_annotations()
+    >>> myFile.save()
     >>> myFile.close()
 
 
