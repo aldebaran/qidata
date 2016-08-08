@@ -3,8 +3,8 @@
 # Standard Library
 import unittest
 # Qidata
-from qidata_file import qidatafile
-from . import fixtures
+from qidata.files import qidatafile
+import fixtures
 
 class File(unittest.TestCase):
 	def setUp(self):

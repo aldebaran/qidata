@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
-    ``QiDataFile`` module
-    =====================
+    ``qidata.files`` module
+    =======================
 
     This module wraps xmp package and uses it to store QiDataObjects in a file
     metadata.
@@ -14,13 +14,13 @@
 
     :Example:
 
-    >>> from qidata_file import qidatafile
+    >>> from qidata.files import qidatafile
     >>> myFile = qidatafile.open("path/to/file")
 
 
     Metadata is then accessible through two different properties, `metadata` and
     `annotations`. `metadata` gives access to the raw data. `annotations`
-    transforms the metadata into QiDataObjects instances before returning it.
+    transforms the metadata into QiData's MetadataObjects instances before returning it.
 
     :Example:
 
@@ -30,7 +30,7 @@
     OrderedDict([(u'qidata:sambrose', <xmp.xmp.XMPStructure object at\
      0x7fb8df4a1390>)])
     >>> myFile.annotations
-    OrderedDict([(u'sambrose', {'Person': [[<qidata_objects.person.Person\
+    OrderedDict([(u'sambrose', {'Person': [[<qidata.metadata_objects.person.Person\
      object at 0x7fb8df4a1d90>, [[4.0, 25.0], [154.0, 235.0]]]], 'Face': []})])
 
 
@@ -49,7 +49,7 @@
 
     >>> myFile = qidatafile.open("path/to/file")
     >>> myFile.annotations
-    OrderedDict([(u'sambrose', {'Person': [[<qidata_objects.person.Person\
+    OrderedDict([(u'sambrose', {'Person': [[<qidata.metadata_objects.person.Person\
      object at 0x7fb8df4a1d90>, [[4.0, 25.0], [154.0, 235.0]]]], 'Face': []})])
     >>> myFile.close()
     >>> myFile.closed
@@ -58,7 +58,7 @@
     >>> with qidatafile.open("path/to/file") as myFile:
     ...     myFile.annotations
     ...
-    OrderedDict([(u'sambrose', {'Person': [[<qidata_objects.person.Person\
+    OrderedDict([(u'sambrose', {'Person': [[<qidata.metadata_objects.person.Person\
      object at 0x7fb8df4a1d90>, [[4.0, 25.0], [154.0, 235.0]]]], 'Face': []})])
 
     >>> myFile.closed
@@ -70,7 +70,7 @@
 
     To update, you must open the file in rw mode. Retrieve the annotations
     property and modify it the way you want. Then call `save_annotations` to
-    convert QiDataObjects into XMP objects and close the file.
+    convert QiData's MetadataObjects into XMP objects and close the file.
 
     ..note::
 
@@ -78,19 +78,19 @@
 
 
     The only restrictions are:
-    * annotations is a dict with keys representing contained QiDataObject type
+    * annotations is a dict with keys representing contained MetadataObject types
     * Values of this dict must be 2-uple.
-    * First element of it is the QiDataObject
-    * Second element of if is a list describing QiDataObject's location (which
+    * First element of it is the MetadataObject
+    * Second element of it is a list describing MetadataObject's location (which
         is dependent on file type)
 
     Failure to respect those guidelines might lead to unability to write the
-    annotations, or unability to read it properly afterwards.
+    annotations, or unability to read them properly afterwards.
 
     :Example:
 
-    >>> from qidata_file import qidatafile
-    >>> from qidata_objects import Person
+    >>> from qidata.files import qidatafile
+    >>> from qidata.metadata_objects import Person
     >>> myFile = qidatafile.open("path/to/file", "w")
     >>> annotations = myFile.annotations
     >>> myObject = Person()
@@ -109,8 +109,8 @@
     yet, it is always possible to cancel them by reloading the file.
 
     :Example:
-    >>> from qidata_file import qidatafile
-    >>> from qidata_objects import Person
+    >>> from qidata.files import qidatafile
+    >>> from qidata.metadata_objects import Person
     >>> myFile = qidatafile.open("path/to/file", "w")
     >>> annotations = myFile.annotations
     >>> annotations["key_that_did_not_exist_before"]=0
@@ -130,7 +130,7 @@
 
     :Example:
 
-    >>> from qidata_file.conversion import qidataFileConversionToCurrentVersion
+    >>> from qidata.files.conversion import qidataFileConversionToCurrentVersion
     >>> qidataFileConversionToCurrentVersion("file/to/convert/path")
 
     Depending on your file version, some extra arguments might be needed. See
@@ -184,12 +184,6 @@ def isDataset(path):
 
 def isMetadataFile(path):
     return  os.path.isfile(path) and os.path.basename(path) == METADATA_FILENAME
-
-# ––––––––––––––––––––––––––––
-# Convenience version variable
-
-import os
-VERSION = open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "VERSION")).read().split()[0]
 
 # ––––––––––––––––––––
 # Hook for qiq plugins
