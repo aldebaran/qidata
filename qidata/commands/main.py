@@ -15,22 +15,10 @@ except:
 	pass
 
 try:
-	from qidata_file.commands import main as QiDataFileMain
-	SUBCOMMANDS.append([QiDataFileMain, "file"])
-except:
-	pass
-
-try:
-	from qidata_objects.commands import main as ObjectsMain
-	SUBCOMMANDS.append([ObjectsMain, "objects"])
-except:
-	pass
-
-try:
-	from xmp.commands import main as XmpMain
-	SUBCOMMANDS.append([XmpMain, "xmp"])
-except:
-	pass
+	import file_commands
+	SUBCOMMANDS.append([file_commands, "file"])
+except Exception, e:
+	print e
 
 def parser():
 	parser = argparse.ArgumentParser(description=DESCRIPTION)
