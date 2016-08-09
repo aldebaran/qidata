@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from xmp.xmp import XMPFile, registerNamespace
-from qidata_objects import makeDataObject, DataObjectTypes
+from qidata.metadata_objects import makeMetadataObject, DataObjectTypes
 
 from version import identifyFileAnnotationVersion
 

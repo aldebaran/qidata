@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from xmp.xmp import XMPFile, registerNamespace
-from qidata_objects import makeDataObject, DataObjectTypes
+from qidata.metadata_objects import makeMetadataObject, DataObjectTypes
 
 QIDATA_NS=u"http://softbank-robotics.com/qidata/1"
 registerNamespace(QIDATA_NS, "qidata")
@@ -138,7 +138,7 @@ class QiDataFile(object):
                     self._annotations[annotatorID][annotationClassName] = []
                     try:
                         for annotation in data[annotatorID][annotationClassName]:
-                            obj = makeDataObject(annotationClassName, annotation["info"])
+                            obj = makeMetadataObject(annotationClassName, annotation["info"])
                             loc = annotation["location"]
                             self._unicodeListToBuiltInList(loc)
                             self._annotations[annotatorID][annotationClassName].append([obj, loc])

@@ -142,16 +142,16 @@
      dict(annotator="jdoe")) # Call to transform a file from version 1.
 """
 
-from image import Image
 import os.path
 import re
+import qidatafile
 
 # ──────────
 # Data Items
 
 LOOKUP_ITEM_MODEL = {
-    re.compile(".*\.png"): Image,
-    re.compile(".*\.jpg"): Image
+    re.compile(".*\.png"): qidatafile.QiDataFile,
+    re.compile(".*\.jpg"): qidatafile.QiDataFile
 }
 
 def isSupported(dataPath):

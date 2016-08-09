@@ -14,7 +14,7 @@ def identifyFileAnnotationVersion(file_path):
     @return    : Version number or None if file is not annotated
     """
     version = None
-    from qidata_objects import DataObjectTypes
+    from qidata.metadata_objects import DataObjectTypes
     from xmp.xmp import XMPFile
 
     # Open file through XMP

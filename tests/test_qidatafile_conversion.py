@@ -8,7 +8,7 @@ from qidata.files.version import identifyFileAnnotationVersion
 from qidata.files.conversion import *
 import xmp
 import fixtures
-from qidata_objects import Person
+from qidata.metadata_objects import Person
 
 class FileConversion(unittest.TestCase):
 	def setUp(self):

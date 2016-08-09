@@ -43,7 +43,7 @@ class MetadataReading(unittest.TestCase):
 		assert(annotators == ["sambrose"])
 
 	def test_modification_readonly(self):
-		from qidata_objects import Person
+		from qidata.metadata_objects import Person
 		annotations = self.jpg_data_item.annotations
 		test_person = [Person("name", 1), [[1.0, 2.0],[20.0, 25.0]]]
 		annotations["jdoe"]=dict()
@@ -61,7 +61,7 @@ class MetadataWriting(unittest.TestCase):
 		self.jpg_metadata = self.jpg_data_item.metadata
 
 	def test_modification(self):
-		from qidata_objects import Person
+		from qidata.metadata_objects import Person
 		annotations = self.jpg_data_item.annotations
 		test_person = [Person("name", 1), [[1.0, 2.0],[20.0, 25.0]]]
 		annotations["jdoe"]=dict()
@@ -93,7 +93,7 @@ class MetadataWriting(unittest.TestCase):
 		assert(not annotations.has_key("sambrose"))
 
 	def test_reload(self):
-		from qidata_objects import Person
+		from qidata.metadata_objects import Person
 		annotations = self.jpg_data_item.annotations
 		test_person = [Person("name", 1), [[1.0, 2.0],[20.0, 25.0]]]
 		annotations["jdoe"]=dict()
