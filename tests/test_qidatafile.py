@@ -102,3 +102,35 @@ class MetadataWriting(unittest.TestCase):
 		self.jpg_data_item.load()
 		assert(not self.jpg_data_item.annotations.has_key("jdoe"))
 
+class MetadataTestCases(unittest.TestCase):
+	def setUp(self):
+		self.jpg_data_path = fixtures.sandboxed(fixtures.QIDATA_TEST_FILE)
+		self.jpg_data_item = qidatafile.open(self.jpg_data_path, "w")
+		self.jpg_metadata = self.jpg_data_item.metadata
+
+	def test_general_annotation(self):
+		"""
+		This test checks if it is possible to add an annotation without
+		specific location (annotation to the whole file)
+		"""
+		from qidata_objects import Person
+		annotations = self.jpg_data_item.annotations
+		test_person = [Person("name", 1), None]
+		annotations["jdoe"]=dict()
+		annotations["jdoe"]["Person"]=[test_person]
+		print self.jpg_data_item.annotations
+		self.jpg_data_item.save()
+		self.jpg_data_item.close()
+		self.jpg_data_item = qidatafile.open(self.jpg_data_path)
+
+		annotations = self.jpg_data_item.annotations
+		assert(annotations.has_key("jdoe"))
+		assert(annotations["jdoe"].has_key("Person"))
+		print self.jpg_data_item.metadata
+		assert(len(annotations["jdoe"]["Person"][0])==2)
+		assert(isinstance(annotations["jdoe"]["Person"][0][0], Person))
+		person = annotations["jdoe"]["Person"][0][0]
+		location = annotations["jdoe"]["Person"][0][1]
+		assert(person.id == 1)
+		assert(person.name == "name")
+		assert(location == None)

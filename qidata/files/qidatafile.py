@@ -119,7 +119,9 @@ class QiDataFile(object):
                 self.metadata[annotation_maker] = dict()
                 self.metadata[annotation_maker][annotationClassName] = []
                 for annotation in typed_annotations:
-                    tmp_dict = dict(info=annotation[0].toDict(), location=annotation[1])
+                    tmp_dict = dict(info=annotation[0].toDict())
+                    if annotation[1] is not None:
+                        tmp_dict["location"]=annotation[1]
                     tmp_dict["info"]["version"] = annotation[0].version
                     self.metadata[annotation_maker].__getattr__(annotationClassName).append(tmp_dict)
 
@@ -139,9 +141,12 @@ class QiDataFile(object):
                     try:
                         for annotation in data[annotatorID][annotationClassName]:
                             obj = makeMetadataObject(annotationClassName, annotation["info"])
-                            loc = annotation["location"]
-                            self._unicodeListToBuiltInList(loc)
-                            self._annotations[annotatorID][annotationClassName].append([obj, loc])
+                            if annotation.has_key("location"):
+                                loc = annotation["location"]
+                                self._unicodeListToBuiltInList(loc)
+                                self._annotations[annotatorID][annotationClassName].append([obj, loc])
+                            else:
+                                self._annotations[annotatorID][annotationClassName].append([obj, None])
 
                     except KeyError, e:
                         # annotationClassName does not exist in file => it's ok

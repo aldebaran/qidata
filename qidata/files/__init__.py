@@ -82,7 +82,8 @@
     * Values of this dict must be 2-uple.
     * First element of it is the MetadataObject
     * Second element of it is a list describing MetadataObject's location (which
-    is dependent on file type)
+    is dependent on file type). It can also be None if the annotation does not
+    concern a specific area.
 
     Failure to respect those guidelines might lead to unability to write the
     annotations, or unability to read them properly afterwards.
