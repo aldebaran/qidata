@@ -14,8 +14,8 @@ def makeMetadataObject(metadata_object_name, data = None):
     This is the prefered way to create MetadataObjects. Objects that
     can be created by this method are the ones in `qidata.types.metadataTypes`
 
-    @metadata_object_name : requested object to build's name (str)
-    @data           : data to prefill to created object (dict)
+    :param metadata_object_name: requested object to build's name (str)
+    :param data: data to prefill to created object (dict)
     """
     if metadata_object_name == "Person":
         return Person() if data is None else Person.fromDict(data)
@@ -28,7 +28,7 @@ def printHelp(metadata_object_name):
     """
     Print some help on the requested QiDataObject
 
-    @metadata_object_name : object name on which help is requested
+    :param metadata_object_name: object name on which help is requested
     """
     if metadata_object_name == "Person":
         help(Person)

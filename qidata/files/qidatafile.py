@@ -24,8 +24,8 @@ class QiDataFile(object):
         QiDataFile wraps the xmp library specifically to store QiDataObjects under the
         QiData namespace.
 
-        @file_path : path to the file to open (str)
-        @mode      : opening mode, "r" for reading, "w" for writing (str)
+        :param file_path: path to the file to open (str)
+        :param mode: opening mode, "r" for reading, "w" for writing (str)
 
         .. warnings:: The mode behavior is different from the regular Python file mode.
                       The file is NEVER created if it does not exist
@@ -73,7 +73,7 @@ class QiDataFile(object):
     @property
     def annotations(self):
         """
-        Return metadata content in the form of a dict containing QiDataObjects or built-in types.
+        Return metadata content in the form of a dict containing MetadataObjects or built-in types.
         """
         return self._annotations
 
@@ -154,7 +154,7 @@ class QiDataFile(object):
         """
         Convert a list containing unicode values into a list of built-in types
 
-        @list_to_convert : list of unicode elements to convert (can be nested)
+        :param list_to_convert: list of unicode elements to convert (can be nested)
 
         :Example:
 
@@ -177,7 +177,7 @@ class QiDataFile(object):
         """
         Convert a string into a string, a float or an int depending on the string
 
-        @input_to_convert : unicode or string element to convert
+        :param input_to_convert: unicode or string element to convert
 
         :Example:
 

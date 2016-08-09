@@ -4,7 +4,7 @@
     ``qidata.files`` module
     =======================
 
-    This module wraps xmp package and uses it to store QiDataObjects in a file
+    This module wraps xmp package and uses it to store MetadataObjects in a file
     metadata.
 
     Reading a QiDataFile
@@ -28,10 +28,10 @@
     <xmp.xmp.XMPNamespace object at 0x7fb8df4a1310>
     >>> myFile.metadata.children
     OrderedDict([(u'qidata:sambrose', <xmp.xmp.XMPStructure object at\
-     0x7fb8df4a1390>)])
+ 0x7fb8df4a1390>)])
     >>> myFile.annotations
     OrderedDict([(u'sambrose', {'Person': [[<qidata.metadata_objects.person.Person\
-     object at 0x7fb8df4a1d90>, [[4.0, 25.0], [154.0, 235.0]]]], 'Face': []})])
+ object at 0x7fb8df4a1d90>, [[4.0, 25.0], [154.0, 235.0]]]], 'Face': []})])
 
 
     It is also possible to get the list of annotators
@@ -50,7 +50,7 @@
     >>> myFile = qidatafile.open("path/to/file")
     >>> myFile.annotations
     OrderedDict([(u'sambrose', {'Person': [[<qidata.metadata_objects.person.Person\
-     object at 0x7fb8df4a1d90>, [[4.0, 25.0], [154.0, 235.0]]]], 'Face': []})])
+ object at 0x7fb8df4a1d90>, [[4.0, 25.0], [154.0, 235.0]]]], 'Face': []})])
     >>> myFile.close()
     >>> myFile.closed
     True
@@ -59,7 +59,7 @@
     ...     myFile.annotations
     ...
     OrderedDict([(u'sambrose', {'Person': [[<qidata.metadata_objects.person.Person\
-     object at 0x7fb8df4a1d90>, [[4.0, 25.0], [154.0, 235.0]]]], 'Face': []})])
+ object at 0x7fb8df4a1d90>, [[4.0, 25.0], [154.0, 235.0]]]], 'Face': []})])
 
     >>> myFile.closed
     True
@@ -74,7 +74,7 @@
 
     ..note::
 
-    All your changes are written only when the file is closed.
+        All your changes are written only when the file is closed.
 
 
     The only restrictions are:
@@ -82,7 +82,7 @@
     * Values of this dict must be 2-uple.
     * First element of it is the MetadataObject
     * Second element of it is a list describing MetadataObject's location (which
-        is dependent on file type)
+    is dependent on file type)
 
     Failure to respect those guidelines might lead to unability to write the
     annotations, or unability to read them properly afterwards.
@@ -100,7 +100,7 @@
     ...     annotations["jdoe"]["Person"].append((myObject, [0,0]))
     ... else:
     ...     annotations["jdoe"]["Person"] = [(myObject, [0,0])]
-    ... 
+    ...
     >>> myFile.save()
     >>> myFile.close()
 
@@ -109,6 +109,7 @@
     yet, it is always possible to cancel them by reloading the file.
 
     :Example:
+
     >>> from qidata.files import qidatafile
     >>> from qidata.metadata_objects import Person
     >>> myFile = qidatafile.open("path/to/file", "w")
@@ -139,7 +140,7 @@
     :Example:
 
     >>> qidataFileConversionToCurrentVersion("file/to/convert/path",\
-     dict(annotator="jdoe")) # Call to transform a file from version 1.
+ dict(annotator="jdoe")) # Call to transform a file from version 1.
 """
 
 import os.path

@@ -26,8 +26,8 @@ def qidataFileConversionFromV1ToV2(file_path, annotator_id):
     """
     Convert QiDataFile from V1 to V2
 
-    @file_path    : path to the file to convert
-    @annotator_id : name of annotator (mandatory from V2) (str)
+    :param file_path: path to the file to convert
+    :param annotator_id: name of annotator (mandatory from V2) (str)
     """
     if type(annotator_id) is not str:
         raise TypeError("annotator_id must be a string")
@@ -54,7 +54,7 @@ def qidataFileConversionFromV2ToV3(file_path):
     """
     Convert QiDataFile from V2 to V3
 
-    @file_path    : path to the file to convert
+    :param file_path: path to the file to convert
     """
     with XMPFile(file_path, rw=True) as file:
         old_metadata = file.metadata[QIDATA_NS["V2"]]
@@ -70,11 +70,13 @@ def qidataFileConversionToCurrentVersion(file_path, args=dict()):
     """
     Convert QiDataFile to the latest version
 
-    @file_path    : path to the file to convert
-    @args         : dict of all requested arguments
+    :param file_path: path to the file to convert
+    :param args: dict of all requested arguments
 
-    Requested arguments are:
-     - "annotator"      if converting from V1
+    .. note::
+        Requested arguments are:
+
+        - "annotator"      if converting from V1
     """
     version = identifyFileAnnotationVersion(file_path)
     if version is None:

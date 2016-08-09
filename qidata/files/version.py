@@ -10,8 +10,8 @@ def identifyFileAnnotationVersion(file_path):
     """
     Identify the annotated file version by looking its inner structure
 
-    @file_path : File to analyze
-    @return    : Version number or None if file is not annotated
+    :param file_path: File to analyze
+    :return: Version number or None if file is not annotated
     """
     version = None
     from qidata.metadata_objects import DataObjectTypes

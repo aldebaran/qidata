@@ -12,8 +12,8 @@ class TypedList(list):
         """
         Create a TypedList
 
-        @typename  : Type to be accepted in the list (type or class)
-        @args      : List of initialization arguments (can be empty)
+        :param typename: Type to be accepted in the list (type or class)
+        :param args: List of initialization arguments (can be empty)
         """
         self.__typename = typename
         for element in args:
