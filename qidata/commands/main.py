@@ -9,7 +9,7 @@ DESCRIPTION = "Manage data-sets"
 SUBCOMMANDS = []
 
 try:
-	from annotator.commands import main as AnnotationMain
+	from qidata_gui.apps.annotator.commands import main as AnnotationMain
 	SUBCOMMANDS.append([AnnotationMain, "annotate"])
 except:
 	pass
