@@ -10,7 +10,7 @@
     Reading a QiDataFile
     --------------------
 
-    Importing `XMPFile` is enough to fulfill almost all of use cases.
+    Importing `qidatafile` is enough to fulfill almost all of use cases.
 
     :Example:
 
