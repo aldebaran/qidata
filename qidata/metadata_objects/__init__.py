@@ -38,10 +38,5 @@ def printHelp(metadata_object_name):
     else:
         raise TypeError("Required annotation item (%s) does not exist"%metadata_object_name)
 
-# ––––––––––––––––––––––––––––
-# List of available data types
-
-DataObjectTypes = ["Face", "Person"]
-
 
 #––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––#

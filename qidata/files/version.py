@@ -14,7 +14,7 @@ def identifyFileAnnotationVersion(file_path):
     :return: Version number or None if file is not annotated
     """
     version = None
-    from qidata.metadata_objects import DataObjectTypes
+    from qidata.types import MetadataType
     from xmp.xmp import XMPFile
 
     # Open file through XMP
@@ -40,11 +40,12 @@ def identifyFileAnnotationVersion(file_path):
 
                     if(xmp_file.metadata[QIDATA_NS[0]].children):
                         for child in xmp_file.metadata[QIDATA_NS[0]].children.keys():
-                            if child.split(":")[-1] in DataObjectTypes:
-                                # First child level is QiDataObject type, not annotator ID
-                                # => Version 1
-                                version = 1
-                                break
+                            for metadata_type in MetadataType:
+                                if child.split(":")[-1] == str(metadata_type):
+                                    # First child level is QiDataObject type, not annotator ID
+                                    # => Version 1
+                                    version = 1
+                                    break
                     else:
                         # If there is no children, then there is no data
                         # This should usually not happen, but file can be considered as version 2

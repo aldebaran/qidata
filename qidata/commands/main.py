@@ -5,7 +5,7 @@ import argparse
 # qidata
 import qidata.version
 
-DESCRIPTION = "Manage data-sets"
+DESCRIPTION = "Manage metadata information"
 SUBCOMMANDS = []
 
 try:

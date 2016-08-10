@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from xmp.xmp import XMPFile, registerNamespace
-from qidata.metadata_objects import makeMetadataObject, DataObjectTypes
+from qidata.metadata_objects import makeMetadataObject
+from qidata.files import getFileDataType
+from qidata.types import CheckCompatibility
 
 QIDATA_NS=u"http://softbank-robotics.com/qidata/1"
 registerNamespace(QIDATA_NS, "qidata")
@@ -31,6 +33,7 @@ class QiDataFile(object):
                       The file is NEVER created if it does not exist
         """
 
+        self._type = getFileDataType(file_path)
         self.xmp_file = XMPFile(file_path, rw=(mode=="w"))
         self._annotations = None
         self.is_closed = True
@@ -57,6 +60,13 @@ class QiDataFile(object):
         return "w" if self.xmp_file.rw else "r"
 
     @property
+    def type(self):
+        """
+        Specify the type of data in the file (qidata.files.DataType)
+        """
+        return self._type
+
+    @property
     def path(self):
         """
         Give the file path
@@ -76,7 +86,6 @@ class QiDataFile(object):
         Return metadata content in the form of a dict containing MetadataObjects or built-in types.
         """
         return self._annotations
-
 
     @property
     def annotators(self):
@@ -136,20 +145,21 @@ class QiDataFile(object):
             self._removePrefix(data)
             for annotatorID in data.keys():
                 self._annotations[annotatorID] = dict()
-                for annotationClassName in DataObjectTypes:
-                    self._annotations[annotatorID][annotationClassName] = []
+                for metadata_type in CheckCompatibility.getCompatibleMetadataTypes(self.type):
+                    self._annotations[annotatorID][str(metadata_type)] = []
                     try:
-                        for annotation in data[annotatorID][annotationClassName]:
-                            obj = makeMetadataObject(annotationClassName, annotation["info"])
+                        print data[annotatorID]
+                        for annotation in data[annotatorID][str(metadata_type)]:
+                            obj = makeMetadataObject(str(metadata_type), annotation["info"])
                             if annotation.has_key("location"):
                                 loc = annotation["location"]
                                 self._unicodeListToBuiltInList(loc)
-                                self._annotations[annotatorID][annotationClassName].append([obj, loc])
+                                self._annotations[annotatorID][str(metadata_type)].append([obj, loc])
                             else:
-                                self._annotations[annotatorID][annotationClassName].append([obj, None])
+                                self._annotations[annotatorID][str(metadata_type)].append([obj, None])
 
                     except KeyError, e:
-                        # annotationClassName does not exist in file => it's ok
+                        # metadata_type does not exist in file => it's ok
                         pass
 
     # ───────────

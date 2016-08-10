@@ -146,14 +146,14 @@
 
 import os.path
 import re
-import qidatafile
+from qidata import types
 
 # ──────────
 # Data Items
 
 LOOKUP_ITEM_MODEL = {
-    re.compile(".*\.png"): qidatafile.QiDataFile,
-    re.compile(".*\.jpg"): qidatafile.QiDataFile
+    re.compile(".*\.png"): types.DataType.IMAGE,
+    re.compile(".*\.jpg"): types.DataType.IMAGE
 }
 
 def isSupported(dataPath):
@@ -165,15 +165,13 @@ def isSupported(dataPath):
             return True
     return False
 
-def openQiDataFile(path):
+def getFileDataType(path):
     """
-    Create, open and return a proper QiDataFile depending on file type
-
-    This is a workaround and will be removed as soon as possible.
+    Return type of data stored in given file
     """
     for pattern in LOOKUP_ITEM_MODEL:
         if pattern.match(path):
-            return LOOKUP_ITEM_MODEL[pattern](path)
+            return LOOKUP_ITEM_MODEL[pattern]
     raise TypeError("Data type not supported")
 
 # ────────
