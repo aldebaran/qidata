@@ -113,7 +113,7 @@ class MetadataTestCases(unittest.TestCase):
 		This test checks if it is possible to add an annotation without
 		specific location (annotation to the whole file)
 		"""
-		from qidata_objects import Person
+		from qidata.metadata_objects import Person
 		annotations = self.jpg_data_item.annotations
 		test_person = [Person("name", 1), None]
 		annotations["jdoe"]=dict()
