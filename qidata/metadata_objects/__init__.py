@@ -4,6 +4,7 @@
 This package contains different classes representing metadata.
 """
 
+from metadata_base import MetadataObjectBase
 from person import Person
 from face import Face
 from typedlist import TypedList

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from typedlist import TypedList
+from metadata_base import MetadataObjectBase
 
 class FacialExpression(object):
     """Contains annotation details for a face"""
@@ -11,7 +12,7 @@ class FacialExpression(object):
         self.smile_level = 0.5
         self.tamereenshort = [0,0]
 
-class Face(object):
+class Face(MetadataObjectBase):
     """
     Contains annotation details for a face
 

@@ -1,5 +1,6 @@
+from metadata_base import MetadataObjectBase
 
-class Person(object):
+class Person(MetadataObjectBase):
     """
     Contains annotation details for a person
 
