@@ -7,6 +7,8 @@ This package contains different classes representing metadata.
 from metadata_base import MetadataObjectBase
 from person import Person
 from face import Face
+from speech import Speech
+from noise import Noise
 from typedlist import TypedList
 from qidata.types import MetadataType
 
@@ -23,6 +25,10 @@ def makeMetadataObject(metadata_object_type, data = None):
         return Person() if data is None else Person.fromDict(data)
     elif metadata_object_type == MetadataType.FACE:
         return Face() if data is None else Face.fromDict(data)
+    elif metadata_object_type == MetadataType.NOISE:
+        return Noise() if data is None else Noise.fromDict(data)
+    elif metadata_object_type == MetadataType.SPEECH:
+        return Speech() if data is None else Speech.fromDict(data)
     else:
         raise TypeError("Required metadata object (%s) does not exist"%metadata_object_type)
 
@@ -36,6 +42,10 @@ def printHelp(metadata_object_type):
         help(Person)
     elif metadata_object_type == MetadataType.FACE:
         help(Face)
+    elif qiqiDataObjectName == MetadataType.NOISE:
+        help(Noise)
+    elif qiqiDataObjectName == MetadataType.SPEECH:
+        help(Speech)
     else:
         raise TypeError("Required metadata object (%s) does not exist"%metadata_object_type)
 

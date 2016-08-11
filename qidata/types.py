@@ -18,6 +18,10 @@ class MetadataType(Enum):
     Face = 0
     PERSON = 1
     Person = 1
+    SPEECH = 2
+    Speech = 2
+    NOISE = 3
+    Noise = 3
 
     def __str__(self):
         return self.name.capitalize()
