@@ -160,7 +160,7 @@ class QiDataFile(QiDataObject):
                     try:
                         print data[annotatorID]
                         for annotation in data[annotatorID][str(metadata_type)]:
-                            obj = makeMetadataObject(str(metadata_type), annotation["info"])
+                            obj = makeMetadataObject(metadata_type, annotation["info"])
                             if annotation.has_key("location"):
                                 loc = annotation["location"]
                                 self._unicodeListToBuiltInList(loc)
