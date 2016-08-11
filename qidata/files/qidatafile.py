@@ -251,6 +251,9 @@ class QiDataFile(QiDataObject):
         if self._type == DataType.IMAGE:
             with __builtin__.open(self.path, "r") as tmp:
                 return tmp.read()
+        elif self._type == DataType.AUDIO:
+            # TODO open audio file here !!
+            return None
 
     # ───────────────
     # Context Manager

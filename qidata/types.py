@@ -5,6 +5,7 @@ class DataType(Enum):
     Types of data known by qidata
     """
     IMAGE = 0
+    AUDIO = 1
 
     def __str__(self):
         return self.name.capitalize()
@@ -33,6 +34,10 @@ class CheckCompatibility:
     _compatibility_map[DataType.IMAGE]=[
             MetadataType.FACE,
             MetadataType.PERSON
+        ]
+    _compatibility_map[DataType.AUDIO]=[
+            MetadataType.SPEECH,
+            MetadataType.NOISE
         ]
 
     @classmethod

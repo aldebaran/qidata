@@ -153,7 +153,8 @@ from qidata import types
 
 LOOKUP_ITEM_MODEL = {
     re.compile(".*\.png"): types.DataType.IMAGE,
-    re.compile(".*\.jpg"): types.DataType.IMAGE
+    re.compile(".*\.jpg"): types.DataType.IMAGE,
+    re.compile(".*\.wav"): types.DataType.AUDIO
 }
 
 def isSupported(dataPath):
