@@ -26,8 +26,8 @@ class Speech(MetadataObjectBase):
             # name : str
             # sentence : str
             # id : int
-            return Speech(speech_data["name"] if speech_data.has_key("name") else "",
-                speech_data["sentence"] if speech_data.has_key("sentence") else "",
+            return Speech(speech_data["name"] if speech_data.has_key("name") and speech_data["name"] is not None else "",
+                speech_data["sentence"] if speech_data.has_key("sentence") and speech_data["sentence"] is not None else "",
                 int(speech_data["id"]) if speech_data.has_key("id") else 0)
 
     @property
