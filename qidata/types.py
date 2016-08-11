@@ -6,6 +6,9 @@ class DataType(Enum):
     """
     IMAGE = 0
 
+    def __str__(self):
+        return self.name.capitalize()
+
 
 class MetadataType(Enum):
     """
