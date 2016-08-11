@@ -3,7 +3,9 @@
 from xmp.xmp import XMPFile, registerNamespace
 from qidata.metadata_objects import makeMetadataObject
 from qidata.files import getFileDataType
-from qidata.types import CheckCompatibility
+from qidata.types import CheckCompatibility, DataType
+from qidata.qidataobject import QiDataObject
+import __builtin__
 
 QIDATA_NS=u"http://softbank-robotics.com/qidata/1"
 registerNamespace(QIDATA_NS, "qidata")
@@ -15,7 +17,7 @@ def open(file_path, mode="r"):
     """
     return QiDataFile(file_path, mode)
 
-class QiDataFile(object):
+class QiDataFile(QiDataObject):
 
     # ───────────
     # Constructor
@@ -35,12 +37,34 @@ class QiDataFile(object):
 
         self._type = getFileDataType(file_path)
         self.xmp_file = XMPFile(file_path, rw=(mode=="w"))
+        self._raw_data = self._read_file_raw_data()
         self._annotations = None
         self.is_closed = True
         self.open()
 
     # ──────────
     # Properties
+
+    @property
+    def raw_data(self):
+        """
+        Object's raw data
+        """
+        return self._raw_data
+
+    @property
+    def metadata(self):
+        """
+        Return metadata content in the form of a dict containing MetadataObjects or built-in types.
+        """
+        return self._annotations
+
+    @property
+    def type(self):
+        """
+        Specify the type of data in the file (qidata.files.DataType)
+        """
+        return self._type
 
     @property
     def closed(self):
@@ -60,13 +84,6 @@ class QiDataFile(object):
         return "w" if self.xmp_file.rw else "r"
 
     @property
-    def type(self):
-        """
-        Specify the type of data in the file (qidata.files.DataType)
-        """
-        return self._type
-
-    @property
     def path(self):
         """
         Give the file path
@@ -74,18 +91,11 @@ class QiDataFile(object):
         return self.xmp_file.file_path
 
     @property
-    def metadata(self):
+    def raw_metadata(self):
         """
         Return metadata content in raw form
         """
         return self.xmp_file.metadata[QIDATA_NS]
-
-    @property
-    def annotations(self):
-        """
-        Return metadata content in the form of a dict containing MetadataObjects or built-in types.
-        """
-        return self._annotations
 
     @property
     def annotators(self):
@@ -93,8 +103,8 @@ class QiDataFile(object):
         Return the list of annotators for this file
         """
         out = []
-        if self.metadata.children:
-            for qualifiedAnnotatorID in self.metadata.children.keys():
+        if self.raw_metadata.children:
+            for qualifiedAnnotatorID in self.raw_metadata.children.keys():
                 out.append(qualifiedAnnotatorID.split(":")[1])
         return out
 
@@ -121,18 +131,18 @@ class QiDataFile(object):
         """
         Save changes made to annotations
         """
-        for key in self.xmp_file.metadata[QIDATA_NS].children:
-            self.xmp_file.metadata[QIDATA_NS].pop(key)
+        for key in self.raw_metadata.children:
+            self.raw_metadata.pop(key)
         for (annotation_maker, annotations) in self._annotations.iteritems():
             for (annotationClassName, typed_annotations) in annotations.iteritems():
-                self.metadata[annotation_maker] = dict()
-                self.metadata[annotation_maker][annotationClassName] = []
+                self.raw_metadata[annotation_maker] = dict()
+                self.raw_metadata[annotation_maker][annotationClassName] = []
                 for annotation in typed_annotations:
                     tmp_dict = dict(info=annotation[0].toDict())
                     if annotation[1] is not None:
                         tmp_dict["location"]=annotation[1]
                     tmp_dict["info"]["version"] = annotation[0].version
-                    self.metadata[annotation_maker].__getattr__(annotationClassName).append(tmp_dict)
+                    self.raw_metadata[annotation_maker].__getattr__(annotationClassName).append(tmp_dict)
 
     def load(self):
         """
@@ -140,8 +150,8 @@ class QiDataFile(object):
         """
         from collections import OrderedDict
         self._annotations = OrderedDict()
-        if self.metadata.children:
-            data = self.metadata.value
+        if self.raw_metadata.children:
+            data = self.raw_metadata.value
             self._removePrefix(data)
             for annotatorID in data.keys():
                 self._annotations[annotatorID] = dict()
@@ -238,6 +248,10 @@ class QiDataFile(object):
             for element in data:
                 self._removePrefix(element)
 
+    def _read_file_raw_data(self):
+        if self._type == DataType.IMAGE:
+            with __builtin__.open(self.path, "r") as tmp:
+                return tmp.read()
 
     # ───────────────
     # Context Manager

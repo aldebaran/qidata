@@ -45,7 +45,7 @@ def sandboxed(file_path):
 
 def verifyAnnotations(qidata_file, annotator):
 	from qidata.metadata_objects import Person
-	annotations = qidata_file.annotations
+	annotations = qidata_file.metadata
 	assert(annotations.has_key(annotator))
 	assert(annotations[annotator].has_key("Person"))
 	assert(len(annotations[annotator]["Person"][0])==2)

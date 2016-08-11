@@ -18,18 +18,18 @@
     >>> myFile = qidatafile.open("path/to/file")
 
 
-    Metadata is then accessible through two different properties, `metadata` and
-    `annotations`. `metadata` gives access to the raw data. `annotations`
+    Metadata is then accessible through two different properties, `raw_metadata` and
+    `metadata`. `raw_metadata` gives access to the metadata as stored in the file. `metadata`
     transforms the metadata into QiData's MetadataObjects instances before returning it.
 
     :Example:
 
-    >>> myFile.metadata
+    >>> myFile.raw_metadata
     <xmp.xmp.XMPNamespace object at 0x7fb8df4a1310>
-    >>> myFile.metadata.children
+    >>> myFile.raw_metadata.children
     OrderedDict([(u'qidata:sambrose', <xmp.xmp.XMPStructure object at\
  0x7fb8df4a1390>)])
-    >>> myFile.annotations
+    >>> myFile.metadata
     OrderedDict([(u'sambrose', {'Person': [[<qidata.metadata_objects.person.Person\
  object at 0x7fb8df4a1d90>, [[4.0, 25.0], [154.0, 235.0]]]], 'Face': []})])
 
@@ -48,7 +48,7 @@
     :Example:
 
     >>> myFile = qidatafile.open("path/to/file")
-    >>> myFile.annotations
+    >>> myFile.metadata
     OrderedDict([(u'sambrose', {'Person': [[<qidata.metadata_objects.person.Person\
  object at 0x7fb8df4a1d90>, [[4.0, 25.0], [154.0, 235.0]]]], 'Face': []})])
     >>> myFile.close()
@@ -56,7 +56,7 @@
     True
 
     >>> with qidatafile.open("path/to/file") as myFile:
-    ...     myFile.annotations
+    ...     myFile.metadata
     ...
     OrderedDict([(u'sambrose', {'Person': [[<qidata.metadata_objects.person.Person\
  object at 0x7fb8df4a1d90>, [[4.0, 25.0], [154.0, 235.0]]]], 'Face': []})])
@@ -93,7 +93,7 @@
     >>> from qidata.files import qidatafile
     >>> from qidata.metadata_objects import Person
     >>> myFile = qidatafile.open("path/to/file", "w")
-    >>> annotations = myFile.annotations
+    >>> annotations = myFile.metadata
     >>> myObject = Person()
     >>> if not annotations.has_key("jdoe"):
     ...     annotations["jdoe"] = dict()
@@ -114,10 +114,10 @@
     >>> from qidata.files import qidatafile
     >>> from qidata.metadata_objects import Person
     >>> myFile = qidatafile.open("path/to/file", "w")
-    >>> annotations = myFile.annotations
+    >>> annotations = myFile.metadata
     >>> annotations["key_that_did_not_exist_before"]=0
     >>> myFile.load()
-    >>> annotations = myFile.annotations
+    >>> annotations = myFile.metadata
     >>> annotations.has_key("key_that_did_not_exist_before")
     False
 
