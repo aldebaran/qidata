@@ -15,7 +15,9 @@ class MetadataType(Enum):
     Metadata data object types provided by qidata
     """
     FACE = 0
+    Face = 0
     PERSON = 1
+    Person = 1
 
     def __str__(self):
         return self.name.capitalize()
