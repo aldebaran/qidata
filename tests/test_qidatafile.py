@@ -4,7 +4,13 @@
 import unittest
 # Qidata
 from qidata.files import qidatafile
+import qidata.files
 import fixtures
+
+class FileTools(unittest.TestCase):
+	def test_support(self):
+		assert(qidata.files.isSupported("./toto.png"))
+		assert(not qidata.files.isSupported(""))
 
 class File(unittest.TestCase):
 	def setUp(self):

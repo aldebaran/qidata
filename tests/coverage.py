@@ -9,6 +9,9 @@ Script to evaluate test coverage
 import unittest
 from test_qidatafile import *
 from test_qidatafile_conversion import *
+from test_qidata_metadata_objects import *
+from test_metadata_objects_typed_list import *
+from test_qidataobject import *
 
 if __name__ == "__main__":
 	unittest.main()
