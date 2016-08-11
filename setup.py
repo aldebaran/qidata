@@ -20,6 +20,7 @@ setup(
     long_description=open(os.path.join(CONTAINING_DIRECTORY,'README.md')).read(),
     test_suite="tests",
     install_requires=[
+        "enum34 >= 1.0.4",
         "xmp >= 0.1",
         "argcomplete >= 1.1.0"
     ]
