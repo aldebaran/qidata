@@ -124,7 +124,6 @@ class MetadataTestCases(unittest.TestCase):
 		test_person = [Person("name", 1), None]
 		annotations["jdoe"]=dict()
 		annotations["jdoe"]["Person"]=[test_person]
-		print self.jpg_data_item.metadata
 		self.jpg_data_item.save()
 		self.jpg_data_item.close()
 		self.jpg_data_item = qidatafile.open(self.jpg_data_path)
@@ -132,7 +131,6 @@ class MetadataTestCases(unittest.TestCase):
 		annotations = self.jpg_data_item.metadata
 		assert(annotations.has_key("jdoe"))
 		assert(annotations["jdoe"].has_key("Person"))
-		print self.jpg_data_item.raw_metadata
 		assert(len(annotations["jdoe"]["Person"][0])==2)
 		assert(isinstance(annotations["jdoe"]["Person"][0][0], Person))
 		person = annotations["jdoe"]["Person"][0][0]

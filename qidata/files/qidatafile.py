@@ -158,7 +158,6 @@ class QiDataFile(QiDataObject):
                 for metadata_type in CheckCompatibility.getCompatibleMetadataTypes(self.type):
                     self._annotations[annotatorID][str(metadata_type)] = []
                     try:
-                        print data[annotatorID]
                         for annotation in data[annotatorID][str(metadata_type)]:
                             obj = makeMetadataObject(metadata_type, annotation["info"])
                             if annotation.has_key("location"):
