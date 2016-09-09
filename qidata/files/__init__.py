@@ -72,7 +72,7 @@
     property and modify it the way you want. Then call `save_annotations` to
     convert QiData's MetadataObjects into XMP objects and close the file.
 
-    ..note::
+    .. note::
 
         All your changes are written only when the file is closed.
 

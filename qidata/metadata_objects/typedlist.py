@@ -14,6 +14,7 @@ class TypedList(list):
 
         :param typename: Type to be accepted in the list (type or class)
         :param args: List of initialization arguments (can be empty)
+        :raises: TypeError if argument type is invalid
         """
         self.__typename = typename
         for element in args:
