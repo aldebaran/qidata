@@ -1,11 +1,16 @@
 qidata.files package
 ====================
 
+.. automodule:: qidata.files
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
 qidata.files.conversion module
-------------------------------
+++++++++++++++++++++++++++++++
 
 .. automodule:: qidata.files.conversion
     :members:
@@ -13,7 +18,7 @@ qidata.files.conversion module
     :show-inheritance:
 
 qidata.files.qidatafile module
-------------------------------
+++++++++++++++++++++++++++++++
 
 .. automodule:: qidata.files.qidatafile
     :members:
@@ -21,18 +26,10 @@ qidata.files.qidatafile module
     :show-inheritance:
 
 qidata.files.version module
----------------------------
++++++++++++++++++++++++++++
 
 .. automodule:: qidata.files.version
     :members:
     :undoc-members:
     :show-inheritance:
 
-
-Module contents
----------------
-
-.. automodule:: qidata.files
-    :members:
-    :undoc-members:
-    :show-inheritance:
