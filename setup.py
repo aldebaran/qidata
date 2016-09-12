@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
+from setuptools import setup, find_packages
 import os
 
 CONTAINING_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -11,7 +11,7 @@ setup(
     version=open(os.path.join(CONTAINING_DIRECTORY,"qidata/VERSION")).read().split()[0],
     author='Louis-Kenzo Cahier <lkcahier@aldebaran.com>, Surya Ambrose <sambrose@aldebaran.com>',
     author_email='sambrose@aldebaran.com',
-    packages=['qidata', 'qidata.commands', 'qidata.qiq'],
+    packages=find_packages("."),
     package_data={"qidata":["VERSION"]},
     scripts=['bin/qidata'],
     url='.',
