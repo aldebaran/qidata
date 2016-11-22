@@ -4,7 +4,7 @@
 import os.path
 
 # Qidata
-from qidata.files.qidatafile import QiDataFile
+from qidata.files import qidatafile
 from qidata.files.conversion import qidataFileConversionToCurrentVersion
 from qidata.files.version import identifyFileAnnotationVersion
 
@@ -23,9 +23,8 @@ class QiDataFilesCommand:
 	@staticmethod
 	def show(args):
 		throwIfAbsent(args.file)
-		qidata_file = QiDataFile(args.file)
-		with qidata_file as p:
-			if p.metadata.children:
+		with qidatafile.open(args.file) as p:
+			if len(p.metadata) != 0:
 				print p.metadata
 			else:
 				print "No QiDataObjects"
