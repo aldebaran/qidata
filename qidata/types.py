@@ -23,6 +23,8 @@ class MetadataType(Enum):
     Speech = 2
     NOISE = 3
     Noise = 3
+    OBJECT = 4
+    Object = 4
 
     def __str__(self):
         return self.name.capitalize()
@@ -33,6 +35,7 @@ class CheckCompatibility:
     _compatibility_map = dict()
     _compatibility_map[DataType.IMAGE]=[
             MetadataType.FACE,
+            MetadataType.OBJECT,
             MetadataType.PERSON
         ]
     _compatibility_map[DataType.AUDIO]=[

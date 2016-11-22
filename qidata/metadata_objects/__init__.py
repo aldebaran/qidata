@@ -9,6 +9,7 @@ from person import Person
 from face import Face
 from speech import Speech
 from noise import Noise
+from object import Object
 from typedlist import TypedList
 from qidata.types import MetadataType
 
@@ -29,6 +30,8 @@ def makeMetadataObject(metadata_object_type, data = None):
         return Noise() if data is None else Noise.fromDict(data)
     elif metadata_object_type == MetadataType.SPEECH:
         return Speech() if data is None else Speech.fromDict(data)
+    elif metadata_object_type == MetadataType.OBJECT:
+        return Object() if data is None else Object.fromDict(data)
     else:
         raise TypeError("Required metadata object (%s) does not exist"%metadata_object_type)
 
@@ -42,10 +45,12 @@ def printHelp(metadata_object_type):
         help(Person)
     elif metadata_object_type == MetadataType.FACE:
         help(Face)
-    elif qiqiDataObjectName == MetadataType.NOISE:
+    elif metadata_object_type == MetadataType.NOISE:
         help(Noise)
-    elif qiqiDataObjectName == MetadataType.SPEECH:
+    elif metadata_object_type == MetadataType.SPEECH:
         help(Speech)
+    elif metadata_object_type == MetadataType.OBJECT:
+        help(Object)
     else:
         raise TypeError("Required metadata object (%s) does not exist"%metadata_object_type)
 
