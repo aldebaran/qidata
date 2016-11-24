@@ -11,23 +11,25 @@ from metadata_base import MetadataObjectBase
 class Object(MetadataObjectBase):
     """
     Contains annotation details for an object.
-    It can be a random object or a visual tag
+    It can be a random object or a visual tag.
     """
-    def __init__(self, type="", value="", id=0):
+    def __init__(self, obj_type="", value="", obj_id=0):
         """
         Object attributes:
-        :param type: redball, qrcode, landmark, ...
-        :param value: object description or decyphered value
-        :param id: ID of the object
+
+        Args:
+            obj_type (str): redball, qrcode, landmark, ...
+            value (str): object description or decyphered value
+            obj_id (int): ID of the object
         """
-        super(Object, self).__init__()
-        self.type = type
+        super(MetadataObjectBase, self).__init__()
+        self.type = obj_type
         self.value = value
-        self.id = id
+        self.id = obj_id
 
     def toDict(self):
         """
-        Export Object object to a dict structure
+        Export Object object to a dict structure.
         """
         return dict(type=self.type,
                     value=self.value,
@@ -36,14 +38,17 @@ class Object(MetadataObjectBase):
     @staticmethod
     def fromDict(tag_data):
         """
-        Create an Object from a dict
+        Create an Object object from a dict.
+
+        Args:
+            tag_data (dict): source data dictionary
+
+        Returns:
+            :obj:`Object`: <Object> object created from the given dictionary
         """
         # Here we could discriminate how the dict is read, depending
         # on the message's version used.
         if "version" not in tag_data.keys() or float(tag_data["version"]) > 0:
-            # type : str
-            # value : str
-            # position : list
             return Object(tag_data["type"] if "type" in tag_data.keys() else "",
                           tag_data["value"] if "value" in tag_data.keys()
                           else "",

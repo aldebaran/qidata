@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class DataType(Enum):
     """
     Types of data known by qidata
@@ -33,18 +34,18 @@ class MetadataType(Enum):
 class CheckCompatibility:
 
     _compatibility_map = dict()
-    _compatibility_map[DataType.IMAGE]=[
+    _compatibility_map[DataType.IMAGE] = [
             MetadataType.FACE,
-            MetadataType.OBJECT,
-            MetadataType.PERSON
+            MetadataType.PERSON,
+            MetadataType.OBJECT
         ]
-    _compatibility_map[DataType.AUDIO]=[
+    _compatibility_map[DataType.AUDIO] = [
             MetadataType.SPEECH,
             MetadataType.NOISE
         ]
 
     @classmethod
-    def getCompatibleMetadataTypes(self, data_type):
+    def getCompatibleMetadataTypes(cls, data_type):
         """
         Return a list of metadata types which are compatible
         with the given data type.
@@ -52,4 +53,4 @@ class CheckCompatibility:
         :param data_type: Data on which applicable metadata types
         are requested.
         """
-        return self._compatibility_map[data_type]
+        return cls._compatibility_map[data_type]

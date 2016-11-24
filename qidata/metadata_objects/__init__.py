@@ -7,13 +7,15 @@ This package contains different classes representing metadata.
 from metadata_base import MetadataObjectBase
 from person import Person
 from face import Face
+from object import Object
 from speech import Speech
 from noise import Noise
 from object import Object
-from typedlist import TypedList
+from typedlist import TypedList, FacialPartsList
 from qidata.types import MetadataType
 
-def makeMetadataObject(metadata_object_type, data = None):
+
+def makeMetadataObject(metadata_object_type, data=None):
     """
     MetadataObjects factory
     This is the prefered way to create MetadataObjects. Objects that
@@ -26,6 +28,8 @@ def makeMetadataObject(metadata_object_type, data = None):
         return Person() if data is None else Person.fromDict(data)
     elif metadata_object_type == MetadataType.FACE:
         return Face() if data is None else Face.fromDict(data)
+    elif metadata_object_type == MetadataType.OBJECT:
+        return Object() if data is None else Object.fromDict(data)
     elif metadata_object_type == MetadataType.NOISE:
         return Noise() if data is None else Noise.fromDict(data)
     elif metadata_object_type == MetadataType.SPEECH:
@@ -33,7 +37,9 @@ def makeMetadataObject(metadata_object_type, data = None):
     elif metadata_object_type == MetadataType.OBJECT:
         return Object() if data is None else Object.fromDict(data)
     else:
-        raise TypeError("Required metadata object (%s) does not exist"%metadata_object_type)
+        raise TypeError("Required metadata object (%s) does not exist"
+                        % metadata_object_type)
+
 
 def printHelp(metadata_object_type):
     """
@@ -45,6 +51,8 @@ def printHelp(metadata_object_type):
         help(Person)
     elif metadata_object_type == MetadataType.FACE:
         help(Face)
+    elif metadata_object_type == MetadataType.OBJECT:
+        help(Object)
     elif metadata_object_type == MetadataType.NOISE:
         help(Noise)
     elif metadata_object_type == MetadataType.SPEECH:
@@ -52,7 +60,7 @@ def printHelp(metadata_object_type):
     elif metadata_object_type == MetadataType.OBJECT:
         help(Object)
     else:
-        raise TypeError("Required metadata object (%s) does not exist"%metadata_object_type)
-
+        raise TypeError("Required metadata object (%s) does not exist"
+                        % metadata_object_type)
 
 #––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––#
