@@ -73,11 +73,8 @@ class FacialPartsList(list):
         """
         self.__typename = [TypedList, float]
         super(FacialPartsList, self).__init__()
-        self.append(
-            [TypedList(float,
-                       args=typedlist_ini if typedlist_ini is not None
-                       else list()),
-             float_ini])
+        if typedlist_ini is not None:
+            self.append([TypedList(float, args=typedlist_ini), float_ini])
 
     def append(self, p_object):
         """
