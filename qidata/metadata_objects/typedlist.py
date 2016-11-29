@@ -9,7 +9,7 @@ class TypedList(list):
     # ───────────
     # Constructor
 
-    def __init__(self, typename, args=[]):
+    def __init__(self, typename, args=None):
         """
         Create a TypedList
 
@@ -18,12 +18,13 @@ class TypedList(list):
         :raises: TypeError if argument type is invalid
         """
         self.__typename = typename
-        for element in args:
-            if(not isinstance(element, self.__typename)):
+        _args = args if args is not None else list()
+        for element in _args:
+            if not isinstance(element, self.__typename):
                 msg = "TypedList: list elements are expected to be %s. %s received"
-                msg = msg%(self.__typename, type(element))
+                msg = msg % (self.__typename, type(element))
                 raise TypeError(msg)
-        super(TypedList, self).__init__(args)
+        super(TypedList, self).__init__(_args)
 
 
     # ───────
@@ -70,12 +71,13 @@ class FacialPartsList(list):
                 (either no initial values are given or either initial values are
                 given to all elements)
         """
-        super(FacialPartsList, self).__init__(
+        self.__typename = [TypedList, float]
+        super(FacialPartsList, self).__init__()
+        self.append(
             [TypedList(float,
                        args=typedlist_ini if typedlist_ini is not None
                        else list()),
              float_ini])
-        self.__typename = [TypedList, float]
 
     def append(self, p_object):
         """

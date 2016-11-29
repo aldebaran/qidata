@@ -15,8 +15,8 @@ class FaceCharacteristics(MetadataObjectBase):
         - Gender
         - Smile
     """
-    def __init__(self, expression="", facial_parts="", gender="",
-                 smile=""):
+    def __init__(self, expression=None, facial_parts=None, gender=None,
+                 smile=None):
         """
         FaceCharacteristics attributes.
 
@@ -27,10 +27,10 @@ class FaceCharacteristics(MetadataObjectBase):
             smile (str): associated smile data
         """
         super(FaceCharacteristics, self).__init__()
-        self.expression = expression
-        self.facial_parts = facial_parts
-        self.gender = gender
-        self.smile = smile
+        self.expression = expression if expression is not None else ""
+        self.facial_parts = facial_parts if facial_parts is not None else ""
+        self.gender = gender if gender is not None else ""
+        self.smile = smile if smile is not None else ""
 
     def toDict(self):
         """
@@ -104,20 +104,22 @@ class Face(MetadataObjectBase):
     """
 
     def __init__(self,
-                 name="",
+                 name=None,
                  age=0,
-                 gender="",
-                 facial_parts=FacialPartsList(),
-                 expression=TypedList(float),
-                 smile=TypedList(float),
+                 gender=None,
+                 facial_parts=None,
+                 expression=None,
+                 smile=None,
                  fid=0):
         super(Face, self).__init__()
-        self.name = name
+        self.name = name if name is not None else ""
         self.age = age
-        self.gender = gender
-        self.facial_parts = facial_parts
-        self.expression = expression
-        self.smile = smile
+        self.gender = gender if gender is not None else ""
+        self.facial_parts = facial_parts if facial_parts is not None \
+            else FacialPartsList()
+        self.expression = expression if expression is not None \
+            else TypedList(float)
+        self.smile = smile if smile is not None else TypedList(float)
         self.id = fid
 
     def toDict(self):

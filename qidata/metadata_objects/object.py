@@ -4,7 +4,6 @@
 This package contains different classes representing structured dataTypes.
 """
 
-from typedlist import TypedList
 from metadata_base import MetadataObjectBase
 
 
@@ -13,7 +12,7 @@ class Object(MetadataObjectBase):
     Contains annotation details for an object.
     It can be a random object or a visual tag.
     """
-    def __init__(self, obj_type="", value="", obj_id=0):
+    def __init__(self, obj_type=None, value=None, obj_id=0):
         """
         Object attributes:
 
@@ -23,8 +22,8 @@ class Object(MetadataObjectBase):
             obj_id (int): ID of the object
         """
         super(MetadataObjectBase, self).__init__()
-        self.type = obj_type
-        self.value = value
+        self.type = obj_type if obj_type is not None else ""
+        self.value = value if value is not None else ""
         self.id = obj_id
 
     def toDict(self):
