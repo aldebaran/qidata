@@ -74,33 +74,30 @@ class FaceCharacteristics(MetadataObjectBase):
 
 class Face(MetadataObjectBase):
     """
-    Contains annotation details for a face.
-
-    Face version 0.2 (Additional attributes):
-        - Expression
-            Given by FaceCharacteristics: facial expression values.
-
-        - FacialParts
-            Given by FaceCharacteristics: positions of different facial parts.
-
-        - Gender
-            Gender of the target
-
-        - Smile
-            Given by FaceCharacteristics: smile values of the associated face.
-
-    Face version 0.1:
-         - name
+    Face (current version: 0.2):
+        - name:
             Name of the person whose face is represented
             Can be used to test face recognition
 
-         - age
+        - age:
             Age of the person whose face is represented
             Can be used to test age estimation
 
-         - id
+        - id:
             A unique id given to this face through all relevant data
             Can be used to test a face tracker
+
+        - Expression (appeared in version 0.2):
+            Given by FaceCharacteristics: facial expression values.
+
+        - FacialParts (appeared in version 0.2):
+            Given by FaceCharacteristics: positions of different facial parts.
+
+        - Gender (appeared in version 0.2):
+            Gender of the target
+
+        - Smile (appeared in version 0.2):
+            Given by FaceCharacteristics: smile values of the associated face.
     """
 
     def __init__(self,
@@ -115,12 +112,25 @@ class Face(MetadataObjectBase):
         self.name = name if name is not None else ""
         self.age = age
         self.gender = gender if gender is not None else ""
-        self.facial_parts = facial_parts if facial_parts is not None \
-            else FacialPartsList()
-        self.expression = expression if expression is not None \
-            else TypedList(float)
-        self.smile = smile if smile is not None else TypedList(float)
         self.id = fid
+
+        # Facial Parts
+        self.facial_parts = facial_parts \
+            if facial_parts is not None and isinstance(facial_parts,
+                                                       FacialPartsList)\
+            else FacialPartsList()
+
+        # Expression
+        self.expression = TypedList(float)
+        if expression is not None and isinstance(expression, list):
+            for exp in expression:
+                self.expression.append(exp)
+
+        # Smile
+        self.smile = TypedList(float)
+        if smile is not None and isinstance(smile, list):
+            for sml in smile:
+                self.smile.append(sml)
 
     def toDict(self):
         """
@@ -132,7 +142,7 @@ class Face(MetadataObjectBase):
                     facial_parts=self.facial_parts,
                     expression=self.expression,
                     smile=self.smile,
-                    id=self.id,
+                    fid=self.id,
                     )
 
     @staticmethod
@@ -148,21 +158,39 @@ class Face(MetadataObjectBase):
             # facial parts: FacialPartsList
             # expression: TypedList
             # smile: TypedList
-            # id : int
-            return Face(face_data["name"] if "name" in face_data.keys() else "",
-                        int(face_data["age"]) if "age" in face_data.keys()
-                        else 0,
-                        face_data["gender"] if "gender" in face_data.keys()
-                        else "",
-                        face_data["facial_parts"] if "facial_parts" in
-                                                     face_data.keys()
-                        else FacialPartsList(),
-                        face_data["expression"] if "expression" in
-                                                   face_data.keys()
-                        else TypedList(float),
-                        face_data["smile"] if "smile" in face_data.keys()
-                        else TypedList(float),
-                        int(face_data["id"]) if "id" in face_data.keys() else 0)
+            # fid : int
+
+            # Format facial parts
+            _facial_parts = FacialPartsList()
+            if "facial_parts" in face_data.keys():
+                for _fp in face_data["facial_parts"]:
+                    _facial_parts.append(
+                        [TypedList(float, map(lambda x: float(x), _fp[0])),
+                         float(_fp[1])])
+
+            # Format expression
+            _expression = TypedList(float)
+            if "expression" in face_data.keys():
+                for _exp in face_data["expression"]:
+                    _expression.append(float(_exp))
+
+            # Format smile
+            _smile = TypedList(float)
+            if "smile" in face_data.keys():
+                for _sml in face_data["smile"]:
+                    _smile.append(float(_sml))
+
+            return Face(name=face_data["name"]
+                        if "name" in face_data.keys() else "",
+                        age=int(face_data["age"])
+                        if "age" in face_data.keys() else 0,
+                        gender=face_data["gender"]
+                        if "gender" in face_data.keys() else "",
+                        facial_parts=_facial_parts,
+                        expression=_expression,
+                        smile=_smile,
+                        fid=int(face_data["id"])
+                        if "id" in face_data.keys() else 0)
 
     @property
     def version(self):

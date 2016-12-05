@@ -9,7 +9,7 @@ class TypedList(list):
     # ───────────
     # Constructor
 
-    def __init__(self, typename, args=None):
+    def __init__(self, typename, args=[]):
         """
         Create a TypedList
 
@@ -18,13 +18,12 @@ class TypedList(list):
         :raises: TypeError if argument type is invalid
         """
         self.__typename = typename
-        _args = args if args is not None else list()
-        for element in _args:
+        for element in args:
             if not isinstance(element, self.__typename):
                 msg = "TypedList: list elements are expected to be %s. %s received"
                 msg = msg % (self.__typename, type(element))
                 raise TypeError(msg)
-        super(TypedList, self).__init__(_args)
+        super(TypedList, self).__init__(args)
 
 
     # ───────
@@ -53,17 +52,17 @@ class TypedList(list):
 
 class FacialPartsList(list):
     """
-    List of typed objects.
-    For the moment object can contain elements of the following structure:
+    List of typed objects, for FacialParts provided by FaceCharacteristics:
         [TypedList(float), float]
     """
     def __init__(self, typedlist_ini=None, float_ini=float()):
         """
-        Create a MixedTypedList.
+        Create a FacialPartsList.
 
         Args:
             typedlist_ini: initialization value for the TypedList object.
             float_ini: initial value for the float element.
+
         Raises:
             TypeError: if initial value type does not match given
                 typename.
