@@ -53,7 +53,7 @@ class TypedList(list):
 class FacialPartsList(list):
     """
     List of typed objects, for FacialParts provided by FaceCharacteristics:
-        [TypedList(float), float]
+        [TypedList(int), float] which corresponds to [[coordinates], confidence]
     """
     def __init__(self, typedlist_ini=None, float_ini=float()):
         """
@@ -73,7 +73,7 @@ class FacialPartsList(list):
         self.__typename = [TypedList, float]
         super(FacialPartsList, self).__init__()
         if typedlist_ini is not None:
-            self.append([TypedList(float, args=typedlist_ini), float_ini])
+            self.append([TypedList(int, args=typedlist_ini), float_ini])
 
     def append(self, p_object):
         """
@@ -110,7 +110,7 @@ class FacialPartsList(list):
         super(FacialPartsList, self).append(p_object)
 
     def appendDefault(self):
-        self.append([TypedList(float), float()])
+        self.append([TypedList(int), float()])
 
     @property
     def typename(self):

@@ -165,7 +165,7 @@ class Face(MetadataObjectBase):
             if "facial_parts" in face_data.keys():
                 for _fp in face_data["facial_parts"]:
                     _facial_parts.append(
-                        [TypedList(float, map(lambda x: float(x), _fp[0])),
+                        [TypedList(int, map(lambda x: int(x), _fp[0])),
                          float(_fp[1])])
 
             # Format expression
