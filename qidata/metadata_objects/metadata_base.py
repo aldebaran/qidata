@@ -14,5 +14,5 @@ class MetadataObjectBase(object):
         raise NotImplementedError
 
     @staticmethod
-    def fromDict(data = dict()):
+    def fromDict(data=dict()):
         raise NotImplementedError
