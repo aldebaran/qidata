@@ -12,6 +12,9 @@ class Object(MetadataObjectBase):
     Contains annotation details for an object.
     It can be a random object or a visual tag.
     """
+
+    __slots__ = ["type", "value", "id"]
+
     def __init__(self, obj_type=None, value=None, obj_id=0):
         """
         Object attributes:

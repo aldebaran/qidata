@@ -14,6 +14,8 @@ class Person(MetadataObjectBase):
         Can be used to test a person tracker
     """
 
+    __slots__ = ["name", "id"]
+
     def __init__(self, name="", pid=0):
         super(Person, self).__init__()
         self.name = name

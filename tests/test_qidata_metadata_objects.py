@@ -24,4 +24,5 @@ class MetadataObjectsBase(unittest.TestCase):
 
         for metadata_type in list(MetadataType):
             created_object = makeMetadataObject(metadata_type)
-            makeMetadataObject(metadata_type, created_object.toDict())
+            copied_object = makeMetadataObject(metadata_type, created_object.toDict())
+            assert(created_object == copied_object)

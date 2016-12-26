@@ -6,6 +6,8 @@ from typedlist import TypedList
 class Speech(MetadataObjectBase):
     """Contains annotation details for a speech"""
 
+    __slots__ = ["name", "sentence", "id"]
+
     def __init__(self, name="", sentence="", fid=0):
         super(Speech, self).__init__()
         self.name = name

@@ -100,6 +100,8 @@ class Face(MetadataObjectBase):
             Given by FaceCharacteristics: smile values of the associated face.
     """
 
+    __slots__ = ["name", "age", "gender", "id", "facial_parts", "expression", "smile"]
+
     def __init__(self,
                  name=None,
                  age=0,
