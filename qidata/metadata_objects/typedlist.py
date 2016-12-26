@@ -49,12 +49,35 @@ class TypedList(list):
     def typename(self):
         return self.__typename
 
+    # ─────────
+    # Operators
+
+    def __eq__(self, other):
+        if not isinstance(other, TypedList):
+            return False
+        elif self.typename != other.typename:
+            return False
+        elif len(self) != len(other):
+            return False
+        else:
+            for i in range(len(self)):
+                if self[i] != other[i]:
+                    return False
+        return True
+
+    def __ne__(self, other):
+        return not (self == other)
+
 
 class FacialPartsList(list):
     """
     List of typed objects, for FacialParts provided by FaceCharacteristics:
         [TypedList(int), float] which corresponds to [[coordinates], confidence]
     """
+
+    # ───────────
+    # Constructor
+
     def __init__(self, typedlist_ini=None, float_ini=float()):
         """
         Create a FacialPartsList.
@@ -74,6 +97,9 @@ class FacialPartsList(list):
         super(FacialPartsList, self).__init__()
         if typedlist_ini is not None:
             self.append([TypedList(int, args=typedlist_ini), float_ini])
+
+    # ───────
+    # Methods
 
     def append(self, p_object):
         """
@@ -112,6 +138,26 @@ class FacialPartsList(list):
     def appendDefault(self):
         self.append([TypedList(int), float()])
 
+    # ──────────
+    # Properties
+
     @property
     def typename(self):
         return self.__typename
+
+    # ─────────
+    # Operators
+
+    def __eq__(self, other):
+        if not isinstance(other, FacialPartsList):
+            return False
+        elif len(self) != len(other):
+            return False
+        else:
+            for i in range(len(self)):
+                if self[i][0] != other[i][0] or self[i][1] != other[i][1]:
+                    return False
+        return True
+
+    def __ne__(self, other):
+        return not (self == other)
