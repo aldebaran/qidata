@@ -10,7 +10,6 @@ from face import Face
 from object import Object
 from speech import Speech
 from noise import Noise
-from object import Object
 from typedlist import TypedList, FacialPartsList
 from qidata.types import MetadataType
 
