@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# qidata
+from qidata.textualize import textualize_list
 
 class TypedList(list):
     """
@@ -67,6 +69,12 @@ class TypedList(list):
 
     def __ne__(self, other):
         return not (self == other)
+
+    # ──────────────
+    # Textualization
+
+    def __unicode__(self):
+        return textualize_list(self)
 
 
 class FacialPartsList(list):
@@ -161,3 +169,9 @@ class FacialPartsList(list):
 
     def __ne__(self, other):
         return not (self == other)
+
+    # ──────────────
+    # Textualization
+
+    def __unicode__(self):
+        return textualize_list(self)

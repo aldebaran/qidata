@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
 
+# qidata
+from qidata.textualize import textualize_dict
 
 class MetadataObjectBase(object):
 	"""
@@ -19,9 +22,21 @@ class MetadataObjectBase(object):
 	def fromDict(data=dict()):
 		raise NotImplementedError
 
+	# ─────────
+	# Operators
+
 	def __eq__(self, other):
 		for attribute_name in self.__slots__:
 			if getattr(self, attribute_name) != getattr(other, attribute_name):
 				return False
 
 		return True
+
+	# ──────────────
+	# Textualization
+
+	def __str__(self):
+		return str(self.toDict())
+
+	def __unicode__(self):
+		return textualize_dict(self.toDict())

@@ -2,11 +2,12 @@
 
 # Standard Library
 import os.path
+from distutils.version import StrictVersion
 
 # Qidata
 from qidata.files import qidatafile
 from qidata.files.conversion import qidataFileConversionToCurrentVersion
-from qidata.files.version import identifyFileAnnotationVersion
+from qidata.files.version import identifyFileAnnotationVersion, CURRENT_VERSION
 
 # Argparse
 import argparse
@@ -23,11 +24,15 @@ class QiDataFilesCommand:
 	@staticmethod
 	def show(args):
 		throwIfAbsent(args.file)
-		with qidatafile.open(args.file) as p:
-			if len(p.metadata) != 0:
-				print p.metadata
+		version = identifyFileAnnotationVersion(args.file)
+		if version is None:
+			print "File does not contain any qidata annotation"
+		else:
+			if StrictVersion(version)<StrictVersion(CURRENT_VERSION):
+				print "File is out-dated: use \"convert\" command to upgrade your file"
 			else:
-				print "No QiDataObjects"
+				with qidatafile.open(args.file) as p:
+					print p
 
 	@staticmethod
 	def convert(args):
