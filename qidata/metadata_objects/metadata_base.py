@@ -16,7 +16,10 @@ class MetadataObjectBase(object):
 		pass
 
 	def toDict(self):
-		raise NotImplementedError
+		out_dict = dict()
+		for attr in self.__slots__:
+			out_dict[attr] = getattr(self, attr)
+		return out_dict
 
 	@staticmethod
 	def fromDict(data=dict()):

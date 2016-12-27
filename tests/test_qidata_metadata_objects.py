@@ -17,8 +17,7 @@ class MetadataObjectsBase(unittest.TestCase):
 
     def test_attributes(self):
         metadata_base = MetadataObjectBase()
-        with self.assertRaises(NotImplementedError):
-            metadata_base.toDict()
+        metadata_base.toDict()
         with self.assertRaises(NotImplementedError):
             MetadataObjectBase.fromDict()
 

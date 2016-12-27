@@ -14,12 +14,6 @@ class Speech(MetadataObjectBase):
         self.sentence = sentence
         self.id = fid
 
-    def toDict(self):
-        return dict(name=self.name,
-            sentence=self.sentence,
-            id=self.id,
-            )
-
     @staticmethod
     def fromDict(speech_data):
         # Here we could discriminate how the dict is read, depending

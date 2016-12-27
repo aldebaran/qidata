@@ -134,19 +134,6 @@ class Face(MetadataObjectBase):
             for sml in smile:
                 self.smile.append(sml)
 
-    def toDict(self):
-        """
-        Export Face object to a dict structure
-        """
-        return dict(name=self.name,
-                    age=self.age,
-                    gender=self.gender,
-                    facial_parts=self.facial_parts,
-                    expression=self.expression,
-                    smile=self.smile,
-                    fid=self.id,
-                    )
-
     @staticmethod
     def fromDict(face_data):
         """

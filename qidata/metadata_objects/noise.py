@@ -10,9 +10,6 @@ class Noise(MetadataObjectBase):
         self.name = name
         self.id = pid
 
-    def toDict(self):
-        return dict(name=self.name,  id=self.id)
-
     @staticmethod
     def fromDict(noise_data):
         # Here we could discriminate how the dict is read, depending

@@ -29,14 +29,6 @@ class Object(MetadataObjectBase):
         self.value = value if value is not None else ""
         self.id = obj_id
 
-    def toDict(self):
-        """
-        Export Object object to a dict structure.
-        """
-        return dict(type=self.type,
-                    value=self.value,
-                    id=self.id)
-
     @staticmethod
     def fromDict(tag_data):
         """
