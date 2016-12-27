@@ -18,9 +18,9 @@ class FileConversion(unittest.TestCase):
 		self.v3_path = fixtures.sandboxed(fixtures.QIDATA_V3)
 
 	def test_identify_version(self):
-		assert(identifyFileAnnotationVersion(self.v1_path)==1)
-		assert(identifyFileAnnotationVersion(self.v2_path)==2)
-		assert(identifyFileAnnotationVersion(self.v3_path)==3)
+		assert(identifyFileAnnotationVersion(self.v1_path)=="0.1")
+		assert(identifyFileAnnotationVersion(self.v2_path)=="0.2")
+		assert(identifyFileAnnotationVersion(self.v3_path)=="1.0")
 		assert(identifyFileAnnotationVersion(self.vN_path)==None)
 
 	def test_conversion_from_unannotated(self):

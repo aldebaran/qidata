@@ -6,6 +6,8 @@ from argparse import Action
 QIDATA_NS = [u"http://aldebaran.com/xmp/1",
                 u"http://softbank-robotics.com/qidata/1"]
 
+CURRENT_VERSION = "1.0"
+
 def identifyFileAnnotationVersion(file_path):
     """
     Identify the annotated file version by looking its inner structure
@@ -34,25 +36,25 @@ def identifyFileAnnotationVersion(file_path):
         for ns in namespaces:
             if ns.uid in QIDATA_NS:
                 if QIDATA_NS[0] == ns.uid:
-                    # Version is 1 or 2 (old namespace is used)
-                    # Mark as version 2 and check if version is actually 1
-                    version = 2
+                    # Version is 0.1 or 0.2 (old namespace is used)
+                    # Mark as version 0.2 and check if version is actually 0.1
+                    version = "0.2"
 
                     if(xmp_file.metadata[QIDATA_NS[0]].children):
                         for child in xmp_file.metadata[QIDATA_NS[0]].children.keys():
                             for metadata_type in MetadataType:
                                 if child.split(":")[-1] == str(metadata_type):
                                     # First child level is QiDataObject type, not annotator ID
-                                    # => Version 1
-                                    version = 1
+                                    # => Version 0.1
+                                    version = "0.1"
                                     break
                     else:
                         # If there is no children, then there is no data
-                        # This should usually not happen, but file can be considered as version 2
+                        # This should usually not happen, but file can be considered as version 0.2
                         pass
                 elif QIDATA_NS[1] == ns.uid:
-                    # Version is 3
-                    version = 3
+                    # Version is 1.0
+                    version = "1.0"
                 else:
                     # File is not annotated
                     version = None

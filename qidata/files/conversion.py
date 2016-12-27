@@ -3,35 +3,36 @@
 from xmp.xmp import XMPFile, registerNamespace
 
 from version import identifyFileAnnotationVersion
+from distutils.version import StrictVersion
 
 # ────────────────
 # File versionning
 
-QIDATA_NS=dict(
-    V1=u"http://aldebaran.com/xmp/1",
-    V2=u"http://aldebaran.com/xmp/1",
-    V3=u"http://softbank-robotics.com/qidata/1"
-    )
-registerNamespace(QIDATA_NS["V1"], "aldebaran")
-registerNamespace(QIDATA_NS["V3"], "qidata")
+QIDATA_NS={
+    "0.1":u"http://aldebaran.com/xmp/1",
+    "0.2":u"http://aldebaran.com/xmp/1",
+    "1.0":u"http://softbank-robotics.com/qidata/1"
+    }
+registerNamespace(QIDATA_NS["0.1"], "aldebaran")
+registerNamespace(QIDATA_NS["1.0"], "qidata")
 
-# V2 -> V3 : Namespace change
-# V1 -> V2 : First children are annotators' name instead of object types
+# 0.2 -> 1.0 : Namespace change
+# 0.1 -> 1.0 : First children are annotators' name instead of object types
 
 # ──────────────────
 # Conversion methods
 
-def qidataFileConversionFromV1ToV2(file_path, annotator_id):
+def qidataFileConversionFromv01Tov02(file_path, annotator_id):
     """
-    Convert QiDataFile from V1 to V2
+    Convert QiDataFile from v0.1 to v0.2
 
     :param file_path: path to the file to convert
-    :param annotator_id: name of annotator (mandatory from V2) (str)
+    :param annotator_id: name of annotator (mandatory from v0.1) (str)
     """
     if type(annotator_id) is not str:
         raise TypeError("annotator_id must be a string")
     with XMPFile(file_path, rw=True) as file:
-        metadata = file.metadata[QIDATA_NS["V1"]]
+        metadata = file.metadata[QIDATA_NS["0.1"]]
         if metadata.children:
             metadata[annotator_id] = metadata.value
         for child in metadata.children.keys():
@@ -49,15 +50,15 @@ def _changePrefix(input_data, new_prefix):
         for element in input_data:
             _changePrefix(element, new_prefix)
 
-def qidataFileConversionFromV2ToV3(file_path):
+def qidataFileConversionFromv02Tov10(file_path):
     """
-    Convert QiDataFile from V2 to V3
+    Convert QiDataFile from v0.2 to v1.0
 
     :param file_path: path to the file to convert
     """
     with XMPFile(file_path, rw=True) as file:
-        old_metadata = file.metadata[QIDATA_NS["V2"]]
-        new_metadata = file.metadata[QIDATA_NS["V3"]]
+        old_metadata = file.metadata[QIDATA_NS["0.2"]]
+        new_metadata = file.metadata[QIDATA_NS["1.0"]]
         data = old_metadata.value
         _changePrefix(data, "qidata")
         for annotator in data.keys():
@@ -75,14 +76,15 @@ def qidataFileConversionToCurrentVersion(file_path, args=dict()):
     .. note::
         Requested arguments are:
 
-        - "annotator"      if converting from V1
+        - "annotator"      if converting from v0.1
     """
     version = identifyFileAnnotationVersion(file_path)
     if version is None:
         return
-    if version<2:
+    version = StrictVersion(version)
+    if version<StrictVersion("0.2"):
         if not args.has_key("annotator") or args["annotator"] is None:
-            raise TypeError("annotator argument is mandatory to convert a V1 qidata file")
-        qidataFileConversionFromV1ToV2(file_path, args["annotator"])
-    if version<3:
-        qidataFileConversionFromV2ToV3(file_path)
+            raise TypeError("annotator argument is mandatory to convert a v0.1 qidata file")
+        qidataFileConversionFromv01Tov02(file_path, args["annotator"])
+    if version<StrictVersion("1.0"):
+        qidataFileConversionFromv02Tov10(file_path)
