@@ -1,12 +1,21 @@
-from enum import Enum
+from enum import EnumMeta, Enum
+
+class CapEnum(EnumMeta):
+    def __getitem__(cls, name):
+        if isinstance(name, str):
+            return EnumMeta.__getitem__(cls, name.upper())
+        else:
+            return EnumMeta.__getitem__(cls, name)
 
 
 class DataType(Enum):
     """
     Types of data known by qidata
     """
-    IMAGE = 0
-    AUDIO = 1
+    __metaclass__ = CapEnum
+    AUDIO   = 0
+    DATASET = 1
+    IMAGE   = 2
 
     def __str__(self):
         return self.name.capitalize()
@@ -16,16 +25,12 @@ class MetadataType(Enum):
     """
     Metadata data object types provided by qidata
     """
+    __metaclass__ = CapEnum
     FACE = 0
-    Face = 0
     PERSON = 1
-    Person = 1
     SPEECH = 2
-    Speech = 2
     NOISE = 3
-    Noise = 3
     OBJECT = 4
-    Object = 4
 
     def __str__(self):
         return self.name.capitalize()
