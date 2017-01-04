@@ -186,9 +186,4 @@ def isDataset(path):
 def isMetadataFile(path):
     return  os.path.isfile(path) and os.path.basename(path) == METADATA_FILENAME
 
-# ––––––––––––––––––––
-# Hook for qiq plugins
-
-QIQ_PLUGIN_PACKAGES = ["qiq"]
-
 #––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––#

@@ -35,7 +35,10 @@ def identifyFileAnnotationVersion(file_path):
 
         for ns in namespaces:
             if ns.uid in QIDATA_NS:
-                if QIDATA_NS[0] == ns.uid:
+                if QIDATA_NS[1] == ns.uid:
+                    # Version is 1.0
+                    version = "1.0"
+                elif QIDATA_NS[0] == ns.uid:
                     # Version is 0.1 or 0.2 (old namespace is used)
                     # Mark as version 0.2 and check if version is actually 0.1
                     version = "0.2"
@@ -48,15 +51,5 @@ def identifyFileAnnotationVersion(file_path):
                                     # => Version 0.1
                                     version = "0.1"
                                     break
-                    else:
-                        # If there is no children, then there is no data
-                        # This should usually not happen, but file can be considered as version 0.2
-                        pass
-                elif QIDATA_NS[1] == ns.uid:
-                    # Version is 1.0
-                    version = "1.0"
-                else:
-                    # File is not annotated
-                    version = None
                 break
     return version

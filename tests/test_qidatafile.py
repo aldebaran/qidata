@@ -32,6 +32,10 @@ class File(unittest.TestCase):
 		with qidatafile.open(self.jpg_path) as datafile:
 			datafile.annotators
 
+	def test_unsupported_file(self):
+		with self.assertRaises(TypeError):
+			qidatafile.open("file.unknown_extension", mode="r")
+
 class MetadataReading(unittest.TestCase):
 	def setUp(self):
 		self.jpg_data_path = fixtures.sandboxed(fixtures.QIDATA_TEST_FILE)

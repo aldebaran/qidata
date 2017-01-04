@@ -39,6 +39,10 @@ class FileConversion(unittest.TestCase):
 		with self.assertRaises(TypeError):
 			qidataFileConversionToCurrentVersion(self.v1_path)
 
+	def test_conversion_from_v1_with_bad_argument(self):
+		with self.assertRaises(TypeError):
+			qidataFileConversionToCurrentVersion(self.v1_path, dict(annotator=0))
+
 	def test_conversion_from_v2(self):
 		qidataFileConversionToCurrentVersion(self.v2_path)
 		qidata_file = QiDataFile(self.v2_path)

@@ -37,25 +37,4 @@ def makeMetadataObject(metadata_object_type, data=None):
         raise TypeError("Required metadata object (%s) does not exist"
                         % metadata_object_type)
 
-
-def printHelp(metadata_object_type):
-    """
-    Print some help on the requested QiDataObject
-
-    :param metadata_object_type: object name on which help is requested
-    """
-    if metadata_object_type == MetadataType.PERSON:
-        help(Person)
-    elif metadata_object_type == MetadataType.FACE:
-        help(Face)
-    elif metadata_object_type == MetadataType.OBJECT:
-        help(Object)
-    elif metadata_object_type == MetadataType.NOISE:
-        help(Noise)
-    elif metadata_object_type == MetadataType.SPEECH:
-        help(Speech)
-    else:
-        raise TypeError("Required metadata object (%s) does not exist"
-                        % metadata_object_type)
-
 #––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––#
