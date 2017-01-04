@@ -6,22 +6,31 @@ import os
 
 CONTAINING_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
+package_list = find_packages(where=CONTAINING_DIRECTORY)
+
 setup(
     name='qidata',
     version=open(os.path.join(CONTAINING_DIRECTORY,"qidata/VERSION")).read().split()[0],
-    author='Louis-Kenzo Cahier <lkcahier@aldebaran.com>, Surya Ambrose <sambrose@aldebaran.com>',
+    description='Metadata annotation tool',
+    long_description=open(os.path.join(CONTAINING_DIRECTORY,'README.rst')).read(),
+    url='https://gitlab.aldebaran.lan/qidata/qidata',
+    author='Surya Ambrose <sambrose@aldebaran.com>, Louis-Kenzo Cahier <lkcahier@aldebaran.com>',
     author_email='sambrose@aldebaran.com',
-    packages=find_packages("."),
-    package_data={"qidata":["VERSION"]},
-    scripts=['bin/qidata'],
-    url='.',
     license='LICENSE.txt',
-    description='Dataset management CLI',
-    long_description=open(os.path.join(CONTAINING_DIRECTORY,'README.md')).read(),
-    test_suite="tests",
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
+        'Topic :: Scientific/Engineering',
+        'Programming Language :: Python :: 2.7',
+    ],
+    keywords='metadata annotation tagging',
+    packages=package_list,
     install_requires=[
         "enum34 >= 1.0.4",
+        "strong_typing >= 0.1",
         "xmp >= 0.1",
-        "argcomplete >= 1.1.0"
-    ]
+    ],
+    package_data={"qidata":["VERSION", "../README.rst"]},
+    scripts=['bin/qidata'],
 )

@@ -32,6 +32,10 @@ class File(unittest.TestCase):
 		with qidatafile.open(self.jpg_path) as datafile:
 			datafile.annotators
 
+	def test_file_display(self):
+		with qidatafile.open(self.jpg_path) as datafile:
+			unicode(datafile)
+
 	def test_unsupported_file(self):
 		with self.assertRaises(TypeError):
 			qidatafile.open("file.unknown_extension", mode="r")
@@ -55,7 +59,7 @@ class MetadataReading(unittest.TestCase):
 	def test_modification_readonly(self):
 		from qidata.metadata_objects import Person
 		annotations = self.jpg_data_item.metadata
-		test_person = [Person("name", 1), [[1.0, 2.0],[20.0, 25.0]]]
+		test_person = [Person("name"), [[1.0, 2.0],[20.0, 25.0]]]
 		annotations["jdoe"]=dict()
 		annotations["jdoe"]["Person"]=[test_person]
 		self.jpg_data_item.save()
@@ -73,7 +77,7 @@ class MetadataWriting(unittest.TestCase):
 	def test_modification(self):
 		from qidata.metadata_objects import Person
 		annotations = self.jpg_data_item.metadata
-		test_person = [Person("name", 1), [[1.0, 2.0],[20.0, 25.0]]]
+		test_person = [Person("name"), [[1.0, 2.0],[20.0, 25.0]]]
 		annotations["jdoe"]=dict()
 		annotations["jdoe"]["Person"]=[test_person]
 		self.jpg_data_item.save()
@@ -87,7 +91,7 @@ class MetadataWriting(unittest.TestCase):
 		assert(isinstance(annotations["jdoe"]["Person"][0][0], Person))
 		person = annotations["jdoe"]["Person"][0][0]
 		location = annotations["jdoe"]["Person"][0][1]
-		assert(person.id == 1)
+		# assert(person.id == 1)
 		assert(person.name == "name")
 		assert(location == [[1.0, 2.0],[20.0, 25.0]])
 
@@ -105,7 +109,7 @@ class MetadataWriting(unittest.TestCase):
 	def test_reload(self):
 		from qidata.metadata_objects import Person
 		annotations = self.jpg_data_item.metadata
-		test_person = [Person("name", 1), [[1.0, 2.0],[20.0, 25.0]]]
+		test_person = [Person("name"), [[1.0, 2.0],[20.0, 25.0]]]
 		annotations["jdoe"]=dict()
 		annotations["jdoe"]["Person"]=[test_person]
 		assert(self.jpg_data_item.metadata.has_key("jdoe"))
@@ -125,7 +129,7 @@ class MetadataTestCases(unittest.TestCase):
 		"""
 		from qidata.metadata_objects import Person
 		annotations = self.jpg_data_item.metadata
-		test_person = [Person("name", 1), None]
+		test_person = [Person("name"), None]
 		annotations["jdoe"]=dict()
 		annotations["jdoe"]["Person"]=[test_person]
 		self.jpg_data_item.save()
@@ -139,6 +143,9 @@ class MetadataTestCases(unittest.TestCase):
 		assert(isinstance(annotations["jdoe"]["Person"][0][0], Person))
 		person = annotations["jdoe"]["Person"][0][0]
 		location = annotations["jdoe"]["Person"][0][1]
-		assert(person.id == 1)
+		# assert(person.id == 1)
 		assert(person.name == "name")
 		assert(location == None)
+
+	def test_file_display(self):
+		str(self.jpg_data_item)

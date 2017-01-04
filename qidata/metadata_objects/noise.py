@@ -1,25 +1,23 @@
-from metadata_base import MetadataObjectBase
 
-class Noise(MetadataObjectBase):
-    """Contains annotation details for a noise"""
+# strong_typing
+from strong_typing import VersionedStruct
+from strong_typing.typed_parameters import (IntegerParameter,
+                                            StringParameter)
 
-    __slots__ = ["name", "id"]
+## SHAME THIS IS JUST A COPY PASTE AND IT HAS BEEN RELEASED !!
 
-    def __init__(self, name="", pid=0):
-        super(Noise, self).__init__()
-        self.name = name
-        self.id = pid
+class Noise(VersionedStruct):
 
-    @staticmethod
-    def fromDict(noise_data):
-        # Here we could discriminate how the dict is read, depending
-        # on the message's version used.
-        if not noise_data.has_key("version") or float(noise_data["version"]) > 0:
-            # name : str
-            # id : int
-            return Noise(noise_data["name"] if noise_data.has_key("name") and noise_data["name"] is not None else "",
-                int(noise_data["id"]) if noise_data.has_key("id") else 0)
+    __ATTRIBUTES__ = [
+                       StringParameter(name="name",
+                                       description="",
+                                       default=""),
+                       IntegerParameter(name="id",
+                                        description="",
+                                        default=0)
+    ]
 
-    @property
-    def version(self):
-        return 0.1
+    __ATT_VERSIONS__ = [None, None]
+
+    __VERSION__="0.1"
+    __DESCRIPTION__="Contains annotation details for a noise"

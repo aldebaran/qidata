@@ -4,13 +4,11 @@
 This package contains different classes representing metadata.
 """
 
-from metadata_base import MetadataObjectBase
 from person import Person
 from face import Face
 from object import Object
 from speech import Speech
 from noise import Noise
-from typedlist import TypedList, FacialPartsList
 from qidata.types import MetadataType
 
 

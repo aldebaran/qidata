@@ -1,78 +1,34 @@
 # -*- coding: utf-8 -*-
 
-from typedlist import TypedList
-from typedlist import FacialPartsList
-from metadata_base import MetadataObjectBase
+from distutils.version import StrictVersion
+
+# strong_typing
+from strong_typing import VersionedStruct
+from strong_typing.typed_parameters import (IntegerParameter,
+                                            StringParameter,
+                                            EnumParameter,
+                                            VectorParameter,
+                                            FloatParameter)
+
+class FacialPart(VersionedStruct):
+
+    __ATTRIBUTES__ = [
+                       VectorParameter(name="coordinates",
+                                       description="Coordinates of the face part",
+                                       type=int,
+                                       default=[]),
+                       FloatParameter(name="confidence",
+                                       description="",
+                                       default=0.0)
+    ]
+
+    __ATT_VERSIONS__ = [None, None]
+
+    __VERSION__="0.1"
+    __DESCRIPTION__="Contains a face part location with detection confidence"
 
 
-class FaceCharacteristics(MetadataObjectBase):
-    """
-    Contains annotation details for a face characteristics.
-
-    FaceCharacteristics:
-        - Expression
-        - FacialParts
-        - Gender
-        - Smile
-    """
-    def __init__(self, expression=None, facial_parts=None, gender=None,
-                 smile=None):
-        """
-        FaceCharacteristics attributes.
-
-        Args:
-            expression (str): associated face expressions
-            facial_parts (str): associated facial parts data
-            gender (str): associated gender (male, female)
-            smile (str): associated smile data
-        """
-        super(FaceCharacteristics, self).__init__()
-        self.expression = expression if expression is not None else ""
-        self.facial_parts = facial_parts if facial_parts is not None else ""
-        self.gender = gender if gender is not None else ""
-        self.smile = smile if smile is not None else ""
-
-    def toDict(self):
-        """
-        Export Object object to a dict structure.
-        """
-        return dict(expression=self.expression,
-                    facial_parts=self.facial_parts,
-                    gender=self.gender,
-                    smile=self.smile)
-
-    @staticmethod
-    def fromDict(facechar_data):
-        """
-        Create a FaceCharacteristics object from a dict.
-
-        Args:
-            facechar_data (dict): source data dictionary
-
-        Returns:
-            :obj:`FaceCharacteristics`: <FaceCharacteristics> object created
-                from the given dictionary
-        """
-        # Here we could discriminate how the dict is read, depending
-        # on the message's version used.
-        if "version" not in facechar_data.keys() or \
-                float(facechar_data["version"]) > 0:
-            return FaceCharacteristics(
-                facechar_data["expression"] if "expression" in
-                                               facechar_data.keys() else "",
-                facechar_data["facial_parts"] if "facial_parts" in
-                                                 facechar_data.keys() else "",
-                facechar_data["gender"] if "gender" in
-                                           facechar_data.keys() else "",
-                facechar_data["smile"] if "smile" in
-                                          facechar_data.keys() else "")
-
-    @property
-    def version(self):
-        return 0.1
-
-
-class Face(MetadataObjectBase):
+class Face(VersionedStruct):
     """
     Face (current version: 0.2):
         - name:
@@ -100,88 +56,55 @@ class Face(MetadataObjectBase):
             Given by FaceCharacteristics: smile values of the associated face.
     """
 
-    __slots__ = ["name", "age", "gender", "id", "facial_parts", "expression", "smile"]
+    __ATTRIBUTES__ = [
+                       StringParameter(name="name",
+                                       description="Name of the face's owner",
+                                       default=""),
+                       IntegerParameter(name="age",
+                                       description="Age of the face's owner",
+                                       default=0),
+                       VectorParameter(name="expression",
+                                       description="Name of the person represented",
+                                       type=float,
+                                       default=[]),
+                       VectorParameter(name="facial_parts",
+                                       description="Name of the person represented",
+                                       type=FacialPart,
+                                       default=[]),
+                       EnumParameter(name="gender",
+                                       description="Name of the person represented",
+                                       choices=["female", "male"],
+                                       default="male"),
+                       VectorParameter(name="smile",
+                                       description="Name of the person represented",
+                                       type=float,
+                                       default=[]),
+    ]
 
-    def __init__(self,
-                 name=None,
-                 age=0,
-                 gender=None,
-                 facial_parts=None,
-                 expression=None,
-                 smile=None,
-                 fid=0):
-        super(Face, self).__init__()
-        self.name = name if name is not None else ""
-        self.age = age
-        self.gender = gender if gender is not None else ""
-        self.id = fid
+    __ATT_VERSIONS__ = [None, None,"0.2","0.2","0.2","0.2"]
 
-        # Facial Parts
-        self.facial_parts = facial_parts \
-            if facial_parts is not None and isinstance(facial_parts,
-                                                       FacialPartsList)\
-            else FacialPartsList()
+    __VERSION__="0.3"
+    __DESCRIPTION__="Contains annotation details for a face"
 
-        # Expression
-        self.expression = TypedList(float)
-        if expression is not None and isinstance(expression, list):
-            for exp in expression:
-                self.expression.append(exp)
+    __DEPRECATED_ATT_N_VERSIONS__ = [
+                       (IntegerParameter(name="id",
+                                        description="A unique id given to this face through all relevant data",
+                                        default=0), None, "0.3")
+    ]
 
-        # Smile
-        self.smile = TypedList(float)
-        if smile is not None and isinstance(smile, list):
-            for sml in smile:
-                self.smile.append(sml)
+    # ───────────────────
+    # Retro-compatibility
 
-    @staticmethod
-    def fromDict(face_data):
-        """
-        Create a face from a dict
-        """
-        # Here we could discriminate how the dict is read, depending
-        # on the message's version used.
-        if "version" not in face_data.keys() or float(face_data["version"]) > 0:
-            # name : str
-            # age : int
-            # facial parts: FacialPartsList
-            # expression: TypedList
-            # smile: TypedList
-            # fid : int
-
-            # Format facial parts
-            _facial_parts = FacialPartsList()
-            if "facial_parts" in face_data.keys():
-                for _fp in face_data["facial_parts"]:
-                    _facial_parts.append(
-                        [TypedList(int, map(lambda x: int(x), _fp[0])),
-                         float(_fp[1])])
-
-            # Format expression
-            _expression = TypedList(float)
-            if "expression" in face_data.keys():
-                for _exp in face_data["expression"]:
-                    _expression.append(float(_exp))
-
-            # Format smile
-            _smile = TypedList(float)
-            if "smile" in face_data.keys():
-                for _sml in face_data["smile"]:
-                    _smile.append(float(_sml))
-
-            return Face(name=face_data["name"]
-                        if "name" in face_data.keys() else "",
-                        age=int(face_data["age"])
-                        if "age" in face_data.keys() else 0,
-                        gender=face_data["gender"]
-                        if "gender" in face_data.keys() else "",
-                        facial_parts=_facial_parts,
-                        expression=_expression,
-                        smile=_smile,
-                        fid=int(face_data["id"])
-                        if "id" in face_data.keys() else 0)
-
-    @property
-    def version(self):
-        return 0.2
-
+    @classmethod
+    def _fromOldDict(cls, data, version):
+        if version == StrictVersion("0.1"):
+            data.pop("id")
+        elif version == StrictVersion("0.2"):
+            data.pop("fid")
+            fps_in = data.pop("facial_parts")
+            fps_out = list()
+            for fp in fps_in:
+                new_fp = FacialPart.fromDict(dict(coordinates=fp[0], confidence=fp[1], version="0.1"))
+                fps_out.append(new_fp)
+            data["facial_parts"] = fps_out
+        return cls(**data)

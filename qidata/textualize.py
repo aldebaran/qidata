@@ -11,43 +11,6 @@ TREE_MID_INDENT  = u"├" + TREE_INDENT
 TREE_LAST_INDENT = u"└" + TREE_INDENT
 
 
-def textualize_list(list_to_display):
-	if len(list_to_display) == 0:
-		return "[]"
-
-	else:
-		res_str = "\n"
-
-	for index in range(len(list_to_display)):
-		value = list_to_display[index]
-		if index != len(list_to_display)-1:
-			res_str += TREE_MID_INDENT + unicode(index) + ": " + unicode(value) + "\n"
-		else:
-			res_str += TREE_LAST_INDENT + unicode(index) + ": " + unicode(value)
-
-	return res_str
-
-def textualize_dict(dict_to_display):
-	keys = dict_to_display.keys()
-	keys.sort()
-	if len(keys) == 0:
-		return "{}"
-	else:
-		res_str = ""
-
-	for key in keys:
-		value = dict_to_display[key]
-		if key != keys[-1]:
-			res_str += "\n" + TREE_MID_INDENT
-			indent_level = AFTER_MID_INDENT
-		else:
-			res_str += "\n" + TREE_LAST_INDENT
-			indent_level = AFTER_LAST_INDENT
-		res_str += key + "="
-		res_str += unicode(value).replace("\n","\n"+(indent_level))
-
-	return res_str
-
 def textualize_annotations(annotations_to_display):
 	res_str = ""
 	if len(annotations_to_display) > 0:

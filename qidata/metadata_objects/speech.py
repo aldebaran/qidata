@@ -1,32 +1,40 @@
 # -*- coding: utf-8 -*-
-from metadata_base import MetadataObjectBase
 
-from typedlist import TypedList
+# Standard library
+from distutils.version import StrictVersion
 
-class Speech(MetadataObjectBase):
-    """Contains annotation details for a speech"""
+# strong_typing
+from strong_typing import VersionedStruct
+from strong_typing.typed_parameters import (IntegerParameter,
+                                            StringParameter)
 
-    __slots__ = ["name", "sentence", "id"]
+class Speech(VersionedStruct):
 
-    def __init__(self, name="", sentence="", fid=0):
-        super(Speech, self).__init__()
-        self.name = name
-        self.sentence = sentence
-        self.id = fid
+    __ATTRIBUTES__ = [
+                       StringParameter(name="name",
+                              description="Name of the speaker ? of the language",
+                              default=""),
+                       StringParameter(name="sentence",
+                              description="Sentence pronounced",
+                              default="")
+    ]
 
-    @staticmethod
-    def fromDict(speech_data):
-        # Here we could discriminate how the dict is read, depending
-        # on the message's version used.
-        if not speech_data.has_key("version") or float(speech_data["version"]) > 0:
-            # name : str
-            # sentence : str
-            # id : int
-            return Speech(speech_data["name"] if speech_data.has_key("name") and speech_data["name"] is not None else "",
-                speech_data["sentence"] if speech_data.has_key("sentence") and speech_data["sentence"] is not None else "",
-                int(speech_data["id"]) if speech_data.has_key("id") else 0)
+    __ATT_VERSIONS__ = [None, None, None]
 
-    @property
-    def version(self):
-        return 0.1
+    __VERSION__="0.2"
+    __DESCRIPTION__="Contains annotation details for a speech"
 
+    __DEPRECATED_ATT_N_VERSIONS__ = [
+                                      (IntegerParameter(name="id",
+                                               description="",
+                                               default=0), None, "0.2")
+    ]
+
+    # ───────────────────
+    # Retro-compatibility
+
+    @classmethod
+    def _fromOldDict(cls, data, version):
+        if version == StrictVersion("0.1"):
+            data.pop("id")
+        return cls(**data)

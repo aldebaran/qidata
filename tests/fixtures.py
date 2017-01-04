@@ -52,7 +52,6 @@ def verifyAnnotations(qidata_file, annotator):
 	assert(isinstance(annotations[annotator]["Person"][0][0], Person))
 	person = annotations[annotator]["Person"][0][0]
 	location = annotations[annotator]["Person"][0][1]
-	assert(person.id == 0)
 	assert(person.name == "yfukuda")
 	assert(location == [[4.0, 25.0],[154.0, 235.0]])
 
