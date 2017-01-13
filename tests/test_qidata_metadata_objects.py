@@ -34,9 +34,12 @@ class MetadataObjectBaseImplemented():
         assert(copy == self.instance)
 
     def test_too_many_arguments(self):
-        num_args = len(self.type.__ATTRIBUTES__)
+        args = []
+        for attrib in self.type.__ATTRIBUTES__:
+            args.append(getattr(self.instance, attrib.id))
+        args.append(0)
         with self.assertRaises(TypeError):
-            self.type(*([0]*(num_args+1)))
+            self.type(*args)
 
     def test_wrong_keys(self):
         with self.assertRaises(TypeError):
@@ -57,9 +60,9 @@ class PersonTest(unittest.TestCase, MetadataObjectBaseImplemented):
 class SpeechTest(unittest.TestCase, MetadataObjectBaseImplemented):
     def setUp(self):
         self.type=Speech
-        self.instance = Speech("Pepper", "Hello, I'm Pepper", 1)
+        self.instance = Speech("Pepper", "Hello, I'm Pepper")
         self.inputs = [{"name":"Pepper", "sentence":"Hello world", "id":10, "version":"0.1"}]
-        self.outputs = [Speech("Pepper", "Hello world", 10)]
+        self.outputs = [Speech("Pepper", "Hello world")]
 
 class ObjectTest(unittest.TestCase, MetadataObjectBaseImplemented):
     def setUp(self):
