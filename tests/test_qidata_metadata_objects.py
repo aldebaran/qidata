@@ -135,3 +135,10 @@ class FaceTest(unittest.TestCase, MetadataObjectBaseImplemented):
                 smile=[0.394999994896,0.0751250039757],
             )
         ]
+
+class ContextTest(unittest.TestCase, MetadataObjectBaseImplemented):
+    def setUp(self):
+        self.type=Context
+        self.instance = Context()
+        self.inputs = [dict()]
+        self.outputs = [Context()]

@@ -38,9 +38,11 @@ setup(
             'Face = qidata._metadata_objects.face:Face',
             'Object = qidata._metadata_objects.object:Object',
             'Person = qidata._metadata_objects.person:Person',
-            'Speech = qidata._metadata_objects.speech:Speech',        ],
+            'Speech = qidata._metadata_objects.speech:Speech',
+            'Context = qidata._metadata_objects.context:Context',
         ],
         'qidata.metadata.package': [
+            'context = qidata._metadata_objects.context',
             'face = qidata._metadata_objects.face',
         ]
     }
