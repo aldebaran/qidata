@@ -221,8 +221,11 @@ class QiDataFile(QiDataObject, file):
             for annotatorID in data.keys():
                 self._annotations[annotatorID] = dict()
                 for metadata_type in list(MetadataType):
-                    self._annotations[annotatorID][str(metadata_type)] = []
                     try:
+                        if len(data[annotatorID][str(metadata_type)]) != 0:
+                            self._annotations[annotatorID][str(metadata_type)] = []
+                        else:
+                            continue
                         for annotation in data[annotatorID][str(metadata_type)]:
                             obj = makeMetadataObject(metadata_type, annotation["info"])
                             if annotation.has_key("location"):
