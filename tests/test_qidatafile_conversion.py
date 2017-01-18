@@ -3,7 +3,7 @@
 # Standard Library
 import unittest
 # Qidata
-from qidata.files.qidatafile import QiDataFile
+from qidata.qidatafile import QiDataFile
 from qidata.files.version import identifyFileAnnotationVersion
 from qidata.files.conversion import *
 import xmp

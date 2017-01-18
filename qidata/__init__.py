@@ -103,5 +103,9 @@ def makeMetadataObject(metadata_object_type, data=None):
 		raise TypeError("Requested metadata object (%s) does not exist"
 		                % metadata_object_type)
 
+# –––––––––––––
+# Inner modules
+
+from qidatafile import QiDataFile
 
 #––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––#

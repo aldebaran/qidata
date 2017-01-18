@@ -4,7 +4,7 @@
 import unittest
 
 from qidata.qidataobject import QiDataObject
-from qidata.files import qidatafile
+from qidata import qidatafile
 import fixtures
 
 class QidataObjectTest(unittest.TestCase):

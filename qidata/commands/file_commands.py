@@ -5,7 +5,7 @@ import os.path
 from distutils.version import StrictVersion
 
 # Qidata
-from qidata.files import qidatafile
+from qidata import qidatafile
 from qidata.files.conversion import qidataFileConversionToCurrentVersion
 from qidata.files.version import identifyFileAnnotationVersion, CURRENT_VERSION
 

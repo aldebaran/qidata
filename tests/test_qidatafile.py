@@ -3,7 +3,7 @@
 # Standard Library
 import unittest
 # Qidata
-from qidata.files import qidatafile
+from qidata import qidatafile
 import qidata.files
 import fixtures
 
@@ -20,13 +20,29 @@ class File(unittest.TestCase):
 		with qidatafile.open(self.jpg_path):
 			pass
 
+	def test_raw_data_attribute(self):
+		with qidatafile.open(self.jpg_path) as datafile:
+			datafile.raw_data
+
 	def test_metadata_attribute(self):
 		with qidatafile.open(self.jpg_path) as datafile:
-			datafile.raw_metadata
-
-	def test_annotations_attribute(self):
-		with qidatafile.open(self.jpg_path) as datafile:
 			datafile.metadata
+
+	def test_type_attribute(self):
+		with qidatafile.open(self.jpg_path) as datafile:
+			datafile.type
+
+	def test_closed_attribute(self):
+		with qidatafile.open(self.jpg_path) as datafile:
+			assert(datafile.closed==False)
+
+	def test_mode_attribute(self):
+		with qidatafile.open(self.jpg_path) as datafile:
+			datafile.mode
+
+	def test_path_attribute(self):
+		with qidatafile.open(self.jpg_path) as datafile:
+			assert(datafile.path == self.jpg_path)
 
 	def test_annotators_attribute(self):
 		with qidatafile.open(self.jpg_path) as datafile:
@@ -44,7 +60,6 @@ class MetadataReading(unittest.TestCase):
 	def setUp(self):
 		self.jpg_data_path = fixtures.sandboxed(fixtures.QIDATA_TEST_FILE)
 		self.jpg_data_item = qidatafile.open(self.jpg_data_path)
-		self.jpg_metadata = self.jpg_data_item.raw_metadata
 
 	def tearDown(self):
 		self.jpg_data_item.close()
@@ -62,7 +77,7 @@ class MetadataReading(unittest.TestCase):
 		test_person = [Person("name"), [[1.0, 2.0],[20.0, 25.0]]]
 		annotations["jdoe"]=dict()
 		annotations["jdoe"]["Person"]=[test_person]
-		self.jpg_data_item.save()
+		self.jpg_data_item.metadata = annotations
 		self.jpg_data_item.close()
 		self.jpg_data_item = qidatafile.open(self.jpg_data_path)
 
@@ -72,7 +87,6 @@ class MetadataWriting(unittest.TestCase):
 	def setUp(self):
 		self.jpg_data_path = fixtures.sandboxed(fixtures.QIDATA_TEST_FILE)
 		self.jpg_data_item = qidatafile.open(self.jpg_data_path, "w")
-		self.jpg_metadata = self.jpg_data_item.raw_metadata
 
 	def test_modification(self):
 		from qidata.metadata_objects import Person
@@ -80,7 +94,7 @@ class MetadataWriting(unittest.TestCase):
 		test_person = [Person("name"), [[1.0, 2.0],[20.0, 25.0]]]
 		annotations["jdoe"]=dict()
 		annotations["jdoe"]["Person"]=[test_person]
-		self.jpg_data_item.save()
+		self.jpg_data_item.metadata = annotations
 		self.jpg_data_item.close()
 		self.jpg_data_item = qidatafile.open(self.jpg_data_path)
 
@@ -91,15 +105,88 @@ class MetadataWriting(unittest.TestCase):
 		assert(isinstance(annotations["jdoe"]["Person"][0][0], Person))
 		person = annotations["jdoe"]["Person"][0][0]
 		location = annotations["jdoe"]["Person"][0][1]
-		# assert(person.id == 1)
 		assert(person.name == "name")
 		assert(location == [[1.0, 2.0],[20.0, 25.0]])
+
+	def test_bad_modification(self):
+		from qidata.metadata_objects import Person
+
+		with self.assertRaises(AttributeError) as e:
+			self.jpg_data_item.metadata = list()
+		assert(str(e.exception) == "Metadata must be a mapping")
+
+		self.jpg_data_item.metadata = dict() # OK
+
+		with self.assertRaises(AttributeError) as e:
+			self.jpg_data_item.metadata = dict(jdoe=list())
+		assert(str(e.exception) == "Metadata from annotator jdoe must be a dict, not list")
+
+		with self.assertRaises(AttributeError) as e:
+			self.jpg_data_item.metadata = dict(jdoe=dict(Toto=dict()))
+		assert(str(e.exception) == "Type Toto in jdoe's metadata does not exist")
+
+		with self.assertRaises(AttributeError) as e:
+			self.jpg_data_item.metadata = dict(jdoe=dict(Person=dict()))
+		assert(str(e.exception) == "List of Person metadata from annotator jdoe must be a list")
+
+		self.jpg_data_item.metadata = dict(jdoe=dict(Person=list())) # OK
+
+		with self.assertRaises(AttributeError) as e:
+			self.jpg_data_item.metadata = dict(
+			                                   jdoe=dict(
+			                                             Person=[
+			                                                 Person("name")
+			                                             ]
+			                                    )
+			                              )
+		assert(str(e.exception) == "Metadata stored in Person's metadata list must be a list or tuple, not Person")
+
+		with self.assertRaises(AttributeError) as e:
+			self.jpg_data_item.metadata = dict(
+			                                   jdoe=dict(
+			                                             Person=[
+			                                                 [Person("name")]
+			                                             ]
+			                                    )
+			                              )
+		assert(str(e.exception) == "Metadata of type Person in Person's metadata from jdoe must be of size 2")
+
+		with self.assertRaises(AttributeError) as e:
+			self.jpg_data_item.metadata = dict(
+			                                   jdoe=dict(
+			                                             Face=[
+			                                                 [Person("name"), None]
+			                                             ]
+			                                    )
+			                              )
+		assert(str(e.exception) == "Person metadata received instead of Face in jdoe's metadata")
+
+		with self.assertRaises(AttributeError) as e:
+			self.jpg_data_item.metadata = dict(
+			                                   jdoe=dict(
+			                                             Person=[
+			                                                 [Person("name"),
+			                                                 0]
+			                                             ]
+			                                    )
+			                              )
+		assert(str(e.exception) == "Location of metadata of type Person in Person's metadata from jdoe is incorrect. Must be list or None")
+
+		self.jpg_data_item.metadata = dict(
+		                                   jdoe=dict(
+		                                             Person=[
+		                                                 [Person("name"),
+		                                                 None]
+		                                             ]
+		                                    )
+		                              ) # OK
+
 
 	def test_deletion(self):
 		annotations = self.jpg_data_item.metadata
 		for annotator in annotations.keys():
 			annotations.pop(annotator)
-		self.jpg_data_item.save()
+		self.jpg_data_item.metadata = annotations
 		self.jpg_data_item.close()
 		self.jpg_data_item = qidatafile.open(self.jpg_data_path)
 
@@ -112,15 +199,15 @@ class MetadataWriting(unittest.TestCase):
 		test_person = [Person("name"), [[1.0, 2.0],[20.0, 25.0]]]
 		annotations["jdoe"]=dict()
 		annotations["jdoe"]["Person"]=[test_person]
+		self.jpg_data_item.metadata = annotations
 		assert(self.jpg_data_item.metadata.has_key("jdoe"))
-		self.jpg_data_item.load()
+		self.jpg_data_item.reload()
 		assert(not self.jpg_data_item.metadata.has_key("jdoe"))
 
 class MetadataTestCases(unittest.TestCase):
 	def setUp(self):
 		self.jpg_data_path = fixtures.sandboxed(fixtures.QIDATA_TEST_FILE)
 		self.jpg_data_item = qidatafile.open(self.jpg_data_path, "w")
-		self.jpg_metadata = self.jpg_data_item.raw_metadata
 
 	def test_general_annotation(self):
 		"""
@@ -132,7 +219,7 @@ class MetadataTestCases(unittest.TestCase):
 		test_person = [Person("name"), None]
 		annotations["jdoe"]=dict()
 		annotations["jdoe"]["Person"]=[test_person]
-		self.jpg_data_item.save()
+		self.jpg_data_item.metadata = annotations
 		self.jpg_data_item.close()
 		self.jpg_data_item = qidatafile.open(self.jpg_data_path)
 
@@ -143,7 +230,6 @@ class MetadataTestCases(unittest.TestCase):
 		assert(isinstance(annotations["jdoe"]["Person"][0][0], Person))
 		person = annotations["jdoe"]["Person"][0][0]
 		location = annotations["jdoe"]["Person"][0][1]
-		# assert(person.id == 1)
 		assert(person.name == "name")
 		assert(location == None)
 
