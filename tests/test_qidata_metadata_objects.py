@@ -71,14 +71,6 @@ class ObjectTest(unittest.TestCase, MetadataObjectBaseImplemented):
         self.inputs = [{"type":"qrcode", "value":"Hello!", "id":10, "version":"0.1"}]
         self.outputs = [Object("qrcode", "Hello!", 10)]
 
-class NoiseTest(unittest.TestCase, MetadataObjectBaseImplemented):
-    def setUp(self):
-        ### SHAME !! IT IS JUST A COPY PASTE
-        self.type=Noise
-        self.instance = Noise("Pepper", 12)
-        self.inputs = [{"name":"Pepper", "id":10, "version":"0.1"}]
-        self.outputs = [Noise("Pepper", 10)]
-
 class FaceTest(unittest.TestCase, MetadataObjectBaseImplemented):
 
     def setUp(self):

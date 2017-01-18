@@ -29,7 +29,6 @@ class MetadataType(Enum):
     FACE = 0
     PERSON = 1
     SPEECH = 2
-    NOISE = 3
     OBJECT = 4
 
     def __str__(self):
@@ -46,7 +45,6 @@ class CheckCompatibility:
         ]
     _compatibility_map[DataType.AUDIO] = [
             MetadataType.SPEECH,
-            MetadataType.NOISE
         ]
 
     @classmethod
