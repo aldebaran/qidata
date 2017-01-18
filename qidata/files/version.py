@@ -3,6 +3,9 @@
 # Standard library
 from argparse import Action
 
+from qidata import MetadataType
+from xmp.xmp import XMPFile
+
 QIDATA_NS = [u"http://aldebaran.com/xmp/1",
                 u"http://softbank-robotics.com/qidata/1"]
 
@@ -16,8 +19,6 @@ def identifyFileAnnotationVersion(file_path):
     :return: Version number or None if file is not annotated
     """
     version = None
-    from qidata.types import MetadataType
-    from xmp.xmp import XMPFile
 
     # Open file through XMP
     xmp_file = XMPFile(file_path)

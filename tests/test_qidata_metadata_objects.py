@@ -3,8 +3,7 @@
 # Standard Library
 import unittest
 
-from qidata.metadata_objects import makeMetadataObject
-from qidata.types import MetadataType
+from qidata import makeMetadataObject, MetadataType
 from qidata.metadata_objects import *
 
 class MetadataObjects(unittest.TestCase):

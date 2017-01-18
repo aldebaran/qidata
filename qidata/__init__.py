@@ -19,6 +19,7 @@
 import os as _os
 import pkg_resources as _pkg
 from types import ModuleType as _ModType
+from enum import Enum as _Enum
 import sys as _sys
 
 # ––––––––––––––––––––––––––––
@@ -49,6 +50,58 @@ for _ep in _pkg.iter_entry_points(group="qidata.metadata.package"):
 	# Add the module to global module cache
 	_sys.modules["qidata.metadata_objects."+_name] = getattr(metadata_objects, _name)
 
+
+# ––––––––––––––––––––––
+# Define convenient enum
+
+class _BaseEnum(_Enum):
+	def __str__(self):
+		return self.name
+
+# –––––––––––––––––––––––––––
+# Define supported data types
+
+class DataType(_BaseEnum):
+	"""
+	Types of objects known by qidata
+	"""
+	AUDIO   = 0 #: For WAV files
+	DATASET = 1 #: For folders containing several annotated files
+	IMAGE   = 2 #: For PNG and JPG images
+
+	def __str__(self):
+		return self.name
+
+
+# –––––––––––––––––––––––––––––––––
+# Define supported metatadata types
+
+# Make sure there is at least one definition
+if len(_metadata_list) == 0:
+	_msg = "No metadata definition could be found."
+	_msg += "Please try to re-install to fix the problem."
+	raise ImportError(_msg)
+
+# Create MetadataType enum
+MetadataType = _BaseEnum("MetadataType", _metadata_list)
+MetadataType.__doc__ = "Metadata data object types provided by qidata"
+
+def makeMetadataObject(metadata_object_type, data=None):
+	"""
+	MetadataObjects factory
+	This is the prefered way to create MetadataObjects. Objects that
+	can be created by this method are the ones in `qidata.MetadataType`
+
+	:param metadata_object_type: requested object to build's name (str)
+	:param data: data to prefill to created object (dict)
+	"""
+	if isinstance(metadata_object_type, MetadataType)\
+	  and hasattr(metadata_objects,metadata_object_type.name):
+		class_ = getattr(metadata_objects,metadata_object_type.name)
+		return class_() if data is None else class_.fromDict(data)
+	else:
+		raise TypeError("Requested metadata object (%s) does not exist"
+		                % metadata_object_type)
 
 
 #––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––#

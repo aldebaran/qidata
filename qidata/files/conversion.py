@@ -17,7 +17,7 @@ registerNamespace(QIDATA_NS["0.1"], "aldebaran")
 registerNamespace(QIDATA_NS["1.0"], "qidata")
 
 # 0.2 -> 1.0 : Namespace change
-# 0.1 -> 1.0 : First children are annotators' name instead of object types
+# 0.1 -> 0.2 : First children are annotators' name instead of object types
 
 # ──────────────────
 # Conversion methods

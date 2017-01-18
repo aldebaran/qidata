@@ -146,15 +146,15 @@
 
 import os.path
 import re
-from qidata import types
+from qidata import DataType
 
 # ──────────
 # Data Items
 
 LOOKUP_ITEM_MODEL = {
-    re.compile(".*\.png"): types.DataType.IMAGE,
-    re.compile(".*\.jpg"): types.DataType.IMAGE,
-    re.compile(".*\.wav"): types.DataType.AUDIO
+    re.compile(".*\.png"): DataType.IMAGE,
+    re.compile(".*\.jpg"): DataType.IMAGE,
+    re.compile(".*\.wav"): DataType.AUDIO
 }
 
 def isSupported(dataPath):
