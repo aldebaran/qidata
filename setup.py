@@ -33,4 +33,15 @@ setup(
     ],
     package_data={"qidata":["VERSION", "../README.rst"]},
     scripts=['bin/qidata'],
+    entry_points={
+        'qidata.metadata.definition': [
+            'Face = qidata._metadata_objects.face:Face',
+            'Object = qidata._metadata_objects.object:Object',
+            'Person = qidata._metadata_objects.person:Person',
+            'Speech = qidata._metadata_objects.speech:Speech',        ],
+        ],
+        'qidata.metadata.package': [
+            'face = qidata._metadata_objects.face',
+        ]
+    }
 )

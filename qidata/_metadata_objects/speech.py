@@ -12,7 +12,7 @@ class Speech(VersionedStruct):
 
     __ATTRIBUTES__ = [
                        StringParameter(name="name",
-                              description="Name of the speaker ? of the language",
+                              description="Name of the speaker",
                               default=""),
                        StringParameter(name="sentence",
                               description="Sentence pronounced",
