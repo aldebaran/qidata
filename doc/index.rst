@@ -13,7 +13,9 @@ Contents:
    :numbered:
 
    getting_started
-   qidata
+   concepts
+   metadata_objects
+   files
 
 
 Search

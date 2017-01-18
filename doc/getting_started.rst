@@ -1,4 +1,4 @@
-Getting started
-===============
+It all begins here !
+====================
 
-Sorry, this section still needs to be improved :(
+.. include:: ../README.rst
