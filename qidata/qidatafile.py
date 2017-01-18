@@ -186,7 +186,8 @@ class QiDataFile(QiDataObject, file):
         """
         Closes the file after writing the metadata
         """
-        self._save()
+        if self.mode != "r":
+            self._save()
         self._xmp_file.close()
         file.close(self)
         self._is_closed = True
