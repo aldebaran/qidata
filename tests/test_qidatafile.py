@@ -4,13 +4,13 @@
 import unittest
 # Qidata
 from qidata import qidatafile
-import qidata.files
+from qidata._mixin import XMPHandlerMixin
 import fixtures
 
 class FileTools(unittest.TestCase):
 	def test_support(self):
-		assert(qidata.files.isSupported("./toto.png"))
-		assert(not qidata.files.isSupported(""))
+		assert(qidatafile.isSupported("./toto.png"))
+		assert(not qidatafile.isSupported(""))
 
 class File(unittest.TestCase):
 	def setUp(self):
@@ -201,7 +201,7 @@ class MetadataWriting(unittest.TestCase):
 		annotations["jdoe"]["Person"]=[test_person]
 		self.jpg_data_item.metadata = annotations
 		assert(self.jpg_data_item.metadata.has_key("jdoe"))
-		self.jpg_data_item.reload()
+		self.jpg_data_item.reloadMetadata()
 		assert(not self.jpg_data_item.metadata.has_key("jdoe"))
 
 class MetadataTestCases(unittest.TestCase):
@@ -235,3 +235,28 @@ class MetadataTestCases(unittest.TestCase):
 
 	def test_file_display(self):
 		str(self.jpg_data_item)
+
+class XMPMixin(unittest.TestCase):
+	# A lot is already tested with the files
+	# Here we just add a few test for error handling just
+	# to make sure it will work, even if it is not supposed
+	# to happen
+	def test_unicode_conversion(self):
+
+		with self.assertRaises(TypeError):
+			XMPHandlerMixin._unicodeListToBuiltInList(())
+
+		data = ["1"]
+		XMPHandlerMixin._unicodeListToBuiltInList(data)
+		assert(data == [1])
+
+		data = ["1.0", "1"]
+		XMPHandlerMixin._unicodeListToBuiltInList(data)
+		assert(data == [1.0, 1])
+
+		data = ["a",["1","2.0"]]
+		XMPHandlerMixin._unicodeListToBuiltInList(data)
+		assert(data == ["a", [1, 2.0]])
+
+		with self.assertRaises(TypeError):
+			XMPHandlerMixin._unicodeToBuiltInType([])

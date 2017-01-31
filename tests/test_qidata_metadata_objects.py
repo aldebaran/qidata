@@ -18,7 +18,7 @@ class MetadataObjectsBase(unittest.TestCase):
     def test_attributes(self):
         for metadata_type in list(MetadataType):
             created_object = makeMetadataObject(metadata_type)
-            copied_object = makeMetadataObject(metadata_type, created_object.toDict())
+            copied_object = makeMetadataObject(metadata_type, created_object)
             assert(created_object == copied_object)
 
             # Check it is accessible and does not raise

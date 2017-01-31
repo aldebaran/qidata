@@ -12,8 +12,7 @@ class QidataObjectTest(unittest.TestCase):
         qidata_object = QiDataObject()
         with self.assertRaises(NotImplementedError):
             qidata_object.raw_data
-        with self.assertRaises(NotImplementedError):
-            qidata_object.metadata
+        assert(qidata_object.metadata == dict())
         with self.assertRaises(NotImplementedError):
             qidata_object.type
 
