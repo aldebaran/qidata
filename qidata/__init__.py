@@ -107,5 +107,7 @@ def makeMetadataObject(metadata_object_type, data=None):
 # Inner modules
 
 from qidatafile import QiDataFile
+from qidataset import QiDataSet
+
 
 #––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––#

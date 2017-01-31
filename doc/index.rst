@@ -16,6 +16,8 @@ Contents:
    concepts
    metadata_objects
    files
+   dataset
+
 
 
 Search

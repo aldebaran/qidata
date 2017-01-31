@@ -16,6 +16,10 @@ SANDBOX_FOLDER = "/tmp/qidata/"
 # ───────────
 # Groundtruth
 
+DATASET   = "dataset"
+DATASET_ANNOTATED   = "dataset_annotated"
+DATASET_WITH_NEW_ANNOTATIONS   = "dataset_with_new_annotations"
+DATASET_INVALID   = "invalid_dataset"
 JPG_PHOTO = "SpringNebula.jpg"
 QIDATA_V1 = "qidatafile_v1.png"
 QIDATA_V2 = "qidatafile_v2.png"
@@ -27,19 +31,25 @@ QIDATA_TEST_FILE = QIDATA_V3
 # ─────────
 # Utilities
 
-def sandboxed(file_path):
+def sandboxed(path):
 	"""
-	Makes a copy of the given file in /tmp and returns its path.
+	Makes a copy of the given path in /tmp and returns its path.
 	"""
-	source_path = os.path.join(DATA_FOLDER,    file_path)
-	tmp_path    = os.path.join(SANDBOX_FOLDER, file_path)
+	source_path = os.path.join(DATA_FOLDER,    path)
+	tmp_path    = os.path.join(SANDBOX_FOLDER, path)
 
 	try:
 		os.mkdir(SANDBOX_FOLDER)
 	except OSError as e:
 		if e.errno != errno.EEXIST:
 			raise
-	shutil.copyfile(source_path, tmp_path)
+
+	if os.path.isdir(source_path):
+		if os.path.exists(tmp_path):
+			shutil.rmtree(tmp_path)
+		shutil.copytree(source_path, tmp_path)
+	else:
+		shutil.copyfile(source_path, tmp_path)
 
 	return tmp_path
 

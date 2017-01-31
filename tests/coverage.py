@@ -7,6 +7,7 @@ Script to evaluate test coverage
 """
 
 import unittest
+from test_qidataset import *
 from test_qidatafile import *
 from test_qidatafile_conversion import *
 from test_qidata_metadata_objects import *
