@@ -72,3 +72,7 @@ def sha1(file_path):
 		file_data = file.read()
 	hasher.update(file_data)
 	return hasher.hexdigest()
+
+def cleanData():
+	if os.path.exists(SANDBOX_FOLDER):
+		shutil.rmtree(SANDBOX_FOLDER)

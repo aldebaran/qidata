@@ -14,4 +14,5 @@ from test_qidata_metadata_objects import *
 from test_qidataobject import *
 
 if __name__ == "__main__":
-	unittest.main()
+	fixtures.cleanData() # Remove traces of previous tests if they exist
+	unittest.main(catchbreak=True)
