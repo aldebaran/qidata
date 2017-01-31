@@ -20,16 +20,6 @@ def identifyFileAnnotationVersion(file_path):
     """
     version = None
 
-    # Open file through XMP
-    xmp_file = XMPFile(file_path)
-    try:
-        xmp_file.open()
-    except RuntimeError, e:
-        # File is not XMP and cannot be opened, it cannot be an annotated file
-        return None
-    else:
-        xmp_file.close()
-
     with XMPFile(file_path) as xmp_file:
         # Retrieve its namespaces
         namespaces = xmp_file.metadata.namespaces
