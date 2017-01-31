@@ -42,10 +42,9 @@ like this::
 
     {
         "annotator's name": {
-                "metadata type's name":(
-                    "metadata type instance",
-                    "annotation location"
-                )
+                "metadata type's name":[
+                    ["metadata type instance","annotation location"]
+                ]
         }
     }
 
@@ -76,7 +75,7 @@ In case you are not happy with your changes, it is always possible to cancel the
 by reloading the file. However, this is only possible if you did not close the file
 after changing ``metadata``.
 
-.. automethod:: qidata.qidatafile.QiDataFile.reload
+.. automethod:: qidata.qidatafile.QiDataFile.reloadMetadata
 
 :Example:
     >>> from qidata import qidatafile
@@ -130,3 +129,20 @@ There are a few other attributes that can be useful when using ``QiDataFile``
 Finally, ``QiDataFile`` inherits from :class:`file`, so you can use the same method
 you would use to read the file's data. However, if you need to open the file
 differently (e.g. using OpenCV for an image) it must be done on the side.
+
+
+Command-line helper
+-------------------
+
+``qidata`` comes with a pack of tools to help you in your daily work with your
+annotated files. One of them is here to quickly show you the content of a file,
+through a terminal.
+
+Just type::
+
+    qidata file show <myFile>
+
+And you will be able to see if a file has qidata annotations and if ot does,
+what they are.
+
+:Example:

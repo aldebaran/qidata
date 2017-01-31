@@ -84,7 +84,7 @@ if len(_metadata_list) == 0:
 
 # Create MetadataType enum
 MetadataType = _BaseEnum("MetadataType", _metadata_list)
-MetadataType.__doc__ = "Metadata data object types provided by qidata"
+MetadataType.__doc__ = "Metadata object types provided by qidata"
 
 def makeMetadataObject(metadata_object_type, data=None):
 	"""
