@@ -1,8 +1,9 @@
 
-# Third-party
-import enum
+# qidata
+from qidata._metadata_objects import _QidataEnumMixin
 
 device_model_list=[
+	"PANASONIC__DMC_LX7",
 	"SOFTBANK_ROBOTICS__NAO_V4",
 	"SOFTBANK_ROBOTICS__NAO_V5",
 	"SOFTBANK_ROBOTICS__PEPPER_V16",
@@ -10,13 +11,5 @@ device_model_list=[
 	"UNSPECIFIED"
 ]
 
-
-
-
 def generateEnum():
-	return enum.EnumMeta("DeviceModel",
-	                        (enum.Enum,),
-	                        dict(
-	                            [[device_model_list[i], i] for i in range(len(device_model_list))]
-	                        )
-	                    )
+	return _QidataEnumMixin("DeviceModel", device_model_list)

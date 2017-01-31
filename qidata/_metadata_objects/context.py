@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# Third-party
-import enum as _enum
-
 # strong_typing
 from strong_typing import VersionedStruct as _VS
 from strong_typing.typed_parameters import (EnumParameter as _Enum,
@@ -13,6 +10,7 @@ from strong_typing.typed_parameters import (EnumParameter as _Enum,
                                             VectorParameter as _Vect)
 
 # qidata
+from qidata._metadata_objects import _QidataEnumMixin
 import model_device as _md
 DeviceModel = _md.generateEnum()
 from countries import Country
@@ -123,7 +121,7 @@ class EnvironmentalSoundConditions(_VS):
 	__DESCRIPTION__="Contains details about the sound environment"
 
 class EnvironmentalLightConditions(_VS):
-	class FromOutdoor(_enum.Enum):
+	class FromOutdoor(_QidataEnumMixin):
 		NO_OUTDOOR_LIGHT = 0
 		NIGHT_LIGHT = 1
 		STREET_LIGHT_AT_NIGHT = 2
@@ -131,7 +129,7 @@ class EnvironmentalLightConditions(_VS):
 		SUNNY_DAY_LIGHT = 4
 		UNSPECIFIED = 99
 
-	class FromIndoor(_enum.Enum):
+	class FromIndoor(_QidataEnumMixin):
 		NO_INDOOR_LIGHT = 0
 		CANDLE_LIGHT = 1
 		DIM_LIGHT = 2
@@ -161,7 +159,7 @@ class EnvironmentalLightConditions(_VS):
 	__DESCRIPTION__="Contains details about how the environment is enlightened"
 
 class EnvironmentalDescription(_VS):
-	class Category(_enum.Enum):
+	class Category(_QidataEnumMixin):
 		INDOOR_BAR = 0
 		INDOOR_HOUSE = 1
 		INDOOR_OFFICE = 2

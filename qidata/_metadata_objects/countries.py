@@ -1,6 +1,6 @@
 
-# Third-party
-import enum
+# qidata
+from qidata._metadata_objects import _QidataEnumMixin
 
 _country_list=[
 	"AFRICA__UNSPECIFIED",
@@ -213,4 +213,4 @@ _country_list=[
 ]
 
 
-Country = enum.Enum("Country",_country_list)
+Country = _QidataEnumMixin("Country",_country_list)
