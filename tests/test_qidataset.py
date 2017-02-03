@@ -41,7 +41,8 @@ class Dataset(unittest.TestCase):
 
     def test_dataset_properties(self):
         with QiDataSet(self.dataset_path, "r") as a:
-            assert(a.raw_data == ["JPG_file.jpg", "WAV_file.wav"])
+            assert(a.children == ["JPG_file.jpg", "WAV_file.wav"])
+            assert(a.raw_data == (["JPG_file.jpg", "WAV_file.wav"], a.content))
             assert(a.type == DataType.DATASET)
             assert(not a.closed)
             assert(a.mode == "r")
@@ -68,7 +69,8 @@ class Dataset(unittest.TestCase):
     def test_annotated_dataset_properties(self):
         # Check data set content info are correct
         with QiDataSet(self.dataset_annotated_path, "r") as a:
-            assert(a.raw_data == ["JPG_file.jpg", "WAV_file.wav"])
+            assert(a.children == ["JPG_file.jpg", "WAV_file.wav"])
+            assert(a.raw_data == (["JPG_file.jpg", "WAV_file.wav"], a.content))
             assert(a.type == DataType.DATASET)
             assert(not a.closed)
             assert(a.mode == "r")
@@ -82,7 +84,7 @@ class Dataset(unittest.TestCase):
         # Mark the annotation as total (and check the content is changed)
         with QiDataSet(self.dataset_annotated_path, "w") as a:
             c = a.content
-            c.setMetadataAsTotal("sambrose", "Context")
+            c.setMetadataTotalityStatus("sambrose", "Context", True)
             assert(c.annotators == ["sambrose"])
             assert(c.annotation_types == ["Context"])
             assert(a.content.partial_annotations == [])

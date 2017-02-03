@@ -119,16 +119,17 @@ class QiDataSetContent:
 		"""
 		return [k for k,v in self._data.iteritems() if not v]
 
-	def setMetadataAsTotal(self, annotator_name, metadata_type):
+	def setMetadataTotalityStatus(self, annotator_name, metadata_type, is_total):
 		"""
-		Set an annotation as total over the dataset
+		Set an annotation's totality status over the dataset
 
 		.. warning:: This should always come from a human decision
 
 		:param annotator_name: The annotator who made the full annotation
 		:param metadata_type: The annotation type that was fully annotated
+		:param is_total: True if the annotation is covering the whole dataset
 		"""
-		self._data[(annotator_name,metadata_type)] = True
+		self._data[(annotator_name,metadata_type)] = is_total
 
 class QiDataSet(QiDataObject, XMPHandlerMixin):
 
@@ -199,13 +200,9 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 	@property
 	def raw_data(self):
 		"""
-		Return the list of supported files and data sets contained
-		by the data set.
+		Return a list with the data set's children and content
 		"""
-		return [fn
-		            for fn in os.listdir(self.path)
-		                if (qidatafile.isSupported(fn) or isDataset(fn))
-		       ]
+		return (self.children, self.content)
 
 	@property
 	def type(self):
@@ -239,6 +236,17 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		return self._folder_path
 
 	@property
+	def children(self):
+		"""
+		Return the list of supported files and data sets contained
+		by the data set.
+		"""
+		return [fn
+		            for fn in os.listdir(self.path)
+		                if (qidatafile.isSupported(fn) or isDataset(fn))
+		       ]
+
+	@property
 	def content(self):
 		"""
 		Return all information given or infered from the contained files
@@ -268,7 +276,7 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 			"w" mode
 		"""
 		path = os.path.join(self._folder_path, name)
-		if not name in self.raw_data:
+		if not name in self.children:
 			raise IOError("%s is not a child of the current dataset"%name)
 		if os.path.isfile(path):
 			return qidatafile.open(path, mode)
@@ -309,7 +317,7 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		files_info = dict()
 		annotations_info = dict()
 
-		supported_subpaths = self.raw_data
+		supported_subpaths = self.children
 		for path in supported_subpaths:
 			if isDataset(path):
 				# Avoid it for the moment

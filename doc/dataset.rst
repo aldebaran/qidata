@@ -32,7 +32,7 @@ Once it is created, the QiDataSet will make its best to concentrate all the
 information about your files that can be. You can of course retrieve the list
 of files contained by it.
 
-.. autoattribute:: qidata.qidataset.QiDataSet.raw_data
+.. autoattribute:: qidata.qidataset.QiDataSet.children
 
 You can also open the files and folders contained in your dataset directly
 from it.
@@ -48,7 +48,7 @@ your dataset without opening every file in it.
 
 .. autoclass:: qidata.qidataset.QiDataSetContent
     :members: __init__, annotators, annotation_types, file_types, partial_annotations,
-              setMetadataAsTotal
+              setMetadataTotalityStatus
 
 Let's try that out shall we ?
 
@@ -70,7 +70,7 @@ from `partial` to `total`. For this, let's close our dataset and re-open it in
 
 	>>> ds = QiDataSet("path/to/folder", "w")
 	>>> c = ds.content
-	>>> c.setMetadataAsTotal("jdoe", "Context")
+	>>> c.setMetadataTotalityStatus("jdoe", "Context", is_total=True)
 	>>> print c.annotators
 	["jdoe"]
 	>>> print c.annotation_types
@@ -138,6 +138,11 @@ Or even easier, you can use the static method ``contentFromPath`` to do so.
 	If you want to filter your datasets over several conditions, using the
 	first version is better as it will avoid several opening of the same dataset.
 
+
+Finally, ``children`` and ``content`` are gathered in a 2-uple to retrieve all content-related
+information in one call:
+
+.. autoattribute:: qidata.qidataset.QiDataSet.raw_data
 
 A container for global metadata
 -------------------------------

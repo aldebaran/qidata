@@ -49,7 +49,7 @@ def getFileDataType(path):
 	for pattern in LOOKUP_ITEM_MODEL:
 		if pattern.match(path):
 			return LOOKUP_ITEM_MODEL[pattern]
-	raise TypeError("Data type not supported")
+	raise TypeError("Data type not supported by QiDataFile")
 
 def open(file_path, mode="r"):
 	"""
