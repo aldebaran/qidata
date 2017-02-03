@@ -58,8 +58,12 @@ class XMPHandlerMixin:
 		for key in _raw_metadata.children:
 			_raw_metadata.pop(key)
 		for (annotation_maker, annotations) in metadata.iteritems():
+			if annotations == dict():
+				continue
 			_raw_metadata[annotation_maker] = dict()
 			for (annotationClassName, typed_annotations) in annotations.iteritems():
+				if typed_annotations == []:
+					continue
 				_raw_metadata[annotation_maker][annotationClassName] = []
 				for annotation in typed_annotations:
 					tmp_dict = dict(info=annotation[0])
@@ -67,6 +71,10 @@ class XMPHandlerMixin:
 						tmp_dict["location"]=annotation[1]
 					_raw_metadata[annotation_maker][annotationClassName].append(tmp_dict)
 					_raw_metadata[annotation_maker][annotationClassName][-1]["info"]["version"] = annotation[0].version
+
+			if not _raw_metadata[annotation_maker].children:
+				_raw_metadata.pop(annotation_maker)
+
 
 	@staticmethod
 	def _unicodeListToBuiltInList(list_to_convert):
