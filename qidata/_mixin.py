@@ -30,18 +30,18 @@ class XMPHandlerMixin:
 							res[annotatorID][str(metadata_type)] = []
 						else:
 							continue
-						for annotation in data[annotatorID][str(metadata_type)]:
-							obj = makeMetadataObject(metadata_type, annotation["info"])
-							if annotation.has_key("location"):
-								loc = annotation["location"]
-								self._unicodeListToBuiltInList(loc)
-								res[annotatorID][str(metadata_type)].append([obj, loc])
-							else:
-								res[annotatorID][str(metadata_type)].append([obj, None])
-
 					except KeyError, e:
 						# metadata_type does not exist in file => it's ok
-						pass
+						continue
+
+					for annotation in data[annotatorID][str(metadata_type)]:
+						obj = makeMetadataObject(metadata_type, annotation["info"])
+						if annotation.has_key("location"):
+							loc = annotation["location"]
+							self._unicodeListToBuiltInList(loc)
+							res[annotatorID][str(metadata_type)].append([obj, loc])
+						else:
+							res[annotatorID][str(metadata_type)].append([obj, None])
 		return res
 
 	@classmethod
