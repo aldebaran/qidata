@@ -58,8 +58,8 @@ class XMPHandlerMixin:
 		for key in _raw_metadata.children:
 			_raw_metadata.pop(key)
 		for (annotation_maker, annotations) in metadata.iteritems():
+			_raw_metadata[annotation_maker] = dict()
 			for (annotationClassName, typed_annotations) in annotations.iteritems():
-				_raw_metadata[annotation_maker] = dict()
 				_raw_metadata[annotation_maker][annotationClassName] = []
 				for annotation in typed_annotations:
 					tmp_dict = dict(info=annotation[0])

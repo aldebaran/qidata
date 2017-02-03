@@ -108,6 +108,35 @@ class MetadataWriting(unittest.TestCase):
 		assert(person.name == "name")
 		assert(location == [[1.0, 2.0],[20.0, 25.0]])
 
+	def test_modification_with_two_annot_types(self):
+		from qidata.metadata_objects import Person, Face
+		annotations = self.jpg_data_item.metadata
+		test_person = [Person("name"), [[1.0, 2.0],[20.0, 25.0]]]
+		test_face = [Face("name"), [[1.0, 2.0],[20.0, 25.0]]]
+		annotations["jdoe"]=dict()
+		annotations["jdoe"]["Person"]=[test_person]
+		annotations["jdoe"]["Face"]=[test_face]
+		self.jpg_data_item.metadata = annotations
+		self.jpg_data_item.close()
+		self.jpg_data_item = qidatafile.open(self.jpg_data_path)
+
+		annotations = self.jpg_data_item.metadata
+		assert(annotations.has_key("jdoe"))
+		assert(annotations["jdoe"].has_key("Person"))
+		assert(annotations["jdoe"].has_key("Face"))
+		assert(len(annotations["jdoe"]["Person"][0])==2)
+		assert(len(annotations["jdoe"]["Face"][0])==2)
+		assert(isinstance(annotations["jdoe"]["Person"][0][0], Person))
+		assert(isinstance(annotations["jdoe"]["Face"][0][0], Face))
+		person = annotations["jdoe"]["Person"][0][0]
+		location = annotations["jdoe"]["Person"][0][1]
+		assert(person.name == "name")
+		assert(location == [[1.0, 2.0],[20.0, 25.0]])
+		face = annotations["jdoe"]["Face"][0][0]
+		location = annotations["jdoe"]["Face"][0][1]
+		assert(face.name == "name")
+		assert(location == [[1.0, 2.0],[20.0, 25.0]])
+
 	def test_bad_modification(self):
 		from qidata.metadata_objects import Person
 
