@@ -169,22 +169,9 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 				# Folder is not a data set but we can turn it into one
 
 				# We need XMP to create an empty metadata.xmp
-				# We could make it but it is either ugly or not recognizable by xmp...
-
-				# To make a new file.xmp, xmp needs to have another file with same name
-				# but without extension, and which is not empty (fucking XMP...)
-
-				# Create the file with enough data for xmp
-				with open(os.path.join(folder_path, "metadata"), mode="w") as _tmp:
-					_tmp.write("123456789123456789") # if file is not big enoug, XMP cries...
-					_tmp.flush()
-
 				# Open it with xmp so that metadata.xmp is created
-				with XMPFile(os.path.join(folder_path, "metadata"), rw=True):
+				with XMPFile(os.path.join(folder_path, "metadata.xmp"), rw=True):
 					pass
-
-				# Remove our dummy file which is now useless.
-				os.remove(os.path.join(folder_path, "metadata"))
 
 		self._xmp_file = XMPFile(metadata_path, rw=(mode=="w"))
 		self._is_closed = True
