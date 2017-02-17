@@ -34,9 +34,14 @@ class SpatialLocation(_VS):
 	                   _Float(name="longitude",
 	                         description="Recording's location's longitude",
 	                         default=None,
-	                         range=(-180, 180))
+	                         range=(-180, 180)),
+
+	                   _Vect(name="tags",
+	                          description="Add some tags to help sorting by location.\
+	                          It can be a room name for instance",
+	                          type=str)
 	]
-	__ATT_VERSIONS__ = [None]*3
+	__ATT_VERSIONS__ = [None]*5
 
 	__VERSION__="0.1"
 	__DESCRIPTION__="Contains details about the device used to produce the data"
@@ -222,7 +227,15 @@ class Context(_VS):
 
 	                   _Stru(name="environmental_description",
 	                          description="Description of the conditions of the recording",
-	                          type=EnvironmentalDescription)
+	                          type=EnvironmentalDescription),
+
+	                   _Vect(name="tags",
+	                          description="Add some tags to describe your dataset.\
+	                          This could be used to sort datasets and also to organize\
+	                          test results. It is however always preferable to use the\
+	                          defined sections. Tags is only here to add information that\
+	                          does not fit in other attributes.",
+	                          type=str)
 	]
 	__ATT_VERSIONS__ = [None]*6
 
