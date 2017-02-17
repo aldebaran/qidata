@@ -27,34 +27,7 @@ class FacialPart(VersionedStruct):
     __VERSION__="0.1"
     __DESCRIPTION__="Contains a face part location with detection confidence"
 
-
 class Face(VersionedStruct):
-    """
-    Face (current version: 0.2):
-        - name:
-            Name of the person whose face is represented
-            Can be used to test face recognition
-
-        - age:
-            Age of the person whose face is represented
-            Can be used to test age estimation
-
-        - id:
-            A unique id given to this face through all relevant data
-            Can be used to test a face tracker
-
-        - Expression (appeared in version 0.2):
-            Given by FaceCharacteristics: facial expression values.
-
-        - FacialParts (appeared in version 0.2):
-            Given by FaceCharacteristics: positions of different facial parts.
-
-        - Gender (appeared in version 0.2):
-            Gender of the target
-
-        - Smile (appeared in version 0.2):
-            Given by FaceCharacteristics: smile values of the associated face.
-    """
 
     __ATTRIBUTES__ = [
                        StringParameter(name="name",
@@ -63,33 +36,33 @@ class Face(VersionedStruct):
                        IntegerParameter(name="age",
                                        description="Age of the face's owner",
                                        default=0),
-                       VectorParameter(name="expression",
-                                       description="Name of the person represented",
-                                       type=float,
-                                       default=[]),
-                       VectorParameter(name="facial_parts",
-                                       description="Name of the person represented",
-                                       type=FacialPart,
-                                       default=[]),
                        EnumParameter(name="gender",
-                                       description="Name of the person represented",
+                                       description="Gender of the face's owner",
                                        choices=["female", "male"],
                                        default="male"),
-                       VectorParameter(name="smile",
-                                       description="Name of the person represented",
-                                       type=float,
-                                       default=[]),
     ]
 
-    __ATT_VERSIONS__ = [None, None,"0.2","0.2","0.2","0.2"]
+    __ATT_VERSIONS__ = [None, None,"0.2"]
 
-    __VERSION__="0.3"
+    __VERSION__="0.4"
     __DESCRIPTION__="Contains annotation details for a face"
 
     __DEPRECATED_ATT_N_VERSIONS__ = [
                        (IntegerParameter(name="id",
                                         description="A unique id given to this face through all relevant data",
-                                        default=0), None, "0.3")
+                                        default=0), None, "0.3"),
+                       (VectorParameter(name="expression",
+                                       description="Estimation of the person's expression",
+                                       type=float,
+                                       default=[]), "0.2", "0.4"),
+                       (VectorParameter(name="facial_parts",
+                                       description="Positions of faces features",
+                                       type=FacialPart,
+                                       default=[]), "0.2", "0.4"),
+                       (VectorParameter(name="smile",
+                                       description="Smile intensity",
+                                       type=float,
+                                       default=[]), "0.2", "0.4"),
     ]
 
     # ───────────────────
@@ -100,11 +73,17 @@ class Face(VersionedStruct):
         if version == StrictVersion("0.1"):
             data.pop("id")
         elif version == StrictVersion("0.2"):
-            data.pop("fid")
-            fps_in = data.pop("facial_parts")
-            fps_out = list()
-            for fp in fps_in:
-                new_fp = FacialPart.fromDict(dict(coordinates=fp[0], confidence=fp[1], version="0.1"))
-                fps_out.append(new_fp)
-            data["facial_parts"] = fps_out
+            data.pop("fid") # An error turned "id" into "fid" on version 0.2
+            data.pop("facial_parts") # facial_parts was changed in version 0.3, removed in version 0.4
+            data.pop("expression") # removed in version 0.4
+            data.pop("smile") # removed in version 0.4
+        elif version == StrictVersion("0.3"):
+            msg = "Warning: expression, facial_parts and smile have been recently removed from Face. "
+            msg += "If you had any annotation there you need to keep, close your file without saving it "
+            msg += "and contact maintainer."
+            print msg
+            data.pop("expression")
+            data.pop("facial_parts")
+            data.pop("smile")
+
         return cls(**data)

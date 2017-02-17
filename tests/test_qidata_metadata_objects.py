@@ -107,32 +107,77 @@ class FaceTest(unittest.TestCase, MetadataObjectBaseImplemented):
                 "gender":"male",
                 "smile":[0.394999994896,0.0751250039757],
                 "version":"0.2"
+            },
+            {
+                "name":"gszwarc",
+                "age":27,
+                "expression":[0.140624997439,
+                              0.223124995478,
+                              0.0318749987055,
+                              0.247499989579,
+                              0.356874989346],
+                "facial_parts":[
+                                {
+                                    "coordinates":[98, 53],
+                                    "confidence":0.175687507952
+                                },
+                                {
+                                    "coordinates":[130, 60],
+                                    "confidence":0.0129375002653
+                                },
+                                {
+                                    "coordinates":[124, 106],
+                                    "confidence":0.0884375025926
+                                },
+                                {
+                                    "coordinates":[105, 58],
+                                    "confidence":0.175687507952
+                                },
+                                {
+                                    "coordinates":[89, 54],
+                                    "confidence":0.175687507952
+                                },
+                                {
+                                    "coordinates":[123, 61],
+                                    "confidence":0.0129375002653
+                                },
+                                {
+                                    "coordinates":[134, 62],
+                                    "confidence":0.0129375002653
+                                },
+                                {
+                                    "coordinates":[100, 105],
+                                    "confidence":0.0884375025926
+                                },
+                                {
+                                    "coordinates":[131, 109],
+                                    "confidence":0.0884375025926
+                                },
+                                {
+                                    "coordinates":[114, 83],
+                                    "confidence":0.242000014216
+                                },
+                                {
+                                    "coordinates":[128, 85],
+                                    "confidence":0.242000014216
+                                },
+                                {
+                                    "coordinates":[125, 96],
+                                    "confidence":0.0884375025926
+                                },
+                               ],
+                "gender":"male",
+                "smile":[0.394999994896,0.0751250039757],
+                "version":"0.3"
             }
         ]
         self.outputs = [
             Face("Pepper", 0),
             Face("gszwarc",27,
-                expression=[0.140624997439,
-                              0.223124995478,
-                              0.0318749987055,
-                              0.247499989579,
-                              0.356874989346],
-                facial_parts=[
-                                FacialPart([98, 53], 0.175687507952),
-                                FacialPart([130, 60], 0.0129375002653),
-                                FacialPart([124, 106], 0.0884375025926),
-                                FacialPart([105, 58], 0.175687507952),
-                                FacialPart([89, 54], 0.175687507952),
-                                FacialPart([123, 61], 0.0129375002653),
-                                FacialPart([134, 62], 0.0129375002653),
-                                FacialPart([100, 105], 0.0884375025926),
-                                FacialPart([131, 109], 0.0884375025926),
-                                FacialPart([114, 83], 0.242000014216),
-                                FacialPart([128, 85], 0.242000014216),
-                                FacialPart([125, 96], 0.0884375025926)
-                              ],
                 gender="male",
-                smile=[0.394999994896,0.0751250039757],
+            ),
+            Face("gszwarc",27,
+                gender="male",
             )
         ]
 
