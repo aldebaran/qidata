@@ -241,10 +241,12 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		Return the list of supported files and data sets contained
 		by the data set.
 		"""
-		return [fn
-		            for fn in os.listdir(self.path)
-		                if (qidatafile.isSupported(fn) or isDataset(fn))
-		       ]
+		ret = [fn
+		           for fn in os.listdir(self.path)
+		               if (qidatafile.isSupported(fn) or isDataset(fn))
+		      ]
+		ret.sort()
+		return ret
 
 	@property
 	def content(self):
