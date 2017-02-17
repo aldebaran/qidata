@@ -109,5 +109,14 @@ def makeMetadataObject(metadata_object_type, data=None):
 from qidatafile import QiDataFile
 from qidataset import QiDataSet
 
+# –––––––––––––––
+# Exported values
+
+__all__ = ["metadata_objects",
+           "makeMetadataObject",
+           "DataType",
+           "MetadataType"
+           "QiDataFile",
+           "QiDataSet"]
 
 #––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––#
