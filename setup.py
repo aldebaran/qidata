@@ -30,6 +30,7 @@ setup(
         "enum34 >= 1.0.4",
         "strong_typing >= 0.1.3",
         "xmp >= 0.3",
+        "qidata_devices >= 0.0.3"
     ],
     package_data={"qidata":["VERSION", "../README.rst"]},
     scripts=['bin/qidata'],
