@@ -2,7 +2,7 @@
 
 """
 The ``qidata.qidatafile`` module provides the ``QiDataFile`` class which is a ``QiDataObject``
-wrapping the ``:mod:xmp`` package. It provides the access to a file's metadata through the
+wrapping the :mod:`xmp` package. It provides the access to a file's metadata through the
 QiDataObject's interface.
 """
 
