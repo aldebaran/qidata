@@ -28,8 +28,8 @@ setup(
     packages=package_list,
     install_requires=[
         "enum34 >= 1.0.4",
-        "strong_typing >= 0.1",
-        "xmp >= 0.1",
+        "strong_typing >= 0.1.3",
+        "xmp >= 0.3",
     ],
     package_data={"qidata":["VERSION", "../README.rst"]},
     scripts=['bin/qidata'],
@@ -47,3 +47,5 @@ setup(
         ]
     }
 )
+
+# Doc requires Sphinx >=1.5.1
