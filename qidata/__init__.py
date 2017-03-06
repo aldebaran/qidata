@@ -31,24 +31,36 @@ VERSION = open(_os.path.join(_os.path.dirname(_os.path.realpath(__file__)), "VER
 # Load metadata plugins
 
 # Dynamically create a module
-metadata_objects = _ModType("metadata_objects")
-_sys.modules["qidata.metadata_objects"] = metadata_objects
+_dyn_mod_name = "qidata.metadata_objects"
+metadata_objects = _ModType(_dyn_mod_name)
+metadata_objects.__path__ = []
+metadata_objects.__doc__ = "Dynamic package to mount metadata plugins"
+_sys.modules[_dyn_mod_name] = metadata_objects
 _metadata_list = list()
 
 # Load all plugins and mount them on our dynamic module
 for _ep in _pkg.iter_entry_points(group="qidata.metadata.definition"):
 	_name = _pkg.EntryPoint.pattern.match(str(_ep)).groupdict()["name"]
+
 	# Add the class's name to metadata type list
 	_metadata_list.append(_name)
+
 	# Add the class to module's attributes
 	setattr(metadata_objects, _name, _ep.load())
 
+	# Reset the class module and name
+	getattr(metadata_objects, _name).__module__ = _dyn_mod_name
+	getattr(metadata_objects, _name).__name__ = _name
+
 for _ep in _pkg.iter_entry_points(group="qidata.metadata.package"):
 	_name = _pkg.EntryPoint.pattern.match(str(_ep)).groupdict()["name"]
+
 	# Add the module to module's attributes
 	setattr(metadata_objects, _name, _ep.load())
+
 	# Add the module to global module cache
-	_sys.modules["qidata.metadata_objects."+_name] = getattr(metadata_objects, _name)
+	getattr(metadata_objects, _name).__name__ = _dyn_mod_name+"."+_name
+	_sys.modules[_dyn_mod_name+"."+_name] = getattr(metadata_objects, _name)
 
 
 # ––––––––––––––––––––––
