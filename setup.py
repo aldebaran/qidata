@@ -27,6 +27,7 @@ setup(
     keywords='metadata annotation tagging',
     packages=package_list,
     install_requires=[
+        "setuptools >= 35.0.0",
         "enum34 >= 1.0.4",
         "strong_typing >= 0.1.3",
         "xmp >= 0.3",
