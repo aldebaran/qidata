@@ -18,6 +18,7 @@ class Dataset(unittest.TestCase):
         cls.dataset_path = fixtures.sandboxed(fixtures.DATASET)
         cls.dataset_annotated_path = fixtures.sandboxed(fixtures.DATASET_ANNOTATED)
         cls.dataset_with_new_annotations_path = fixtures.sandboxed(fixtures.DATASET_WITH_NEW_ANNOTATIONS)
+        cls.dataset_with_datatype_bins = fixtures.sandboxed(fixtures.DATASET_WITH_DATATYPE_BINS)
 
     def test_wrong_path(self):
         with self.assertRaises(IOError):
@@ -61,6 +62,8 @@ class Dataset(unittest.TestCase):
             a.examineContent()
             assert(a.content.toDict()["metadata_info"]["sambrose"]["Context"] == False)
             assert(a.content.partial_annotations == [("sambrose","Context")])
+            assert(1 == a.content._type_content["AUDIO"])
+            assert(1 == a.content._type_content["IMAGE"])
 
         # Check it has been written properly
         with QiDataSet(self.dataset_with_new_annotations_path, "r") as a:
@@ -69,8 +72,8 @@ class Dataset(unittest.TestCase):
     def test_annotated_dataset_properties(self):
         # Check data set content info are correct
         with QiDataSet(self.dataset_annotated_path, "r") as a:
-            assert(a.children == ["JPG_file.jpg", "WAV_file.wav"])
-            assert(a.raw_data == (["JPG_file.jpg", "WAV_file.wav"], a.content))
+            assert(a.children == ["JPG_file.jpg", "Recently_added_JPG.jpg", "WAV_file.wav"])
+            assert(a.raw_data == (["JPG_file.jpg", "Recently_added_JPG.jpg", "WAV_file.wav"], a.content))
             assert(a.type == DataType.DATASET)
             assert(not a.closed)
             assert(a.mode == "r")
@@ -79,6 +82,14 @@ class Dataset(unittest.TestCase):
             assert(c.annotation_types == [])
             assert(set(c.file_types) == set(["IMAGE", "AUDIO"]))
             assert(a.content.toDict()["metadata_info"]["sambrose"]["Context"] == False)
+
+            # Here we test something that is not really public but...
+            assert(1 == c._type_content["AUDIO"])
+            assert(1 == c._type_content["IMAGE"])
+            a.examineContent()
+            c = a.content
+            assert(1 == c._type_content["AUDIO"])
+            assert(2 == c._type_content["IMAGE"])
         assert(a.closed)
 
         # Mark the annotation as total (and check the content is changed)
@@ -131,7 +142,7 @@ class Dataset(unittest.TestCase):
         assert(c["metadata_info"]["sambrose"]["Face"] == False)
 
     def test_child_opening(self):
-         with QiDataSet(self.dataset_annotated_path, "r") as a:
+        with QiDataSet(self.dataset_annotated_path, "r") as a:
             with self.assertRaises(IOError):
                 with a.openChild("non_existing_file.jpg", "w") as img_file:
                     pass

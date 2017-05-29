@@ -315,10 +315,11 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 			file_type = qidatafile.getFileDataType(path)
 			if not files_info.has_key(str(file_type)):
 				files_info[str(file_type)] = 0
-			files_info[str(file_type)] = 1
+			files_info[str(file_type)] += 1
 			with self.openChild(path, "r") as _child:
 				for child_annotator in _child.metadata.keys():
-					annotations_info[child_annotator] = dict()
+					if not annotations_info.has_key(child_annotator):
+						annotations_info[child_annotator] = dict()
 					for metadata_type in _child.metadata[child_annotator]:
 						annotations_info[child_annotator][metadata_type] = False
 
@@ -374,6 +375,8 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		if _raw_metadata.children:
 			data = _raw_metadata.value
 			XMPHandlerMixin._removePrefix(data)
+			for i in data["files_info"]:
+				data["files_info"][i] = int(data["files_info"][i])
 			self._content = QiDataSetContent(**data)
 		else:
 			# if no content info was stored, infere it from the files
