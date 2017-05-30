@@ -8,10 +8,14 @@ import shutil
 
 # Qidata
 from qidata import QiDataSet, DataType
+from qidata.qidataset import isDataset
 from qidata.metadata_objects import Face, Context
 import utilities
 
 def test_wrong_path(qidata_file_path):
+    """
+    If path is not a folder, it cannot be opened as a QiDataSet
+    """
     with pytest.raises(IOError):
         with QiDataSet(qidata_file_path, "r") as a:
             pass
@@ -21,6 +25,12 @@ def test_wrong_path(qidata_file_path):
             pass
 
 def test_invalid_dataset_opening(invalid_dataset_path):
+    """
+    If path is a folder but not already a QiDataSet, it can only be opened in
+    "write" mode. Once this is done, it has become a QiDataSet, and can be
+    opened in "read" mode
+    """
+    assert(not isDataset(invalid_dataset_path))
     with pytest.raises(IOError):
         with QiDataSet(invalid_dataset_path, "r") as a:
             pass
@@ -30,13 +40,21 @@ def test_invalid_dataset_opening(invalid_dataset_path):
         assert(a.mode == "w")
         pass
 
+    assert(isDataset(invalid_dataset_path))
     assert(os.path.exists(os.path.join(invalid_dataset_path, "metadata.xmp")))
 
 def test_valid_dataset_opening(valid_dataset_path):
+    """
+    If path is a QiDataSet, make sure it can be opened
+    """
+    assert(isDataset(valid_dataset_path))
     with QiDataSet(valid_dataset_path, "r") as a:
         assert(a.mode == "r")
 
-def test_dataset_properties(valid_dataset_path):
+def test_valid_dataset_properties(valid_dataset_path):
+    """
+    Check we can access all the basic properties of a QiDataSet
+    """
     with QiDataSet(valid_dataset_path, "r") as a:
         assert(a.children == ["JPG_file.jpg", "WAV_file.wav"])
         assert(a.raw_data == (["JPG_file.jpg", "WAV_file.wav"], a.content))
@@ -50,22 +68,26 @@ def test_dataset_properties(valid_dataset_path):
         assert(c.partial_annotations == [])
     assert(a.closed)
 
-def test_dataset_with_new_annotations_path_properties(dataset_with_newly_annotated_file_path):
-    # Check new annotations have not been discovered yet
-    # And that they are after examination
+def test_dataset_with_newly_annotated_file_properties(dataset_with_newly_annotated_file_path):
+    """
+    Check new annotations have not been discovered yet and that they are after
+    examination
+    """
     with QiDataSet(dataset_with_newly_annotated_file_path, "w") as a:
         assert(a.content.toDict()["metadata_info"] == dict())
         a.examineContent()
         assert(a.content.toDict()["metadata_info"]["sambrose"]["Context"] == False)
         assert(a.content.partial_annotations == [("sambrose","Context")])
-        assert(1 == a.content._type_content["AUDIO"])
-        assert(1 == a.content._type_content["IMAGE"])
 
     # Check it has been written properly
     with QiDataSet(dataset_with_newly_annotated_file_path, "r") as a:
         assert(a.content.toDict()["metadata_info"]["sambrose"]["Context"] == False)
 
 def test_annotated_dataset_properties(annotated_dataset_path):
+    """
+    When facing an annotated dataset, we can retrieve information on its
+    contained annotations. They also can be modified
+    """
     # Check data set content info are correct
     with QiDataSet(annotated_dataset_path, "r") as a:
         assert(a.children == ["JPG_file.jpg", "WAV_file.wav"])
@@ -78,7 +100,12 @@ def test_annotated_dataset_properties(annotated_dataset_path):
         assert(c.annotation_types == [])
         assert(set(c.file_types) == set(["IMAGE", "AUDIO"]))
         assert(a.content.toDict()["metadata_info"]["sambrose"]["Context"] == False)
+        assert(a.getAllFilesOfType("IMAGE")==["JPG_file.jpg"])
+        assert(a.getAllFilesOfType(DataType.IMAGE)==["JPG_file.jpg"])
+        assert(a.getAllFilesOfType("AUDIO")==["WAV_file.wav"])
+        assert(a.getAllFilesOfType(DataType.AUDIO)==["WAV_file.wav"])
     assert(a.closed)
+
     # Mark the annotation as total (and check the content is changed)
     with QiDataSet(annotated_dataset_path, "w") as a:
         c = a.content
@@ -128,9 +155,7 @@ def test_annotated_dataset_properties(annotated_dataset_path):
     assert(c["metadata_info"]["jdoe"]["Context"] == False)
     assert(c["metadata_info"]["sambrose"]["Face"] == False)
 
-def test_child_opening():
-    dataset_annotated_path = utilities.sandboxed(utilities.DATASET_ANNOTATED)
-    with QiDataSet(dataset_annotated_path, "r") as a:
+    with QiDataSet(annotated_dataset_path, "r") as a:
         with pytest.raises(IOError):
             with a.openChild("non_existing_file.jpg", "w") as img_file:
                 pass
@@ -142,3 +167,25 @@ def test_child_opening():
         with  pytest.raises(IOError):
             with a.openChild("non_existing_file.jpg", "w") as img_file:
                 pass
+
+def test_annotated_dataset_create_data_bins(annotated_dataset_path):
+    with QiDataSet(annotated_dataset_path, "w") as a:
+        with pytest.raises(TypeError):
+            a.setTypeOfFile("JPG_file.jpg", "TROLOLOLOLO")
+
+        with pytest.raises(ValueError):
+            a.setTypeOfFile("non_existing_file.jpg", "IMG_3D")
+
+        a.setTypeOfFile("JPG_file.jpg", "IMG_3D")
+        assert(a.getAllFilesOfType(DataType.IMG_3D)==["JPG_file.jpg"])
+
+        a.setTypeOfFile("JPG_file.jpg", DataType.IMG_2D)
+        assert(a.getAllFilesOfType("IMG_2D")==["JPG_file.jpg"])
+
+        assert(set(["AUDIO", "IMG_2D"]) == set(a.content.file_types))
+        assert(a.getAllFilesOfType("IMAGE")==[])
+
+    with QiDataSet(annotated_dataset_path, "r") as a:
+        assert(a.getAllFilesOfType("IMG_2D")==["JPG_file.jpg"])
+        assert(a.getAllFilesOfType("IMAGE")==[])
+        assert(set(["AUDIO", "IMG_2D"]) == set(a.content.file_types))

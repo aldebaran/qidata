@@ -282,14 +282,27 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 			# Save annotations' metadata
 			self._save(self._xmp_file, self._annotations)
 
-			# Save dataset content's metadata
+			# Erase current dataset content's metadata
 			_raw_metadata = self._xmp_file.metadata[QIDATA_CONTENT_NS]
+			for key in _raw_metadata.attributes():
+				del _raw_metadata[key]
+
+			# Save new dataset content's metadata
 			content_dict = self._content.toDict()
 			for key in content_dict:
 				setattr(_raw_metadata, key, content_dict[key])
 
 		self._xmp_file.close()
 		self._is_closed = True
+
+	def getAllFilesOfType(self, type_name):
+		"""
+		Returns all the file names of a specific type
+
+		:param type_name: Requested type
+		:return: List of filenames
+		"""
+		return self._content._type_content.get(str(type_name), [])
 
 	def reloadMetadata(self):
 		"""
@@ -313,9 +326,12 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 				# But later we will have to handle sub-datasets
 				continue
 			file_type = qidatafile.getFileDataType(path)
+			# if not files_info.has_key(str(file_type)):
+			# 	files_info[str(file_type)] = 0
+			# files_info[str(file_type)] += 1
 			if not files_info.has_key(str(file_type)):
-				files_info[str(file_type)] = 0
-			files_info[str(file_type)] += 1
+				files_info[str(file_type)] = []
+			files_info[str(file_type)].append(path)
 			with self.openChild(path, "r") as _child:
 				for child_annotator in _child.metadata.keys():
 					if not annotations_info.has_key(child_annotator):
@@ -345,6 +361,40 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 				if value == True:
 					self._content._data[key] = True
 
+	def setTypeOfFile(self, filename, data_type):
+		"""
+		Changes the type of a file
+
+		:param filename: Name of the file whose type will change
+		:param data_type: New data type
+		"""
+		# Check given type
+		try:
+			_ = DataType[data_type]
+		except KeyError:
+			try:
+				_ = DataType(data_type)
+			except ValueError:
+				raise TypeError("%s is not a valid DataType"%data_type)
+
+		# Search for file in current type mapping
+		for old_data_type in self._content.file_types:
+			try:
+				self._content._type_content[old_data_type].remove(filename)
+			except ValueError:
+				continue
+			if len(self._content._type_content[old_data_type]) == 0:
+				self._content._type_content.pop(old_data_type)
+			break
+		else:
+			# If not found check if the file is actually in the dataset
+			if not filename in self.children:
+				raise ValueError("%s is not part of this QiDataSet"%filename)
+
+		# Add the file in the type mapping
+		if not self._content._type_content.has_key(str(data_type)):
+			self._content._type_content[str(data_type)] = []
+		self._content._type_content[str(data_type)].append(filename)
 
 	@staticmethod
 	def contentFromPath(folder_path):
@@ -375,9 +425,24 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		if _raw_metadata.children:
 			data = _raw_metadata.value
 			XMPHandlerMixin._removePrefix(data)
-			for i in data["files_info"]:
-				data["files_info"][i] = int(data["files_info"][i])
 			self._content = QiDataSetContent(**data)
+
+			if len(data["files_info"])>0\
+			   and isinstance(data["files_info"].values()[0], basestring):
+				# Current file info is wrong
+				# Examine content to get proper file info
+				files_info = dict()
+				supported_subpaths = self.children
+				for path in supported_subpaths:
+					if isDataset(path):
+						# Avoid it for the moment
+						# But later we will have to handle sub-datasets
+						continue
+					file_type = qidatafile.getFileDataType(path)
+					if not files_info.has_key(str(file_type)):
+						files_info[str(file_type)] = []
+					files_info[str(file_type)].append(path)
+				self._content._type_content = dict(files_info)
 		else:
 			# if no content info was stored, infere it from the files
 			self.examineContent()

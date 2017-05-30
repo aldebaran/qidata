@@ -77,9 +77,12 @@ class DataType(_BaseEnum):
 	"""
 	Types of objects known by qidata
 	"""
-	AUDIO   = 0 #: For WAV files
-	DATASET = 1 #: For folders containing several annotated files
-	IMAGE   = 2 #: For PNG and JPG images
+	AUDIO      = 0 #: For WAV files
+	DATASET    = 1 #: For folders containing several annotated files
+	IMAGE      = 2 #: For all images (used for PNG and JPG extensions)
+	IMG_2D     = 3 #: For 2D images
+	IMG_3D     = 4 #: For 3D images
+	IMG_STEREO = 5 #: For stereo images
 
 	def __str__(self):
 		return self.name
