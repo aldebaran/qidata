@@ -5,7 +5,7 @@ import unittest
 # Qidata
 from qidata import qidatafile
 from qidata._mixin import XMPHandlerMixin
-import fixtures
+import utilities
 
 class FileTools(unittest.TestCase):
 	def test_support(self):
@@ -14,7 +14,7 @@ class FileTools(unittest.TestCase):
 
 class File(unittest.TestCase):
 	def setUp(self):
-		self.jpg_path = fixtures.sandboxed(fixtures.JPG_PHOTO)
+		self.jpg_path = utilities.sandboxed(utilities.JPG_PHOTO)
 
 	def test_contextmanager_noop(self):
 		with qidatafile.open(self.jpg_path):
@@ -58,14 +58,14 @@ class File(unittest.TestCase):
 
 class MetadataReading(unittest.TestCase):
 	def setUp(self):
-		self.jpg_data_path = fixtures.sandboxed(fixtures.QIDATA_TEST_FILE)
+		self.jpg_data_path = utilities.sandboxed(utilities.QIDATA_TEST_FILE)
 		self.jpg_data_item = qidatafile.open(self.jpg_data_path)
 
 	def tearDown(self):
 		self.jpg_data_item.close()
 
 	def test_annotations(self):
-		fixtures.verifyAnnotations(self.jpg_data_item, "sambrose")
+		utilities.verifyAnnotations(self.jpg_data_item, "sambrose")
 
 	def test_annotators(self):
 		annotators = self.jpg_data_item.annotators
@@ -81,11 +81,11 @@ class MetadataReading(unittest.TestCase):
 		self.jpg_data_item.close()
 		self.jpg_data_item = qidatafile.open(self.jpg_data_path)
 
-		fixtures.verifyAnnotations(self.jpg_data_item, "sambrose")
+		utilities.verifyAnnotations(self.jpg_data_item, "sambrose")
 
 class MetadataWriting(unittest.TestCase):
 	def setUp(self):
-		self.jpg_data_path = fixtures.sandboxed(fixtures.QIDATA_TEST_FILE)
+		self.jpg_data_path = utilities.sandboxed(utilities.QIDATA_TEST_FILE)
 		self.jpg_data_item = qidatafile.open(self.jpg_data_path, "w")
 
 	def test_modification(self):
@@ -235,7 +235,7 @@ class MetadataWriting(unittest.TestCase):
 
 class MetadataTestCases(unittest.TestCase):
 	def setUp(self):
-		self.jpg_data_path = fixtures.sandboxed(fixtures.QIDATA_TEST_FILE)
+		self.jpg_data_path = utilities.sandboxed(utilities.QIDATA_TEST_FILE)
 		self.jpg_data_item = qidatafile.open(self.jpg_data_path, "w")
 
 	def test_general_annotation(self):

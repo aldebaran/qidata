@@ -5,7 +5,7 @@ import unittest
 
 from qidata.qidataobject import QiDataObject
 from qidata import qidatafile
-import fixtures
+import utilities
 
 class QidataObjectTest(unittest.TestCase):
     def test_attributes(self):
@@ -25,7 +25,7 @@ class QiDataObjectImplem:
 class QiDataFileAsObject(unittest.TestCase, QiDataObjectImplem):
 
     def setUp(self):
-        self.jpg_path = fixtures.sandboxed(fixtures.JPG_PHOTO)
+        self.jpg_path = utilities.sandboxed(utilities.JPG_PHOTO)
         self.qidata_object = qidatafile.open(self.jpg_path)
 
     def tearDown(self):
