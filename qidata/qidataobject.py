@@ -103,4 +103,5 @@ class QiDataObject(object):
 			annotator_str = "Annotator: " + unicode(annotator)
 			res_str += annotator_str
 			res_str += textualize_metadata(self.metadata[annotator])
+			res_str += "\n"
 		return res_str
