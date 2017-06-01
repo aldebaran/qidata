@@ -20,6 +20,12 @@ try:
 except Exception, e:
 	print e
 
+try:
+	import set_commands
+	SUBCOMMANDS.append([set_commands, "set"])
+except Exception, e:
+	print e
+
 def parser():
 	parser = argparse.ArgumentParser(description=DESCRIPTION)
 	subparsers = parser.add_subparsers()
