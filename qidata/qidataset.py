@@ -300,6 +300,7 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		Returns all the file names of a specific type
 
 		:param type_name: Requested type
+		:type type_name: ``qidata.DataType`` or str
 		:return: List of filenames
 		"""
 		return self._content._type_content.get(str(type_name), [])
@@ -326,9 +327,6 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 				# But later we will have to handle sub-datasets
 				continue
 			file_type = qidatafile.getFileDataType(path)
-			# if not files_info.has_key(str(file_type)):
-			# 	files_info[str(file_type)] = 0
-			# files_info[str(file_type)] += 1
 			if not files_info.has_key(str(file_type)):
 				files_info[str(file_type)] = []
 			files_info[str(file_type)].append(path)
@@ -363,10 +361,11 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 
 	def setTypeOfFile(self, filename, data_type):
 		"""
-		Changes the type of a file
+		Changes the registered type of a file
 
 		:param filename: Name of the file whose type will change
 		:param data_type: New data type
+		:type data_type: ``qidata.DataType`` or str
 		"""
 		# Check given type
 		try:
