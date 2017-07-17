@@ -619,6 +619,13 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 			XMPHandlerMixin._removePrefix(data)
 			self._content = QiDataSetContent(**data)
 
+			# In a previous version, files_info was counting the number of file
+			# of each type. In the current version, we store for each type the
+			# list of all the corresponding files. This allows users to define
+			# more specific types than those which can be infered from the file
+			# extension.
+			# So if files_info is a string and not a list, it means it is an
+			# "old" version, therefore we need to rework it.
 			if len(data["files_info"])>0\
 			   and isinstance(data["files_info"].values()[0], basestring):
 				# Current file info is wrong
@@ -635,6 +642,7 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 						files_info[str(file_type)] = []
 					files_info[str(file_type)].append(path)
 				self._content._type_content = dict(files_info)
+
 			# If streams are defined, load them. We have to go through the
 			# whole structure to make sure that timestamps are properly
 			# converted to float (after removal of the appended prefix letter
