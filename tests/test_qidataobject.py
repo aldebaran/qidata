@@ -23,6 +23,7 @@ class QiDataObjectImplem:
         self.qidata_object.raw_data
         self.qidata_object.metadata
         self.qidata_object.type
+        self.qidata_object.read_only
 
 class QiDataFileAsObject(unittest.TestCase, QiDataObjectImplem):
 
