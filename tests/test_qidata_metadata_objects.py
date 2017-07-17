@@ -187,3 +187,17 @@ class ContextTest(unittest.TestCase, MetadataObjectBaseImplemented):
         self.instance = Context()
         self.inputs = [dict()]
         self.outputs = [Context()]
+
+class TimeStampTest(unittest.TestCase, MetadataObjectBaseImplemented):
+    def setUp(self):
+        self.type=TimeStamp
+        self.instance = TimeStamp()
+        self.inputs = [dict()]
+        self.outputs = [TimeStamp()]
+
+class TransformTest(unittest.TestCase, MetadataObjectBaseImplemented):
+    def setUp(self):
+        self.type=Transform
+        self.instance = Transform()
+        self.inputs = [dict()]
+        self.outputs = [Transform()]

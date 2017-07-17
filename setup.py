@@ -42,6 +42,8 @@ setup(
             'Person = qidata._metadata_objects.person:Person',
             'Speech = qidata._metadata_objects.speech:Speech',
             'Context = qidata._metadata_objects.context:Context',
+            'TimeStamp = qidata._metadata_objects.timestamp:TimeStamp',
+            'Transform = qidata._metadata_objects.transform:Transform',
         ],
         'qidata.metadata.package': [
             'context = qidata._metadata_objects.context',
