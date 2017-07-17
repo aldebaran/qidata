@@ -34,7 +34,7 @@ SANDBOX_FOLDER = "/tmp/qidata/"
 
 DATASET   = "valid_dataset"
 DATASET_ANNOTATED   = "dataset_annotated"
-DATASET_WITH_DATATYPE_BINS = "dataset_annotated_with_type_bins"
+DATASET_WITH_TWO_IMAGES = "dataset_annotated_with_two_images"
 DATASET_INVALID   = "invalid_dataset"
 JPG_PHOTO = "SpringNebula.jpg"
 QIDATA_V1 = "qidatafile_v1.png"
@@ -124,4 +124,11 @@ def annotated_dataset_path(request):
             a.examineContent()
     return dataset_path
 
+@pytest.fixture(scope="function")
+def dataset_with_several_images_path():
+    dataset_path = sandboxed(DATASET_WITH_TWO_IMAGES)
+    with QiDataSet(dataset_path, "w") as a:
+        a.setTypeOfFile("JPG_file.jpg", "IMG_2D")
+        a.setTypeOfFile("JPG_file2.jpg", "IMG_2D")
+    return dataset_path
 
