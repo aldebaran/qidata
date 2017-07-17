@@ -56,9 +56,9 @@ class QiDataFrame(QiDataObject, XMPHandlerMixin):
 		self._open()
 
 	@staticmethod
-	def create(files, parent_corpus_path, mode):
+	def create(files, parent_corpus_path):
 		frame_name = os.path.join(parent_corpus_path,str(uuid.uuid4())+".frame.xmp")
-		frame = QiDataFrame(frame_name, mode, files)
+		frame = QiDataFrame(frame_name, "w", files)
 		return frame
 
 	# ──────────

@@ -525,7 +525,7 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		"""
 		if len(files) < 2:
 			raise TypeError("createNewFrame needs at least 2 files (%d given)"%len(files))
-		frame = qidataframe.QiDataFrame.create(files, self._folder_path, self.mode)
+		frame = qidataframe.QiDataFrame.create(files, self._folder_path)
 		self._frames.append(frame)
 		return frame
 
