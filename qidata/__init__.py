@@ -79,6 +79,7 @@ class DataType(_BaseEnum):
 	"""
 	AUDIO      = 0 #: For WAV files
 	DATASET    = 1 #: For folders containing several annotated files
+	FRAME      = 6 #: Special file describing an "atomic" piece of data
 	IMAGE      = 2 #: For all images (used for PNG and JPG extensions)
 	IMG_2D     = 3 #: For 2D images
 	IMG_3D     = 4 #: For 3D images

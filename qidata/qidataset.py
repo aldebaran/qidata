@@ -4,13 +4,15 @@
 import __builtin__
 import os
 import copy
+import glob
 
 # xmp
 from xmp.xmp import XMPFile, registerNamespace
 
 # qidata
-from qidata import DataType, qidatafile
+from qidata import DataType, qidatafile, qidataframe
 from qidata.qidataobject import QiDataObject
+from qidata.exceptions import ReadOnlyException, throwIfReadOnly
 from _mixin import XMPHandlerMixin
 
 QIDATA_CONTENT_NS=u"http://softbank-robotics.com/qidataset/1"
@@ -178,6 +180,7 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		self._xmp_file = XMPFile(metadata_path, rw=(mode=="w"))
 		self._is_closed = True
 		self._streams = dict()
+		self._frames = list()
 		self._open()
 
 	# def __del__(self):
@@ -314,6 +317,8 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 			setattr(_raw_metadata, "streams", tmp_streams)
 
 		self._xmp_file.close()
+		for f in self._frames:
+			f.close()
 		self._is_closed = True
 
 	def getAllFilesOfType(self, type_name):
@@ -507,6 +512,74 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 				break
 			# si le stream devient vide, on devrait le supprimer
 
+	@throwIfReadOnly
+	def createNewFrame(self, *files):
+		"""
+		Creates a new association of files in a :class:``QiDataFrame``
+
+		:param files: files to include in the frame
+		:param files: str
+		:return: Created frame
+		:rtype: :class:``QiDataFrame``
+		:raises: TypeError if not enough files are given
+		"""
+		if len(files) < 2:
+			raise TypeError("createNewFrame needs at least 2 files (%d given)"%len(files))
+		frame = qidataframe.QiDataFrame.create(files, self._folder_path, self.mode)
+		self._frames.append(frame)
+		return frame
+
+	def getFrame(self, *files):
+		"""
+		Get an already created frame
+
+		:param files: files composing the researched frame
+		:param files: str
+		:return: Researched frame
+		:rtype: :class:``QiDataFrame``
+		:raises: IndexError if no frame matches the requested files
+		"""
+		try:
+			return [f for f in self._frames if set(files)==f._files][0]
+		except IndexError:
+			return None
+
+	def getAllFrames(self):
+		"""
+		Returns all created frames
+
+		:return: Every frames of the dataset
+		:rtype: list
+		"""
+		return copy.copy(self._frames)
+
+	@throwIfReadOnly
+	def removeFrame(self, *files):
+		"""
+		Remove a frame from the dataset
+
+		:param files: Files composing the frame to remove.
+
+		..note::
+			A frame cannot be composed of only one file. So if only one file is
+			given as argument, it is considered to be directly the frame to
+			remove.
+		"""
+		if len(files) == 1:
+			f=files[0]
+		else:
+			f = self.getFrame(*files)
+		if f is None:
+			return
+		try:
+			self._frames.remove(f)
+		except ValueError:
+			pass
+		else:
+			f.close()
+			f._is_valid=False
+			os.remove(f._file_path)
+
 	@staticmethod
 	def contentFromPath(folder_path):
 		"""
@@ -527,6 +600,14 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		"""
 		Open the data set
 		"""
+		frames = glob.glob(self._folder_path+"/*.frame.xmp")
+		for frame in frames:
+			self._frames.append(
+				qidataframe.QiDataFrame(
+					frame,
+					self.mode
+				)
+			)
 		self._xmp_file.__enter__()
 		self._is_closed = False
 		self.reloadMetadata()

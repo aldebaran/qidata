@@ -9,7 +9,9 @@ import shutil
 # Qidata
 from qidata import QiDataSet, DataType
 from qidata.qidataset import isDataset
-from qidata.metadata_objects import Face, Context
+from qidata.exceptions import ReadOnlyException
+from qidata.qidataframe import FrameIsInvalid
+from qidata.metadata_objects import Face, Context, TimeStamp
 import utilities
 
 def test_wrong_path(qidata_file_path):
@@ -290,3 +292,58 @@ def test_data_stream(dataset_with_several_images_path):
                 "audio":{1.5:"WAV_file.wav"}
             } == a.getAllStreams()
         )
+
+def test_data_frame(annotated_dataset_path):
+    with QiDataSet(annotated_dataset_path, "r") as a:
+        assert([] == a.getAllFrames())
+        with pytest.raises(ReadOnlyException):
+            _f = a.createNewFrame("JPG_file.jpg", "WAV_file.wav")
+
+    with QiDataSet(annotated_dataset_path, "w") as a:
+        assert([] == a.getAllFrames())
+        _f = a.createNewFrame("JPG_file.jpg", "WAV_file.wav")
+        assert([_f] == a.getAllFrames())
+        annotations = _f.metadata
+        timestamp = [TimeStamp(1491454120,0), []]
+        annotations["jdoe"]=dict()
+        annotations["jdoe"]["TimeStamp"]=[timestamp]
+        _f.metadata = annotations
+
+    with QiDataSet(annotated_dataset_path, "r") as a:
+        frames = a.getAllFrames()
+        assert(isinstance(frames, list))
+        assert(len(frames)==1)
+        assert(set(["JPG_file.jpg", "WAV_file.wav"]) == frames[0].raw_data)
+        assert(set(["JPG_file.jpg", "WAV_file.wav"]) == frames[0].files)
+        assert(frames[0].metadata.has_key("jdoe"))
+        assert(frames[0].metadata["jdoe"].has_key("TimeStamp"))
+        assert(1 == len(frames[0].metadata["jdoe"]["TimeStamp"]))
+        assert([] == frames[0].metadata["jdoe"]["TimeStamp"][0][1])
+        assert(1491454120 == frames[0].metadata["jdoe"]["TimeStamp"][0][0].seconds)
+        assert(0 == frames[0].metadata["jdoe"]["TimeStamp"][0][0].nanoseconds)
+        with pytest.raises(ReadOnlyException):
+            a.removeFrame(frames[0])
+
+    with QiDataSet(annotated_dataset_path, "w") as a:
+        frames = a.getAllFrames()
+        a.removeFrame(frames[0])
+        assert([] == a.getAllFrames())
+
+    with QiDataSet(annotated_dataset_path, "w") as a:
+        assert([] == a.getAllFrames())
+        _f = a.createNewFrame("JPG_file.jpg", "WAV_file.wav")
+        assert(_f == a.getFrame("JPG_file.jpg", "WAV_file.wav"))
+        assert(_f == a.getFrame("WAV_file.wav", "JPG_file.jpg"))
+        a.removeFrame("WAV_file.wav", "JPG_file.jpg")
+        assert([] == a.getAllFrames())
+        with pytest.raises(FrameIsInvalid):
+            _f._open()
+
+        with pytest.raises(FrameIsInvalid):
+            _f.metadata
+
+        with pytest.raises(FrameIsInvalid):
+            _f.metadata = []
+
+    with QiDataSet(annotated_dataset_path, "r") as a:
+        assert([] == a.getAllFrames())
