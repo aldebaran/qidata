@@ -216,6 +216,13 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		return "w" if self._xmp_file.rw else "r"
 
 	@property
+	def read_only(self):
+		"""
+		States if the object is protected against modification
+		"""
+		return ("r" == self.mode)
+
+	@property
 	def path(self):
 		"""
 		Give the folder path

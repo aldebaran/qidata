@@ -38,7 +38,12 @@ class File(unittest.TestCase):
 
 	def test_mode_attribute(self):
 		with qidatafile.open(self.jpg_path) as datafile:
-			datafile.mode
+			assert(datafile.mode == "r")
+			assert(datafile.read_only)
+
+		with qidatafile.open(self.jpg_path, "w") as datafile:
+			assert(datafile.mode == "w")
+			assert(not datafile.read_only)
 
 	def test_path_attribute(self):
 		with qidatafile.open(self.jpg_path) as datafile:

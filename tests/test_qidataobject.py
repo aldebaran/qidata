@@ -15,6 +15,8 @@ class QidataObjectTest(unittest.TestCase):
         assert(qidata_object.metadata == dict())
         with self.assertRaises(NotImplementedError):
             qidata_object.type
+        with self.assertRaises(NotImplementedError):
+            qidata_object.read_only
 
 class QiDataObjectImplem:
     def test_attributes(self):

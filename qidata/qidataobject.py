@@ -90,6 +90,13 @@ class QiDataObject(object):
 		"""
 		return self.metadata.keys()
 
+	@property
+	def read_only(self):
+		"""
+		States if the object is protected against modification
+		"""
+		raise NotImplementedError
+
 	# ──────────────
 	# Textualization
 
