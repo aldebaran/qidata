@@ -53,12 +53,14 @@ class QiDataSetContent:
 		can only be guaranteed if it emanates from a human.
 	"""
 
-	def __init__(self, files_info, metadata_info=dict()):
+	def __init__(self, files_info, metadata_info=dict(), **kwargs):
 		"""
 		:param files_info: Contains the number of files of each type
 		:type files_info: dict
 		:param metadata_info: Status of the different metadatas
 		:type metadata_info: dict
+
+		Other keywords arguments are ignored
 
 		.. note::
 			metadata_info contains a 2-layer dict to describe the status
@@ -175,6 +177,7 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 
 		self._xmp_file = XMPFile(metadata_path, rw=(mode=="w"))
 		self._is_closed = True
+		self._streams = dict()
 		self._open()
 
 	# def __del__(self):
@@ -299,6 +302,17 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 			for key in content_dict:
 				setattr(_raw_metadata, key, content_dict[key])
 
+			# Save data streams (they need to be a little be reworked to fit
+			# XMP base rules, namely numbers cannot be keys so we add the
+			# letter "t" in front of the timestamps)
+			tmp_streams = dict()
+			for stream_name, stream in self._streams.iteritems():
+				tmp_streams[stream_name] = (stream[0],dict())
+				for (timestamp,filename) in stream[1].iteritems():
+					tmp_streams[stream_name][1]["t"+str(timestamp)] = filename
+
+			setattr(_raw_metadata, "streams", tmp_streams)
+
 		self._xmp_file.close()
 		self._is_closed = True
 
@@ -402,6 +416,97 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 			self._content._type_content[str(data_type)] = []
 		self._content._type_content[str(data_type)].append(filename)
 
+	def createNewStream(self, data_type, name, file_timestamp_pairs):
+		"""
+		Creates a new set of files which should be considered as part
+		of the same data stream
+
+		:param data_type: Type of the created data stream
+		:type data_type: ``qidata.DataType``
+		:param name: Name given to the stream
+		:type name: str
+		:param file_timestamp_pairs: List of pairs of filename and timestamp
+		:type file_timestamp_pairs: list
+		"""
+		self._streams[name] = (data_type, dict(file_timestamp_pairs))
+
+	def getAllStreams(self):
+		"""
+		Returns all declared streams
+
+		:return: Every stream known by the data set
+		:rtype: dict
+		"""
+		return copy.deepcopy(
+			dict(
+				(name, data[1]) for (name, data) in self._streams.iteritems()
+			)
+		)
+
+	def getStreamsOfType(self, data_type):
+		"""
+		Returns all streams of a specific type
+
+		:param data_type: Requested data type
+		:type data_type: ``qidata.DataType``
+		:return: Every stream of the requested type known by the data set
+		:rtype: dict
+		"""
+		return copy.deepcopy(
+			dict(
+				(name, data[1]) for (name, data) in self._streams.iteritems() if data[0]==data_type
+			)
+		)
+
+	def getStream(self, stream_name):
+		"""
+		Returns the requested stream
+
+		:param stream_name: Requested data stream
+		:type stream_name: str
+		:return: The requested stream
+		:rtype: dict
+		"""
+		return copy.deepcopy(self._streams[stream_name][1])
+
+	def getStreamType(self, stream_name):
+		"""
+		Returns the type of a specific stream
+
+		:param stream_name: Data stream of interest
+		:type stream_name: str
+		:return: The requested stream's data type
+		:rtype: ``qidata.DataType``
+		"""
+		return self._streams[stream_name][0]
+
+	def addToStream(self, stream_name, file_timestamp_pair_to_add):
+		"""
+		Add a pair (timestamp, file name) to a data stream
+
+		:param stream_name: Name of the stream to modify
+		:type stream_name: str
+		:param file_timestamp_pair_to_add: Pair of filename and timestamp
+		:type file_timestamp_pair_to_add: tuple
+		"""
+		_tmp=file_timestamp_pair_to_add
+		self._streams[stream_name][1][_tmp[0]]=_tmp[1]
+
+	def removeFromStream(self, stream_name, file_to_remove):
+		"""
+		Remove a file from a data stream
+
+		:param stream_name: Name of the stream to modify
+		:type stream_name: str
+		:param file_to_remove: Name of the file to remove
+		:type file_to_remove: str
+		"""
+		for (ts, filename) in self._streams[stream_name][1].iteritems():
+			if filename == file_to_remove:
+				self._streams[stream_name][1].pop(ts)
+				break
+			# si le stream devient vide, on devrait le supprimer
+
 	@staticmethod
 	def contentFromPath(folder_path):
 		"""
@@ -449,6 +554,17 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 						files_info[str(file_type)] = []
 					files_info[str(file_type)].append(path)
 				self._content._type_content = dict(files_info)
+			# If streams are defined, load them. We have to go through the
+			# whole structure to make sure that timestamps are properly
+			# converted to float (after removal of the appended prefix letter
+			# and filenames must be converted to string, as this is the type we
+			# use, but they are saved as unicode)
+			if data.has_key("streams") and len(data["streams"])>0:
+				for stream_name, stream in data["streams"].iteritems():
+					self._streams[stream_name] = [DataType[stream[0]],dict()]
+					for (timestamp,filename) in stream[1].iteritems():
+						self._streams[stream_name][1][float(timestamp[1:])] = str(filename)
+
 		else:
 			# if no content info was stored, infere it from the files
 			self.examineContent()

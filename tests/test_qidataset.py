@@ -189,3 +189,104 @@ def test_annotated_dataset_create_data_bins(annotated_dataset_path):
         assert(a.getAllFilesOfType("IMG_2D")==["JPG_file.jpg"])
         assert(a.getAllFilesOfType("IMAGE")==[])
         assert(set(["AUDIO", "IMG_2D"]) == set(a.content.file_types))
+
+def test_data_stream(dataset_with_several_images_path):
+    with QiDataSet(dataset_with_several_images_path, "w") as a:
+        assert(dict() == a.getAllStreams())
+        assert(dict() == a.getStreamsOfType(DataType.IMG_2D))
+        with pytest.raises(KeyError):
+            a.getStream("toto")
+
+        imgs_2d = a.getAllFilesOfType("IMG_2D")
+        a.createNewStream(DataType.IMG_2D, "cam2d", zip([0,1],imgs_2d))
+        aud = a.getAllFilesOfType("AUDIO")
+        a.createNewStream(DataType.AUDIO, "audio", zip([1.5],aud))
+
+        assert(DataType.IMG_2D == a.getStreamType("cam2d"))
+        assert(DataType.AUDIO == a.getStreamType("audio"))
+        assert(
+            {
+                0:"JPG_file.jpg",
+                1:"JPG_file2.jpg"
+            } == a.getStream("cam2d")
+        )
+        assert(
+            {
+                1.5:"WAV_file.wav"
+            } == a.getStream("audio")
+        )
+        assert(
+            {
+                "cam2d":
+                {
+                    0:"JPG_file.jpg",
+                    1:"JPG_file2.jpg"
+                }
+            } == a.getStreamsOfType(DataType.IMG_2D)
+        )
+        assert(
+            {
+                "audio":
+                {
+                    1.5:"WAV_file.wav"
+                }
+            } == a.getStreamsOfType(DataType.AUDIO)
+        )
+        assert(
+            {
+                "cam2d":
+                {
+                    0:"JPG_file.jpg",
+                    1:"JPG_file2.jpg"
+                },
+                "audio":
+                {
+                    1.5:"WAV_file.wav"
+                }
+            } == a.getAllStreams()
+        )
+
+        a.removeFromStream("cam2d", "JPG_file2.jpg")
+        assert(
+            {
+                "cam2d":
+                {
+                    0:"JPG_file.jpg"
+                }
+            } == a.getStreamsOfType(DataType.IMG_2D)
+        )
+        assert(
+            {
+                "cam2d":
+                {
+                    0:"JPG_file.jpg"
+                },
+                "audio":
+                {
+                    1.5:"WAV_file.wav"
+                }
+            } == a.getAllStreams()
+        )
+
+        a.addToStream("cam2d", (0.5,"JPG_file2.jpg"))
+        assert(
+            {
+                "cam2d":
+                {
+                    0:"JPG_file.jpg",
+                    0.5:"JPG_file2.jpg"
+                },
+                "audio":
+                {
+                    1.5:"WAV_file.wav"
+                }
+            } == a.getAllStreams()
+        )
+
+    with QiDataSet(dataset_with_several_images_path, "r") as a:
+        assert(
+            {
+                "cam2d":{0:"JPG_file.jpg", 0.5:"JPG_file2.jpg"},
+                "audio":{1.5:"WAV_file.wav"}
+            } == a.getAllStreams()
+        )
