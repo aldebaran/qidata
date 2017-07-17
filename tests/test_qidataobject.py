@@ -2,9 +2,10 @@
 
 # Standard Library
 import unittest
+import os
 
 from qidata.qidataobject import QiDataObject
-from qidata import qidatafile
+from qidata import qidatafile, qidataframe
 import utilities
 
 class QidataObjectTest(unittest.TestCase):
@@ -33,3 +34,12 @@ class QiDataFileAsObject(unittest.TestCase, QiDataObjectImplem):
 
     def tearDown(self):
         self.qidata_object.close()
+
+class QiDataFrameAsObject(unittest.TestCase, QiDataObjectImplem):
+
+    def setUp(self):
+        self.qidata_object = qidataframe.QiDataFrame.create(["a", "b"],".")
+
+    def tearDown(self):
+        self.qidata_object.close()
+        os.remove(self.qidata_object._file_path)
