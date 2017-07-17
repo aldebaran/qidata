@@ -100,6 +100,13 @@ class QiDataFrame(QiDataObject, XMPHandlerMixin):
 		return "w" if self._xmp_file.rw else "r"
 
 	@property
+	def read_only(self):
+		"""
+		States if the object is protected against modification
+		"""
+		return ("r" == self.mode)
+
+	@property
 	@throwIfInvalid
 	def metadata(self):
 		return QiDataObject.metadata.__get__(self)
