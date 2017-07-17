@@ -31,6 +31,7 @@ class MetadataObjectBaseImplemented():
     def test_copy_object(self):
         copy = self.type(self.instance)
         assert(copy == self.instance)
+        assert(not (copy is self.instance))
 
     def test_too_many_arguments(self):
         args = []
