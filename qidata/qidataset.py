@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
-# Standard Library
+# Standard libraries
 import __builtin__
 import os
 import copy
 import glob
 
-# xmp
+# Third-party libraries
 from xmp.xmp import XMPFile, registerNamespace
 
-# qidata
+# Local modules
 from qidata import DataType, qidatafile, qidataframe
 from qidata.qidataobject import QiDataObject
 from qidata.exceptions import ReadOnlyException, throwIfReadOnly
@@ -57,7 +57,7 @@ class QiDataSetContent:
 
 	def __init__(self, files_info, metadata_info=dict(), **kwargs):
 		"""
-		:param files_info: Contains the number of files of each type
+		:param files_info: Contains the list of files of each type
 		:type files_info: dict
 		:param metadata_info: Status of the different metadatas
 		:type metadata_info: dict
@@ -78,7 +78,7 @@ class QiDataSetContent:
 			for annotation_type, status in subdict.iteritems():
 				self._data[(annotator, annotation_type)] = True if status =="True" else False
 
-		self._type_content = dict(files_info) #: list of data types with number of file
+		self._type_content = dict(files_info) #: map of data types to list of files
 
 		# _content is a list of triplet whose each is
 		# (annotator_name, annotation_type, annotation_is_total)
@@ -144,8 +144,10 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		"""
 		Open a QiDataSet.
 
-		:param folder_path: path to the data set to open (str)
-		:param mode: opening mode, "r" for reading, "w" for writing (str)
+		:param folder_path: path to the data set to open
+		:type folder_path: str
+		:param mode: opening mode, "r" for reading, "w" for writing
+		:type mode: str
 
 		.. warnings::
 
@@ -154,8 +156,8 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		.. note::
 
 			"r" mode means the folder is expected to contain a file named
-			"metadata.xmp". If it does not (if it is a regular folder) opening
-			will fail).
+			"metadata.xmp" of a certain form (an empty file is not enough).
+			Otherwise, opening will fail.
 			In "w" mode, any folder can be opened. If no "metadata.xmp" file is
 			present, one will be created. If there is one, it WILL NOT BE TRUNCATED
 			(unlike the regular "w" mode of file opening).
@@ -341,10 +343,27 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		"""
 		Examine all dataset's files to infer content information.
 
-		This will update the ``content`` property
+		For every supported file contained in the dataset, this function will:
+		 - check if a DataType is already defined and infer one from the file
+		   extension if not.
+		 - open the file and look for present annotations
+
+		Once all files have been studied, remaining annotations will be updated
+		with any known status that might have been present before this function
+		was called.
+
+		This function updates the ``content`` property
 		"""
-		files_info = dict()
 		annotations_info = dict()
+		files_info = dict()
+
+		# Keep track of the knowledge we have so far
+		if not hasattr(self, "_content"):
+			type_map = dict()
+			known_status = dict()
+		else:
+			type_map = self._content._type_content
+			known_status = self._content._data
 
 		supported_subpaths = self.children
 		for path in supported_subpaths:
@@ -352,10 +371,23 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 				# Avoid it for the moment
 				# But later we will have to handle sub-datasets
 				continue
-			file_type = qidatafile.getFileDataType(path)
+
+			# Search if a specific type was set for this file
+			# If it does, then use it
+			# Otherwise, infer its type from the file extension
+			for data_type, file_list in type_map.iteritems():
+				if path in file_list:
+					file_type = data_type
+					break
+			else:
+				file_type = qidatafile.getFileDataType(path)
+
+			# And then add that file in the appropriate category
 			if not files_info.has_key(str(file_type)):
 				files_info[str(file_type)] = []
 			files_info[str(file_type)].append(path)
+
+			# Finally, open the file to look for annotations
 			with self.openChild(path, "r") as _child:
 				for child_annotator in _child.metadata.keys():
 					if not annotations_info.has_key(child_annotator):
@@ -363,27 +395,19 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 					for metadata_type in _child.metadata[child_annotator]:
 						annotations_info[child_annotator][metadata_type] = False
 
-		# Create empty content if one is not already created
-		if not hasattr(self, "_content"):
-			self._content = QiDataSetContent(files_info, annotations_info)
-		else:
-			# Save the previous annotation status
-			# files don't need to be saved as only the new list matters
-			old_content = self._content._data
+		# Create new content
+		self._content = QiDataSetContent(files_info, annotations_info)
 
-			# Create a new content from what was discovered
-			self._content = QiDataSetContent(files_info, annotations_info)
-
-			# For each TOTAL status, update the new content
-			# Indeed, a TOTAL status is an input from a human
-			# and therefore must not be erased by the program
-			# Any PARTIAL status present before and not in the new
-			# content would mean that NO file was found with this
-			# annotation from this person => annotations were probably
-			# removed => no need to re-add the information.
-			for key, value in old_content.iteritems():
-				if value == True:
-					self._content._data[key] = True
+		# For each TOTAL status, update the new content
+		# Indeed, a TOTAL status is an input from a human and therefore must
+		# not be erased by the program.
+		# Any PARTIAL status present before and not in the new
+		# content would mean that NO file was found with this
+		# annotation from this person => annotations were probably
+		# removed => no need to re-add the information.
+		for key, value in known_status.iteritems():
+			if value == True:
+				self._content._data[key] = True
 
 	def setTypeOfFile(self, filename, data_type):
 		"""

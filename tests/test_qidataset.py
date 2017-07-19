@@ -187,9 +187,14 @@ def test_annotated_dataset_create_data_bins(annotated_dataset_path):
         assert(set(["AUDIO", "IMG_2D"]) == set(a.content.file_types))
         assert(a.getAllFilesOfType("IMAGE")==[])
 
-    with QiDataSet(annotated_dataset_path, "r") as a:
+        a.examineContent()
         assert(a.getAllFilesOfType("IMG_2D")==["JPG_file.jpg"])
+        assert(set(["AUDIO", "IMG_2D"]) == set(a.content.file_types))
         assert(a.getAllFilesOfType("IMAGE")==[])
+
+    with QiDataSet(annotated_dataset_path, "r") as a:
+        assert(a.getAllFilesOfType("IMAGE")==[])
+        assert(a.getAllFilesOfType("IMG_2D")==["JPG_file.jpg"])
         assert(set(["AUDIO", "IMG_2D"]) == set(a.content.file_types))
 
 def test_data_stream(dataset_with_several_images_path):
