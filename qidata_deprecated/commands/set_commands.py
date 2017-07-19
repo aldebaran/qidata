@@ -26,12 +26,17 @@ class QiDataSetCommand:
 		with qidataset.QiDataSet(args.dataset) as p:
 			print "Dataset content:", textualize_mapping(p.content.toDict())
 
+	# @staticmethod
+	# def create(args):
+	# 	with qidataset.QiDataSet(args.dataset) as p:
+	# 		print "Dataset content:", textualize_mapping(p.content.toDict())
+
 # ───────
 # Helpers
 
 def throwIfAbsent(qidataset_path):
 	if not qidataset.isDataset(qidataset_path):
-		sys.exit(qidataset_path+" doesn't exist of isn't a valid QiDataSet")
+		sys.exit(qidataset_path+" doesn't exist or isn't a valid QiDataSet")
 
 
 # ──────
@@ -48,6 +53,15 @@ def make_command_parser(parent_parser=argparse.ArgumentParser(description=DESCRI
 	dataset_argument = show_parser.add_argument("dataset", help="what to examine")
 	if has_argcomplete: dataset_argument.completer = argcomplete.completers.FilesCompleter()
 	show_parser.set_defaults(func=QiDataSetCommand.show)
+
+	# ────────────────
+	# create sub-command
+
+	# show_parser = subparsers.add_parser("show", description="Show QiData objects stored in dataset",
+	#                                     help="Show QiData objects stored in dataset")
+	# dataset_argument = show_parser.add_argument("dataset", help="what to examine")
+	# if has_argcomplete: dataset_argument.completer = argcomplete.completers.FilesCompleter()
+	# show_parser.set_defaults(func=QiDataSetCommand.show)
 
 	return parent_parser
 
