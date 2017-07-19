@@ -312,7 +312,7 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 			for stream_name, stream in self._streams.iteritems():
 				tmp_streams[stream_name] = (stream[0],dict())
 				for (timestamp,filename) in stream[1].iteritems():
-					tmp_streams[stream_name][1]["t"+str(timestamp)] = filename
+					tmp_streams[stream_name][1]["t%d.%09d"%timestamp] = filename
 
 			setattr(_raw_metadata, "streams", tmp_streams)
 
@@ -652,7 +652,8 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 				for stream_name, stream in data["streams"].iteritems():
 					self._streams[stream_name] = [DataType[stream[0]],dict()]
 					for (timestamp,filename) in stream[1].iteritems():
-						self._streams[stream_name][1][float(timestamp[1:])] = str(filename)
+						_ts = tuple(map(int, timestamp[1:].split(".")))
+						self._streams[stream_name][1][_ts] = str(filename)
 
 		else:
 			# if no content info was stored, infere it from the files

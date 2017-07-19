@@ -200,29 +200,29 @@ def test_data_stream(dataset_with_several_images_path):
             a.getStream("toto")
 
         imgs_2d = a.getAllFilesOfType("IMG_2D")
-        a.createNewStream(DataType.IMG_2D, "cam2d", zip([0,1],imgs_2d))
+        a.createNewStream(DataType.IMG_2D, "cam2d", zip([(0,0),(1,0)],imgs_2d))
         aud = a.getAllFilesOfType("AUDIO")
-        a.createNewStream(DataType.AUDIO, "audio", zip([1.5],aud))
+        a.createNewStream(DataType.AUDIO, "audio", zip([(1,500000000)],aud))
 
         assert(DataType.IMG_2D == a.getStreamType("cam2d"))
         assert(DataType.AUDIO == a.getStreamType("audio"))
         assert(
             {
-                0:"JPG_file.jpg",
-                1:"JPG_file2.jpg"
+                (0,000000000):"JPG_file.jpg",
+                (1,000000000):"JPG_file2.jpg"
             } == a.getStream("cam2d")
         )
         assert(
             {
-                1.5:"WAV_file.wav"
+                (1,500000000):"WAV_file.wav"
             } == a.getStream("audio")
         )
         assert(
             {
                 "cam2d":
                 {
-                    0:"JPG_file.jpg",
-                    1:"JPG_file2.jpg"
+                    (0,000000000):"JPG_file.jpg",
+                    (1,000000000):"JPG_file2.jpg"
                 }
             } == a.getStreamsOfType(DataType.IMG_2D)
         )
@@ -230,7 +230,7 @@ def test_data_stream(dataset_with_several_images_path):
             {
                 "audio":
                 {
-                    1.5:"WAV_file.wav"
+                    (1,500000000):"WAV_file.wav"
                 }
             } == a.getStreamsOfType(DataType.AUDIO)
         )
@@ -238,12 +238,12 @@ def test_data_stream(dataset_with_several_images_path):
             {
                 "cam2d":
                 {
-                    0:"JPG_file.jpg",
-                    1:"JPG_file2.jpg"
+                    (0,000000000):"JPG_file.jpg",
+                    (1,000000000):"JPG_file2.jpg"
                 },
                 "audio":
                 {
-                    1.5:"WAV_file.wav"
+                    (1,500000000):"WAV_file.wav"
                 }
             } == a.getAllStreams()
         )
@@ -253,7 +253,7 @@ def test_data_stream(dataset_with_several_images_path):
             {
                 "cam2d":
                 {
-                    0:"JPG_file.jpg"
+                    (0,000000000):"JPG_file.jpg"
                 }
             } == a.getStreamsOfType(DataType.IMG_2D)
         )
@@ -261,26 +261,26 @@ def test_data_stream(dataset_with_several_images_path):
             {
                 "cam2d":
                 {
-                    0:"JPG_file.jpg"
+                    (0,000000000):"JPG_file.jpg"
                 },
                 "audio":
                 {
-                    1.5:"WAV_file.wav"
+                    (1,500000000):"WAV_file.wav"
                 }
             } == a.getAllStreams()
         )
 
-        a.addToStream("cam2d", (0.5,"JPG_file2.jpg"))
+        a.addToStream("cam2d", ((0,500000000),"JPG_file2.jpg"))
         assert(
             {
                 "cam2d":
                 {
-                    0:"JPG_file.jpg",
-                    0.5:"JPG_file2.jpg"
+                    (0,000000000):"JPG_file.jpg",
+                    (0,500000000):"JPG_file2.jpg"
                 },
                 "audio":
                 {
-                    1.5:"WAV_file.wav"
+                    (1,500000000):"WAV_file.wav"
                 }
             } == a.getAllStreams()
         )
@@ -288,8 +288,8 @@ def test_data_stream(dataset_with_several_images_path):
     with QiDataSet(dataset_with_several_images_path, "r") as a:
         assert(
             {
-                "cam2d":{0:"JPG_file.jpg", 0.5:"JPG_file2.jpg"},
-                "audio":{1.5:"WAV_file.wav"}
+                "cam2d":{(0,000000000):"JPG_file.jpg", (0,500000000):"JPG_file2.jpg"},
+                "audio":{(1,500000000):"WAV_file.wav"}
             } == a.getAllStreams()
         )
 
