@@ -14,16 +14,15 @@ import os
 import errno
 import shutil
 import pytest
-import utilities
 
-from qidata import QiDataSet, qidatafile
-from qidata.metadata_objects import Context
+# from qidata import QiDataSet, qidatafile
+# from qidata.metadata_objects import Context
 
 #[MODULE INFO]-----------------------------------------------------------------
 __author__ = "sambrose"
 __date__ = "2017-04-04"
 __copyright__ = "Copyright 2017, Softbank Robotics (c)"
-__version__ = "0.0.1"
+__version__ = "1.0.0"
 __maintainer__ = "sambrose"
 __email__ = "sambrose@softbankrobotics.com"
 
@@ -32,103 +31,65 @@ __email__ = "sambrose@softbankrobotics.com"
 DATA_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), "data/")
 SANDBOX_FOLDER = "/tmp/qidata/"
 
-DATASET   = "valid_dataset"
-DATASET_ANNOTATED   = "dataset_annotated"
-DATASET_WITH_TWO_IMAGES = "dataset_annotated_with_two_images"
-DATASET_INVALID   = "invalid_dataset"
+NON_EMPTY_FOLDER   = "A_folder_with_files" # Folder with files but not a dataset
+DATASET   = "B_created_dataset" # QiDataSet with files added after creation
+DATASET_WITH_NEW_ANNOTATIONS = "C0_annotated_file_added" # B + newly annotated file
+FOLDER_WITH_ANNOTATIONS = "C1_folder_with_one_annotated_file" # A + annotated file
 JPG_PHOTO = "SpringNebula.jpg"
-QIDATA_V1 = "qidatafile_v1.png"
-QIDATA_V2 = "qidatafile_v2.png"
-QIDATA_V3 = "qidatafile_v3.png"
-
-
-QIDATA_TEST_FILE = QIDATA_V3
+WAV_SOUND = "Trumpet.wav"
 
 #[MODULE CONTENT]--------------------------------------------------------------
 
 def sandboxed(path):
-    """
-    Makes a copy of the given path in /tmp and returns its path.
-    """
-    source_path = os.path.join(DATA_FOLDER,    path)
-    tmp_path    = os.path.join(SANDBOX_FOLDER, path)
+	"""
+	Makes a copy of the given path in /tmp and returns its path.
+	"""
+	source_path = os.path.join(DATA_FOLDER,    path)
+	tmp_path    = os.path.join(SANDBOX_FOLDER, path)
 
-    try:
-        os.mkdir(SANDBOX_FOLDER)
-    except OSError as e:
-        if e.errno != errno.EEXIST:
-            raise
+	try:
+		os.mkdir(SANDBOX_FOLDER)
+	except OSError as e:
+		if e.errno != errno.EEXIST:
+			raise
 
-    if os.path.isdir(source_path):
-        if os.path.exists(tmp_path):
-            shutil.rmtree(tmp_path)
-        shutil.copytree(source_path, tmp_path)
-    else:
-        shutil.copyfile(source_path, tmp_path)
+	if os.path.isdir(source_path):
+		if os.path.exists(tmp_path):
+			shutil.rmtree(tmp_path)
+		shutil.copytree(source_path, tmp_path)
+	else:
+		shutil.copyfile(source_path, tmp_path)
 
-    return tmp_path
+	return tmp_path
 
 @pytest.fixture(autouse=True, scope="function")
 def begin(request):
-    """
-    Add a finalizer to clean tmp folder after each test
-    """
-    def fin():
-        if os.path.exists(SANDBOX_FOLDER):
-            shutil.rmtree(SANDBOX_FOLDER)
+	"""
+	Add a finalizer to clean tmp folder after each test
+	"""
+	def fin():
+		if os.path.exists(SANDBOX_FOLDER):
+			shutil.rmtree(SANDBOX_FOLDER)
 
-    request.addfinalizer(fin)
-
-@pytest.fixture(scope="function")
-def qidata_file_path():
-    return sandboxed(QIDATA_TEST_FILE)
+	request.addfinalizer(fin)
 
 @pytest.fixture(scope="function")
-def invalid_dataset_path():
-    return sandboxed(DATASET_INVALID)
-
-@pytest.fixture(scope="function",
-    params=[(True, DATASET_INVALID), (False, DATASET)])
-def valid_dataset_path(request):
-    dataset_path = sandboxed(request.param[1])
-    if request.param[0]:
-        with QiDataSet(dataset_path, "w"):
-            pass
-    return dataset_path
+def jpg_file_path():
+	return sandboxed(JPG_PHOTO)
 
 @pytest.fixture(scope="function")
-def dataset_with_newly_annotated_file_path(valid_dataset_path):
-    with qidatafile.open(valid_dataset_path+"/JPG_file.jpg", "w") as qdf:
-        annotations = qdf.metadata
-        new_annot = [Context(), None]
-        annotations["sambrose"]=dict()
-        annotations["sambrose"]["Context"]=[new_annot]
-        qdf.metadata = annotations
-    return valid_dataset_path
-
-@pytest.fixture(scope="function",
-    params=[(True, DATASET_INVALID), (False, DATASET_ANNOTATED)])
-def annotated_dataset_path(request):
-    dataset_path = sandboxed(request.param[1])
-    if request.param[0]:
-        # Create annotation in file
-        with qidatafile.open(dataset_path+"/JPG_file.jpg", "w") as qdf:
-            annotations = qdf.metadata
-            new_annot = [Context(), None]
-            annotations["sambrose"]=dict()
-            annotations["sambrose"]["Context"]=[new_annot]
-            qdf.metadata = annotations
-
-        # Init dataset
-        with QiDataSet(dataset_path, "w") as a:
-            a.examineContent()
-    return dataset_path
+def folder_with_non_annotated_files():
+	return sandboxed(NON_EMPTY_FOLDER)
 
 @pytest.fixture(scope="function")
-def dataset_with_several_images_path():
-    dataset_path = sandboxed(DATASET_WITH_TWO_IMAGES)
-    with QiDataSet(dataset_path, "w") as a:
-        a.setTypeOfFile("JPG_file.jpg", "IMG_2D")
-        a.setTypeOfFile("JPG_file2.jpg", "IMG_2D")
-    return dataset_path
+def dataset_with_non_annotated_files():
+	return sandboxed(DATASET)
+
+@pytest.fixture(scope="function")
+def dataset_with_new_annotations():
+	return sandboxed(DATASET_WITH_NEW_ANNOTATIONS)
+
+@pytest.fixture(scope="function")
+def folder_with_annotations():
+	return sandboxed(FOLDER_WITH_ANNOTATIONS)
 
