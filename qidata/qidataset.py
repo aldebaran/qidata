@@ -2,6 +2,7 @@
 
 # Standard libraries
 import copy
+import glob
 import os
 
 # Third-party libraries
@@ -88,7 +89,7 @@ class QiDataSet(object):
 					pass
 
 		self._annotation_content = dict()
-		self._files_type = set()
+		self._files_type = dict()
 		self._xmp_file = XMPFile(metadata_path, rw=(mode=="w"))
 		self._is_closed = True
 		# self._streams = dict()
@@ -136,7 +137,7 @@ class QiDataSet(object):
 		"""
 		Returns a list of all data types present in the dataset
 		"""
-		return copy.deepcopy(self._files_type)
+		return set([DataType[i] for i in self._files_type.keys()])
 
 	@property
 	def mode(self):
@@ -183,7 +184,7 @@ class QiDataSet(object):
 			setattr(
 			    _raw_metadata,
 			    "files_type",
-			    list(self._files_type)
+			    self._files_type
 			)
 
 		# 	# Save data streams (they need to be a little be reworked to fit
@@ -216,7 +217,7 @@ class QiDataSet(object):
 		was called.
 		"""
 		self._annotation_content = dict()
-		self._files_type = set()
+		self._files_type = dict()
 		for name in self.children:
 			path = os.path.join(self._folder_path, name)
 			with qidatafile.open(path, "r") as _f:
@@ -228,7 +229,9 @@ class QiDataSet(object):
 						    annotation_type
 						  )
 						] = QiDataSet.AnnotationStatus.PARTIAL
-				self._files_type.add(_f.type)
+				if not self._files_type.has_key(str(_f.type)):
+					self._files_type[str(_f.type)] = []
+				self._files_type[str(_f.type)].append(name)
 		# files_info = dict()
 
 		# # Keep track of the knowledge we have so far
@@ -332,6 +335,26 @@ class QiDataSet(object):
 					break
 		return filtered
 
+	def getAllFilesOfType(self, type_name):
+		"""
+		Returns all the file names of a specific type
+
+		:param type_name: Requested type
+		:type type_name: ``qidata.DataType`` or str
+		:return: List of filenames
+		"""
+		try:
+			return copy.deepcopy(self._files_type[str(type_name)])
+		except KeyError:
+			# Check given type
+			try:
+				_ = DataType[str(type_name)]
+			except KeyError:
+				raise TypeError("%s is not a valid DataType"%type_name)
+			# Type name is valid, but there is no file associated to it
+			return []
+
+
 	def openChild(self, name):
 		"""
 		Open QiDataFile contained here
@@ -397,15 +420,16 @@ class QiDataSet(object):
 		if _raw_metadata.children:
 			data = _raw_metadata.value
 			xmp_tools._removePrefixes(data)
-			content = data["annotation_content"]
 			self._annotation_content = dict()
-			for annotator in content:
-				for annotation_type, value in content[annotator].iteritems():
-					value = QiDataSet.AnnotationStatus[value]
-					self._annotation_content[(annotator,annotation_type)]=value
+			if data.has_key("annotation_content"):
+				content = data["annotation_content"]
+				for annotator in content:
+					for annot_type, value in content[annotator].iteritems():
+						value = QiDataSet.AnnotationStatus[value]
+						self._annotation_content[(annotator,annot_type)]=value
 
-			for file_type in data["files_type"]:
-				self._files_type.add(DataType[file_type])
+			for file_type, file_list in data["files_type"].iteritems():
+				self._files_type[file_type]=file_list
 
 		# 	# In a previous version, files_info was counting the number of file
 		# 	# of each type. In the current version, we store for each type the

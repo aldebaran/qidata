@@ -157,3 +157,46 @@ def test_dataset_filter(folder_with_annotations,
 	                      only_total_annotations=True
 	                     )
 	)
+
+def test_data_type_change_impact(folder_with_non_annotated_files):
+	with QiDataSet(folder_with_non_annotated_files, "w") as d:
+		assert(set([DataType.AUDIO, DataType.IMAGE]) == d.datatypes_available)
+		with d.openChild("JPG_file.jpg") as f:
+			f.type = DataType.IMAGE_2D
+		d.examineContent()
+		assert(set([DataType.AUDIO, DataType.IMAGE_2D]) == d.datatypes_available)
+
+	with QiDataSet(folder_with_non_annotated_files, "r") as d:
+		assert(set([DataType.AUDIO, DataType.IMAGE_2D]) == d.datatypes_available)
+
+def test_get_file_list_of_specific_type(folder_with_annotations):
+	with QiDataSet(folder_with_annotations,"w") as d:
+		assert(
+		    [
+		      "Annotated_JPG_file.jpg",
+		      "JPG_file.jpg",
+		    ] == d.getAllFilesOfType(DataType.IMAGE)
+		)
+	with QiDataSet(folder_with_annotations,"r") as d:
+		assert(
+		    [
+		      "Annotated_JPG_file.jpg",
+		      "JPG_file.jpg",
+		    ] == d.getAllFilesOfType(DataType.IMAGE)
+		)
+	with QiDataSet(folder_with_annotations, "w") as d:
+		with d.openChild("JPG_file.jpg") as f:
+			f.type = DataType.IMAGE_2D
+		d.examineContent()
+		assert(
+		    [
+		      "Annotated_JPG_file.jpg",
+		    ] == d.getAllFilesOfType(DataType.IMAGE)
+		)
+		assert(
+		    [
+		      "JPG_file.jpg",
+		    ] == d.getAllFilesOfType(DataType.IMAGE_2D)
+		)
+		with pytest.raises(TypeError):
+			d.getAllFilesOfType("Blablabla")
