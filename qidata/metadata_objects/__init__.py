@@ -15,4 +15,4 @@ from timestamp import TimeStamp
 __all__=[
   "Property",
   "TimeStamp",
- ]
+]
