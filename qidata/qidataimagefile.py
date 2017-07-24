@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QiDataFile specialization for image files
+QiDataSensorFile specialization for image files
 """
 
 # Standard libraries
@@ -11,29 +11,29 @@ import cv2
 
 # Local modules
 from qidata import DataType
-from qidata.qidatafile import QiDataFile
+from qidata.qidatasensorfile import QiDataSensorFile
 
-class QiDataImageFile(QiDataFile):
+class QiDataImageFile(QiDataSensorFile):
 	# ───────────
 	# Constructor
 
 	def __init__(self, file_path, mode = "r"):
 		self._raw_data = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
-		QiDataFile.__init__(self, file_path, mode)
+		QiDataSensorFile.__init__(self, file_path, mode)
 
 	# ──────────
 	# Properties
 
 	@property
 	def type(self):
-		_t = QiDataFile.type.fget(self)
+		_t = QiDataSensorFile.type.fget(self)
 		return _t if _t else DataType.IMAGE
 
 	@type.setter
 	def type(self, new_type):
 		if not str(new_type).startswith("IMAGE"):
 			raise TypeError("Cannot convert %s to %s"%(self.type, new_type))
-		QiDataFile.type.fset(self, new_type)
+		QiDataSensorFile.type.fset(self, new_type)
 
 	@property
 	def raw_data(self):

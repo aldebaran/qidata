@@ -1,37 +1,41 @@
 # -*- coding: utf-8 -*-
 """
-QiDataFile specialization for audio files
+QiDataSensorFile specialization for audio files
 """
-
-# Standard libraries
-
-
-# Third-party libraries
 
 # Local modules
 from qidata import DataType
-from qidata.qidatafile import QiDataFile
+from qidata.qidatasensorfile import QiDataSensorFile
 
-class QiDataAudioFile(QiDataFile):
+class QiDataAudioFile(QiDataSensorFile):
 	# ───────────
 	# Constructor
 
 	def __init__(self, file_path, mode = "r"):
-		QiDataFile.__init__(self, file_path, mode)
+		QiDataSensorFile.__init__(self, file_path, mode)
 
 	# ──────────
 	# Properties
 
 	@property
 	def type(self):
-		return DataType.AUDIO
+		_t = QiDataSensorFile.type.fget(self)
+		return _t if _t else DataType.AUDIO
+
+	@type.setter
+	def type(self, new_type):
+		if not str(new_type).startswith("AUDIO"):
+			raise TypeError("Cannot convert %s to %s"%(self.type, new_type))
+		QiDataSensorFile.type.fset(self, new_type)
 
 	@property
 	def raw_data(self):
 		"""
-		Returns the image opened with OpenCV
+		Returns the raw data of audio file
+
+		:raise: NotImplementedError
 		"""
-		return None
+		raise NotImplementedError
 
 	def _isLocationValid(self, location):
 		"""

@@ -77,36 +77,6 @@ class QiDataFile(QiDataObject):
 	# ──────────
 	# Properties
 
-	@abc.abstractproperty
-	def type(self):
-		"""
-		Specify the type of data in the file
-
-		:return: The type of this file
-		:rtype: qidata.DataType
-		"""
-		return getattr(self, "_type", None)
-
-	@type.setter
-	def type(self, new_type):
-		"""
-		Changes the type of the file
-
-		:param data_type: New data type
-		:type data_type: qidata.DataType
-
-		.. note::
-			Not all types can be given, depending on the file extension
-		"""
-		# Check given type
-		try:
-			self._type = DataType[new_type]
-		except KeyError:
-			try:
-				self._type = DataType(new_type)
-			except ValueError:
-				raise TypeError("%s is not a valid DataType"%new_type)
-
 	@property
 	def closed(self):
 		"""
@@ -202,6 +172,7 @@ class QiDataFile(QiDataObject):
 # ─────────────────
 # Specialized files
 
+from qidata.qidatasensorfile import QiDataSensorFile
 from qidata.qidataimagefile import QiDataImageFile
 from qidata.qidataaudiofile import QiDataAudioFile
 
