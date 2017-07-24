@@ -10,7 +10,7 @@ from xmp.xmp import XMPFile, registerNamespace
 # Local modules
 from qidata import qidatafile, DataType, _BaseEnum
 from qidata.qidataobject import QiDataObject
-from ._mixin import XMPHandlerMixin
+import _mixin as xmp_tools
 # from qidata.exceptions import ReadOnlyException, throwIfReadOnly
 
 QIDATA_CONTENT_NS=u"http://softbank-robotics.com/qidataset/1"
@@ -396,7 +396,7 @@ class QiDataSet(object):
 		_raw_metadata = self._xmp_file.metadata[QIDATA_CONTENT_NS]
 		if _raw_metadata.children:
 			data = _raw_metadata.value
-			XMPHandlerMixin._removePrefixes(data)
+			xmp_tools._removePrefixes(data)
 			content = data["annotation_content"]
 			self._annotation_content = dict()
 			for annotator in content:

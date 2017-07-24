@@ -18,7 +18,7 @@ from xmp.xmp import XMPFile
 
 # Local modules
 from qidata.qidataobject import QiDataObject
-from ._mixin import XMPHandlerMixin
+import _mixin as xmp_tools
 
 class ClosedFileException(Exception):pass
 
@@ -44,7 +44,7 @@ def throwIfClosed(f):
 # 			return LOOKUP_ITEM_MODEL[pattern]
 # 	raise TypeError("Data type not supported by QiDataFile")
 
-class QiDataFile(QiDataObject, XMPHandlerMixin):
+class QiDataFile(QiDataObject):
 
 	# ───────────
 	# Constructor
@@ -118,7 +118,7 @@ class QiDataFile(QiDataObject, XMPHandlerMixin):
 		Closes the file after writing the metadata
 		"""
 		if self.mode != "r":
-			self._save_annotations(self._xmp_file, self.annotations)
+			xmp_tools._save_annotations(self._xmp_file, self.annotations)
 		self._xmp_file.close()
 		self._is_closed = True
 
@@ -127,7 +127,7 @@ class QiDataFile(QiDataObject, XMPHandlerMixin):
 		"""
 		Erase metadata changes by reloading saved metadata
 		"""
-		self._annotations = self._load_annotations(self._xmp_file)
+		self._annotations = xmp_tools._load_annotations(self._xmp_file)
 
 	@throwIfClosed
 	def addAnnotation(self, annotator, annotation, location=None):
