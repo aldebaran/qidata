@@ -14,11 +14,15 @@ import re
 from collections import OrderedDict
 
 # Third-party libraries
-from xmp.xmp import XMPFile
+from xmp.xmp import XMPFile, registerNamespace
 
 # Local modules
+from qidata import DataType
 from qidata.qidataobject import QiDataObject
 import _mixin as xmp_tools
+
+QIDATA_FILE_NS=u"http://softbank-robotics.com/qidatafile/1"
+registerNamespace(QIDATA_FILE_NS, "qidatafile")
 
 class ClosedFileException(Exception):pass
 
@@ -81,6 +85,27 @@ class QiDataFile(QiDataObject):
 		:return: The type of this file
 		:rtype: qidata.DataType
 		"""
+		return getattr(self, "_type", None)
+
+	@type.setter
+	def type(self, new_type):
+		"""
+		Changes the type of the file
+
+		:param data_type: New data type
+		:type data_type: qidata.DataType
+
+		.. note::
+			Not all types can be given, depending on the file extension
+		"""
+		# Check given type
+		try:
+			self._type = DataType[new_type]
+		except KeyError:
+			try:
+				self._type = DataType(new_type)
+			except ValueError:
+				raise TypeError("%s is not a valid DataType"%new_type)
 
 	@property
 	def closed(self):
@@ -119,6 +144,12 @@ class QiDataFile(QiDataObject):
 		"""
 		if self.mode != "r":
 			xmp_tools._save_annotations(self._xmp_file, self.annotations)
+			_raw_metadata = self._xmp_file.metadata[QIDATA_FILE_NS]
+			setattr(
+			    _raw_metadata,
+			    "data_type",
+			    self.type
+			)
 		self._xmp_file.close()
 		self._is_closed = True
 
@@ -127,7 +158,15 @@ class QiDataFile(QiDataObject):
 		"""
 		Erase metadata changes by reloading saved metadata
 		"""
+		# Load annotations
 		self._annotations = xmp_tools._load_annotations(self._xmp_file)
+
+		# Load data type
+		_raw_metadata = self._xmp_file.metadata[QIDATA_FILE_NS]
+		if _raw_metadata.children:
+			data = _raw_metadata.value
+			xmp_tools._removePrefixes(data)
+			self.type = DataType[data["data_type"]]
 
 	@throwIfClosed
 	def addAnnotation(self, annotator, annotation, location=None):

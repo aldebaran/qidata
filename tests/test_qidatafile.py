@@ -18,8 +18,10 @@ def test_abstract():
 
 class FileForTests(QiDataFile):
 	@property
-	def type(self):
-		return 0
+	def type(self): return DataType.AUDIO
+
+	@type.setter
+	def type(self, new_type): return
 
 	@property
 	def raw_data(self):
@@ -126,3 +128,16 @@ def test_specialized_qidatafile(file_name, class_, datatype,valid_locs,invalid_l
 
 		for valid_loc in valid_locs:
 			_f.addAnnotation("jdoe", a, valid_loc)
+
+def test_specify_type(jpg_file_path):
+	with qidatafile.open(jpg_file_path, "w") as f:
+		assert(DataType.IMAGE == f.type)
+		f.type = DataType.IMAGE_2D
+		assert(DataType.IMAGE_2D == f.type)
+		f.type = "IMAGE_2D"
+		assert(DataType.IMAGE_2D == f.type)
+		with pytest.raises(TypeError):
+			f.type = DataType.AUDIO
+
+	with qidatafile.open(jpg_file_path, "r") as f:
+		assert(DataType.IMAGE_2D == f.type)

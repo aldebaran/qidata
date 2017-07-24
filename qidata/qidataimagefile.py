@@ -26,7 +26,14 @@ class QiDataImageFile(QiDataFile):
 
 	@property
 	def type(self):
-		return DataType.IMAGE
+		_t = QiDataFile.type.fget(self)
+		return _t if _t else DataType.IMAGE
+
+	@type.setter
+	def type(self, new_type):
+		if not str(new_type).startswith("IMAGE"):
+			raise TypeError("Cannot convert %s to %s"%(self.type, new_type))
+		QiDataFile.type.fset(self, new_type)
 
 	@property
 	def raw_data(self):
