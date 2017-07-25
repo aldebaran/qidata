@@ -9,10 +9,9 @@ import os
 from xmp.xmp import XMPFile, registerNamespace
 
 # Local modules
-from qidata import qidatafile, DataType, _BaseEnum
-from qidata.qidataobject import QiDataObject
+from qidata import qidatafile, qidataframe, DataType, _BaseEnum
+from qidata.qidataobject import QiDataObject, throwIfReadOnly
 import _mixin as xmp_tools
-# from qidata.exceptions import ReadOnlyException, throwIfReadOnly
 
 QIDATA_CONTENT_NS=u"http://softbank-robotics.com/qidataset/1"
 registerNamespace(QIDATA_CONTENT_NS, "qidataset")
@@ -92,8 +91,8 @@ class QiDataSet(object):
 		self._files_type = dict()
 		self._xmp_file = XMPFile(metadata_path, rw=(mode=="w"))
 		self._is_closed = True
-		# self._streams = dict()
-		# self._frames = list()
+		self._streams = dict()
+		self._frames = list()
 		self._open()
 
 	# ──────────
@@ -163,6 +162,33 @@ class QiDataSet(object):
 	# ──────────
 	# Public API
 
+	def createNewStream(self, name, timestamp_file_pairs):
+		"""
+		Creates a new set of files which should be considered as part
+		of the same data stream
+
+		:param name: Name given to the stream
+		:type name: str
+		:param timestamp_file_pairs: List of pairs of filename and timestamp
+		:type timestamp_file_pairs: list
+		:raises: AttributeError if an empty list is given
+		:raises: TypeError if the given files have different types
+		"""
+		if len(timestamp_file_pairs) == 0:
+			raise AttributeError(
+			        "At least one file is needed to create a stream"
+			      )
+		with self.openChild(timestamp_file_pairs[0][1]) as f:
+			data_type = f.type
+		for i in range(1,len(timestamp_file_pairs)):
+			if timestamp_file_pairs[i][1] in self._files_type[str(data_type)]:
+				continue
+			with self.openChild(timestamp_file_pairs[i][1]) as f:
+				if data_type == f.type:
+					continue
+			raise TypeError("Given files are not all of the same type")
+		self._streams[name] = (data_type, dict(timestamp_file_pairs))
+
 	def close(self):
 		"""
 		Closes the dataset after writing the metadata
@@ -199,8 +225,8 @@ class QiDataSet(object):
 		# 	setattr(_raw_metadata, "streams", tmp_streams)
 
 		self._xmp_file.close()
-		# for f in self._frames:
-		# 	f.close()
+		for f in self._frames:
+			f.close()
 		self._is_closed = True
 
 	def examineContent(self):
@@ -354,6 +380,159 @@ class QiDataSet(object):
 			# Type name is valid, but there is no file associated to it
 			return []
 
+	def getAllStreams(self):
+		"""
+		Returns all declared streams
+
+		:return: Every stream known by the data set
+		:rtype: dict
+		"""
+		return copy.deepcopy(
+			dict(
+				(name, data[1]) for (name, data) in self._streams.iteritems()
+			)
+		)
+
+	def getStreamsOfType(self, data_type):
+		"""
+		Returns all streams of a specific type
+
+		:param data_type: Requested data type
+		:type data_type: ``qidata.DataType``
+		:return: Every stream of the requested type known by the data set
+		:rtype: dict
+		"""
+		return copy.deepcopy(
+			dict(
+				(name, data[1]) for (name, data) in self._streams.iteritems() if data[0]==data_type
+			)
+		)
+
+	def getStream(self, stream_name):
+		"""
+		Returns the requested stream
+
+		:param stream_name: Requested data stream
+		:type stream_name: str
+		:return: The requested stream
+		:rtype: dict
+		:raises: KeyError if stream_name does not exist
+		"""
+		return copy.deepcopy(self._streams[stream_name][1])
+
+	def getStreamType(self, stream_name):
+		"""
+		Returns the type of a specific stream
+
+		:param stream_name: Data stream of interest
+		:type stream_name: str
+		:return: The requested stream's data type
+		:rtype: ``qidata.DataType``
+		"""
+		return self._streams[stream_name][0]
+
+	def addToStream(self, stream_name, file_timestamp_pair_to_add):
+		"""
+		Add a pair (timestamp, file name) to a data stream
+
+		:param stream_name: Name of the stream to modify
+		:type stream_name: str
+		:param file_timestamp_pair_to_add: Pair of filename and timestamp
+		:type file_timestamp_pair_to_add: tuple
+		:raises: KeyError if stream does not exist
+		:raises: ValueError if file is not in the dataset
+		"""
+		_tmp=file_timestamp_pair_to_add
+		if not _tmp[1] in self.children:
+			raise ValueError("Given file is not in the dataset")
+		self._streams[stream_name][1][_tmp[0]]=_tmp[1]
+
+	def removeFromStream(self, stream_name, file_to_remove):
+		"""
+		Remove a file from a data stream
+
+		:param stream_name: Name of the stream to modify
+		:type stream_name: str
+		:param file_to_remove: Name of the file to remove
+		:type file_to_remove: str
+		:raises: KeyError if stream does not exist
+		:raises: ValueError if file is not in the stream
+		"""
+		for (ts, filename) in self._streams[stream_name][1].iteritems():
+			if filename == file_to_remove:
+				self._streams[stream_name][1].pop(ts)
+				break
+		else:
+			raise ValueError("Given file is not in the stream")
+		# si le stream devient vide, on devrait le supprimer
+
+	@throwIfReadOnly
+	def createNewFrame(self, *files):
+		"""
+		Creates a new association of files in a :class:``QiDataFrame``
+
+		:param files: files to include in the frame
+		:param files: str
+		:return: Created frame
+		:rtype: :class:``QiDataFrame``
+		:raises: TypeError if not enough files are given
+		"""
+		if len(files) < 2:
+			raise TypeError("createNewFrame needs at least 2 files (%d given)"%len(files))
+		frame = qidataframe.QiDataFrame.create(files, self._folder_path)
+		self._frames.append(frame)
+		return frame
+
+	@throwIfReadOnly
+	def removeFrame(self, *files):
+		"""
+		Remove a frame from the dataset
+
+		:param files: Files composing the frame to remove.
+
+		..note::
+			A frame cannot be composed of only one file. So if only one file is
+			given as argument, it is considered to be directly the frame to
+			remove.
+		"""
+		if len(files) == 1:
+			f=files[0]
+		else:
+			f = self.getFrame(*files)
+		if f is None:
+			return
+		try:
+			self._frames.remove(f)
+		except ValueError:
+			pass
+		else:
+			f.close()
+			f._is_valid=False
+			os.remove(f._file_path)
+
+	def getAllFrames(self):
+		"""
+		Returns all created frames
+
+		:return: Every frames of the dataset
+		:rtype: list
+		"""
+		return copy.copy(self._frames)
+
+	def getFrame(self, *files):
+		"""
+		Get an already created frame
+
+		:param files: files composing the researched frame
+		:param files: str
+		:return: Researched frame
+		:rtype: :class:``QiDataFrame``
+		:raises: IndexError if no frame matches the requested files
+		"""
+		try:
+			return [f for f in self._frames if set(files)==f._files][0]
+		except IndexError:
+			return None
 
 	def openChild(self, name):
 		"""
@@ -404,14 +583,14 @@ class QiDataSet(object):
 		"""
 		Open the data set
 		"""
-		# frames = glob.glob(self._folder_path+"/*.frame.xmp")
-		# for frame in frames:
-		# 	self._frames.append(
-		# 		qidataframe.QiDataFrame(
-		# 			frame,
-		# 			self.mode
-		# 		)
-		# 	)
+		frames = glob.glob(self._folder_path+"/*.frame.xmp")
+		for frame in frames:
+			self._frames.append(
+				qidataframe.QiDataFrame(
+					frame,
+					self.mode
+				)
+			)
 		self._xmp_file.__enter__()
 		self._is_closed = False
 

@@ -6,7 +6,11 @@ import pytest
 
 # Local modules
 from qidata import QiDataSet, isDataset, DataType
+from qidata.qidataframe import FrameIsInvalid
+from qidata.qidatafile import ClosedFileException
+from qidata.qidataobject import ReadOnlyException
 from qidata.qidataimagefile import QiDataImageFile
+from qidata.metadata_objects import Property
 
 def test_wrong_path(jpg_file_path):
 	"""
@@ -185,6 +189,9 @@ def test_get_file_list_of_specific_type(folder_with_annotations):
 		    ] == d.getAllFilesOfType(DataType.IMAGE)
 		)
 	with QiDataSet(folder_with_annotations, "w") as d:
+		assert(
+		    [] == d.getAllFilesOfType("IMAGE_2D")
+		)
 		with d.openChild("JPG_file.jpg") as f:
 			f.type = DataType.IMAGE_2D
 		d.examineContent()
@@ -196,7 +203,198 @@ def test_get_file_list_of_specific_type(folder_with_annotations):
 		assert(
 		    [
 		      "JPG_file.jpg",
-		    ] == d.getAllFilesOfType(DataType.IMAGE_2D)
+		    ] == d.getAllFilesOfType("IMAGE_2D")
 		)
 		with pytest.raises(TypeError):
 			d.getAllFilesOfType("Blablabla")
+
+def test_data_stream(folder_with_annotations):
+	with QiDataSet(folder_with_annotations, "w") as d:
+		assert(dict() == d.getAllStreams())
+		assert(dict() == d.getStreamsOfType(DataType.IMAGE_2D))
+		with pytest.raises(KeyError):
+			d.getStream("toto")
+
+		imgs_2d = d.getAllFilesOfType("IMAGE")
+		d.createNewStream("cam2d", zip([(0,0),(1,0)],imgs_2d))
+		aud = d.getAllFilesOfType("AUDIO")
+		d.createNewStream("audio", zip([(1,500000000)],aud))
+
+		with pytest.raises(TypeError) as e:
+			d.createNewStream("fail",
+			                  zip([(0,0),(1,500000000)],
+			                      [imgs_2d[0],aud[0]]
+			                     )
+			                 )
+		assert("Given files are not all of the same type" == e.value.message)
+
+		with pytest.raises(AttributeError) as e:
+			d.createNewStream("fail",[])
+		assert(
+		  "At least one file is needed to create a stream" == e.value.message
+		 )
+
+		assert(DataType.IMAGE == d.getStreamType("cam2d"))
+		assert(DataType.AUDIO == d.getStreamType("audio"))
+		assert(
+		    {
+		        (0,000000000):"Annotated_JPG_file.jpg",
+		        (1,000000000):"JPG_file.jpg"
+		    } == d.getStream("cam2d")
+		)
+		assert(
+		    {
+		        (1,500000000):"WAV_file.wav"
+		    } == d.getStream("audio")
+		)
+		assert(
+		    {
+		        "cam2d":
+		        {
+		            (0,000000000):"Annotated_JPG_file.jpg",
+		            (1,000000000):"JPG_file.jpg"
+		        }
+		    } == d.getStreamsOfType(DataType.IMAGE)
+		)
+		assert(
+		    {
+		        "audio":
+		        {
+		            (1,500000000):"WAV_file.wav"
+		        }
+		    } == d.getStreamsOfType(DataType.AUDIO)
+		)
+		assert(
+		    {
+		        "cam2d":
+		        {
+		            (0,000000000):"Annotated_JPG_file.jpg",
+		            (1,000000000):"JPG_file.jpg"
+		        },
+		        "audio":
+		        {
+		            (1,500000000):"WAV_file.wav"
+		        }
+		    } == d.getAllStreams()
+		)
+
+		d.removeFromStream("cam2d", "JPG_file.jpg")
+		assert(
+		    {
+		        "cam2d":
+		        {
+		            (0,000000000):"Annotated_JPG_file.jpg"
+		        }
+		    } == d.getStreamsOfType(DataType.IMAGE)
+		)
+		assert(
+		    {
+		        "cam2d":
+		        {
+		            (0,000000000):"Annotated_JPG_file.jpg"
+		        },
+		        "audio":
+		        {
+		            (1,500000000):"WAV_file.wav"
+		        }
+		    } == d.getAllStreams()
+		)
+		with pytest.raises(ValueError) as e:
+			d.removeFromStream("cam2d", "JPG_file.jpg")
+		assert(
+		    "Given file is not in the stream" == e.value.message
+		)
+		with pytest.raises(KeyError) as e:
+			d.removeFromStream("camxd", "JPG_file.jpg")
+
+		d.addToStream("cam2d", ((0,500000000),"JPG_file.jpg"))
+		assert(
+		    {
+		        "cam2d":
+		        {
+		            (0,000000000):"Annotated_JPG_file.jpg",
+		            (0,500000000):"JPG_file.jpg"
+		        },
+		        "audio":
+		        {
+		            (1,500000000):"WAV_file.wav"
+		        }
+		    } == d.getAllStreams()
+		)
+		with pytest.raises(KeyError) as e:
+			d.addToStream("camxd", ((0,500000000),"JPG_file.jpg"))
+
+		with pytest.raises(ValueError) as e:
+			d.addToStream("cam2d", ((0,500000000),"JPG_file20.jpg"))
+		assert("Given file is not in the dataset" == e.value.message)
+
+		with QiDataSet(folder_with_annotations, "r") as a:
+			assert(
+			    {
+			        "cam2d":{(0,000000000):"Annotated_JPG_file.jpg",
+			                 (0,500000000):"JPG_file.jpg"},
+			        "audio":{(1,500000000):"WAV_file.wav"}
+			    } == d.getAllStreams()
+			)
+
+def test_data_frame(folder_with_annotations):
+	with QiDataSet(folder_with_annotations, "w") as d:
+		assert([] == d.getAllFrames())
+
+	with QiDataSet(folder_with_annotations, "r") as d:
+		assert([] == d.getAllFrames())
+		with pytest.raises(ReadOnlyException):
+			_f = d.createNewFrame("JPG_file.jpg", "WAV_file.wav")
+
+	with QiDataSet(folder_with_annotations, "w") as d:
+		_f = d.createNewFrame("JPG_file.jpg", "WAV_file.wav")
+		assert([_f] == d.getAllFrames())
+		p = Property("key", "value")
+		_f.addAnnotation("jdoe", p, None)
+	assert(_f.closed)
+
+	with QiDataSet(folder_with_annotations, "r") as d:
+		frames = d.getAllFrames()
+		assert(isinstance(frames, list))
+		assert(len(frames)==1)
+		assert("r" == frames[0].mode)
+		assert(set(["JPG_file.jpg", "WAV_file.wav"]) == frames[0].raw_data)
+		assert(set(["JPG_file.jpg", "WAV_file.wav"]) == frames[0].files)
+		assert(frames[0].annotations.has_key("jdoe"))
+		assert(frames[0].annotations["jdoe"].has_key("Property"))
+		assert(1 == len(frames[0].annotations["jdoe"]["Property"]))
+		assert(None == frames[0].annotations["jdoe"]["Property"][0][1])
+		assert("key" == frames[0].annotations["jdoe"]["Property"][0][0].key)
+		assert("value" == frames[0].annotations["jdoe"]["Property"][0][0].value)
+		with pytest.raises(ReadOnlyException):
+			d.removeFrame(frames[0])
+
+	with QiDataSet(folder_with_annotations, "w") as d:
+		frames = d.getAllFrames()
+		f=frames[0]
+		d.removeFrame(f)
+		assert([] == d.getAllFrames())
+		with pytest.raises(FrameIsInvalid):
+			f.raw_data
+		with pytest.raises(FrameIsInvalid):
+			f.files
+		with pytest.raises(FrameIsInvalid):
+			f.mode
+		with pytest.raises(FrameIsInvalid):
+			f.annotations
+		with pytest.raises(ClosedFileException):
+			p = Property("key", "value")
+			f.addAnnotation("jdoe", p, None)
+		with pytest.raises(FrameIsInvalid):
+			f._open()
+
+	with QiDataSet(folder_with_annotations, "w") as d:
+		assert([] == d.getAllFrames())
+		_f = d.createNewFrame("JPG_file.jpg", "WAV_file.wav")
+		assert(_f == d.getFrame("JPG_file.jpg", "WAV_file.wav"))
+		assert(_f == d.getFrame("WAV_file.wav", "JPG_file.jpg"))
+		d.removeFrame("WAV_file.wav", "JPG_file.jpg")
+		assert([] == d.getAllFrames())
+
+	with QiDataSet(folder_with_annotations, "r") as d:
+		assert([] == d.getAllFrames())
