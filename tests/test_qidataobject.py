@@ -85,6 +85,17 @@ def test_qidata_object():
 	with pytest.raises(TypeError):
 		qidata_object.addAnnotation("jdoe", AnotherFakeAnnotation(), None)
 
+	# Make sure Context, TimeStamp and Transform cannot be added, as they are
+	# reserved for special purposes
+	with pytest.raises(TypeError):
+		qidata_object.addAnnotation("jdoe", metadata_objects.Context(), None)
+
+	with pytest.raises(TypeError):
+		qidata_object.addAnnotation("jdoe", metadata_objects.Transform(), None)
+
+	with pytest.raises(TypeError):
+		qidata_object.addAnnotation("jdoe", metadata_objects.TimeStamp(), None)
+
 	# And the given location must be validated by our object
 	with pytest.raises(Exception):
 		qidata_object.addAnnotation(
@@ -211,10 +222,10 @@ def test_qidata_object():
 	  dict() == qidata_object.annotations
 	)
 
-	b=metadata_objects.TimeStamp(seconds=0, nanoseconds=1)
-	qidata_object.addAnnotation("jdoe", b, 0)
-	with pytest.raises(ValueError):
-		qidata_object.removeAnnotation("jdoe", a, 0)
+	# b=metadata_objects.TimeStamp(seconds=0, nanoseconds=1)
+	# qidata_object.addAnnotation("jdoe", b, 0)
+	# with pytest.raises(ValueError):
+	# 	qidata_object.removeAnnotation("jdoe", a, 0)
 
 def test_qidata_object_extra():
 	qidata_object = ObjectForTests()

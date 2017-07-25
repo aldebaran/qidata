@@ -5,6 +5,7 @@ import pytest
 
 # Local modules
 from qidata.metadata_objects import *
+from qidata.metadata_objects import TimeStamp, Transform
 from qidata import makeMetadataObject, MetadataType
 
 def test_make_non_existing_metadata_object():
@@ -33,6 +34,12 @@ def test_attributes():
     "instance":TimeStamp(),
     "inputs":[dict()],
     "outputs":[TimeStamp()],
+  },
+  {
+    "type":Transform,
+    "instance":Transform(),
+    "inputs":[dict()],
+    "outputs":[Transform()],
   },
 ])
 def metadata_objects(request):
