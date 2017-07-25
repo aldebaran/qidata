@@ -214,15 +214,14 @@ class QiDataObject(object):
 	# ──────────────
 	# Textualization
 
-	# def __str__(self):
-	# 	return unicode(self).encode(encoding="utf-8")
+	def __str__(self):
+		return unicode(self).encode(encoding="utf-8")
 
-	# def __unicode__(self):
-	# 	res_str = ""
-	# 	res_str += "Object type: " + self.type.name + "\n"
-	# 	for annotator in self.metadata:
-	# 		annotator_str = "Annotator: " + unicode(annotator)
-	# 		res_str += annotator_str
-	# 		res_str += textualize_metadata(self.metadata[annotator])
-	# 		res_str += "\n"
-	# 	return res_str
+	def __unicode__(self):
+		res_str = ""
+		for annotator in self.annotators:
+			annotator_str = "Annotator: " + unicode(annotator)
+			res_str += annotator_str
+			res_str += textualize_metadata(self.annotations[annotator])
+			res_str += "\n"
+		return res_str

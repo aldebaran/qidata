@@ -64,3 +64,11 @@ class QiDataImageFile(QiDataSensorFile):
 			)
 		except Exception:
 			return False
+
+	# ──────────────
+	# Textualization
+
+	def __unicode__(self):
+		res_str = QiDataSensorFile.__unicode__(self)
+		res_str += "Image shape: " + str(self.raw_data.shape) + "\n"
+		return res_str

@@ -7,6 +7,7 @@ from xmp.xmp import XMPFile, registerNamespace
 from qidata import DataType
 from qidata.metadata_objects import Transform, TimeStamp
 from qidata.qidatafile import QiDataFile
+from qidata.qidataobject import QiDataObject
 from qidata.qidatasensorobject import QiDataSensorObject
 import _mixin as xmp_tools
 
@@ -41,3 +42,15 @@ class QiDataSensorFile(QiDataSensorObject, QiDataFile):
 			self._type = DataType[data["data_type"]]
 			self._position = Transform(**data["position"])
 			self._timestamp = TimeStamp(**data["timestamp"])
+
+	# ──────────────
+	# Textualization
+
+	def __unicode__(self):
+		res_str = ""
+		res_str += "File name: " + self.name + "\n"
+		res_str += "Object type: " + unicode(self.type) + "\n"
+		res_str += "Object timestamp: " + unicode(self.timestamp) + "\n"
+		res_str += "Object transform: " + unicode(self.position) + "\n"
+		res_str += QiDataObject.__unicode__(self)
+		return res_str

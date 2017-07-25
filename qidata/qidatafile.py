@@ -152,6 +152,15 @@ class QiDataFile(QiDataObject):
 	def __exit__(self, type, value, traceback):
 		self.close()
 
+	# ──────────────
+	# Textualization
+
+	def __unicode__(self):
+		res_str = ""
+		res_str += "File name: " + self.name + "\n"
+		res_str += QiDataObject.__unicode__(self)
+		return res_str
+
 
 # ─────────────────
 # Specialized files

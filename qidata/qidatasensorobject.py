@@ -88,3 +88,14 @@ class QiDataSensorObject(QiDataObject):
 			self._timestamp = new_ts
 		else:
 			raise TypeError("Wrong type given to update timestamp property")
+
+	# ──────────────
+	# Textualization
+
+	def __unicode__(self):
+		res_str = ""
+		res_str += "Object type: " + unicode(self.type) + "\n"
+		res_str += "Object timestamp: " + unicode(self.timestamp) + "\n"
+		res_str += "Object transform: " + unicode(self.position) + "\n"
+		res_str += QiDataObject.__unicode__(self)
+		return res_str
