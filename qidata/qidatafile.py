@@ -21,9 +21,6 @@ from qidata import DataType
 from qidata.qidataobject import QiDataObject
 import _mixin as xmp_tools
 
-QIDATA_FILE_NS=u"http://softbank-robotics.com/qidatafile/1"
-registerNamespace(QIDATA_FILE_NS, "qidatafile")
-
 class ClosedFileException(Exception):pass
 
 def throwIfClosed(f):
@@ -114,12 +111,6 @@ class QiDataFile(QiDataObject):
 		"""
 		if self.mode != "r":
 			xmp_tools._save_annotations(self._xmp_file, self.annotations)
-			_raw_metadata = self._xmp_file.metadata[QIDATA_FILE_NS]
-			setattr(
-			    _raw_metadata,
-			    "data_type",
-			    self.type
-			)
 		self._xmp_file.close()
 		self._is_closed = True
 
@@ -130,13 +121,6 @@ class QiDataFile(QiDataObject):
 		"""
 		# Load annotations
 		self._annotations = xmp_tools._load_annotations(self._xmp_file)
-
-		# Load data type
-		_raw_metadata = self._xmp_file.metadata[QIDATA_FILE_NS]
-		if _raw_metadata.children:
-			data = _raw_metadata.value
-			xmp_tools._removePrefixes(data)
-			self.type = DataType[data["data_type"]]
 
 	@throwIfClosed
 	def addAnnotation(self, annotator, annotation, location=None):

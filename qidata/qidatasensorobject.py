@@ -8,7 +8,7 @@ import abc
 # Local modules
 from qidata import DataType
 from qidata.qidataobject import QiDataObject,ReadOnlyException,throwIfReadOnly
-from qidata.metadata_objects import TimeStamp
+from qidata.metadata_objects import TimeStamp, Transform
 from textualize import textualize_metadata
 
 class QiDataSensorObject(QiDataObject):
@@ -29,6 +29,7 @@ class QiDataSensorObject(QiDataObject):
 		return getattr(self, "_type", None)
 
 	@type.setter
+	@throwIfReadOnly
 	def type(self, new_type):
 		"""
 		Changes the type of the object
@@ -51,13 +52,39 @@ class QiDataSensorObject(QiDataObject):
 
 	@property
 	def position(self):
-		return self._position
+		"""
+		Returns the position of the sensor which created the current data
+		in a global frame.
+
+		:rtype: qidata.metadata_objects.Transform
+		"""
+		return getattr(self,
+		               "_position",
+		               Transform(translation=dict(x=0,y=0,z=0),
+		                         rotation=dict(x=0,y=0,z=0,w=1))
+		              )
+
+	@position.setter
+	@throwIfReadOnly
+	def position(self, new_pos):
+		if isinstance(new_pos, Transform):
+			self._position = new_pos
+		else:
+			raise TypeError("Wrong type given to update position property")
 
 	@property
 	def timestamp(self):
-		return getattr(self,"_timestamp", TimeStamp(0,0))
+		"""
+		Returns the timestamp at which the current data was created.
+
+		:rtype: qidata.metadata_objects.TimeStamp
+		"""
+		return getattr(self, "_timestamp", TimeStamp(0,0))
 
 	@timestamp.setter
 	@throwIfReadOnly
 	def timestamp(self, new_ts):
-		self._timestamp = new_ts
+		if isinstance(new_ts, TimeStamp):
+			self._timestamp = new_ts
+		else:
+			raise TypeError("Wrong type given to update timestamp property")
