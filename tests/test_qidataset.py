@@ -398,3 +398,10 @@ def test_data_frame(folder_with_annotations):
 
 	with QiDataSet(folder_with_annotations, "r") as d:
 		assert([] == d.getAllFrames())
+
+def test_dataset_context(folder_with_annotations):
+	with QiDataSet(folder_with_annotations, "w") as _ds:
+		_ds.context.recorder_names = ["sambrose"]
+
+	with QiDataSet(folder_with_annotations, "r") as _ds:
+		assert(["sambrose"] == _ds.context.recorder_names)

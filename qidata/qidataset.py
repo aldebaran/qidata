@@ -10,6 +10,7 @@ from xmp.xmp import XMPFile, registerNamespace
 
 # Local modules
 from qidata import qidatafile, qidataframe, DataType, _BaseEnum
+from qidata.metadata_objects import Context
 from qidata.qidataobject import QiDataObject, throwIfReadOnly
 import _mixin as xmp_tools
 
@@ -132,6 +133,10 @@ class QiDataSet(object):
 		return ret
 
 	@property
+	def context(self):
+		return self._context
+
+	@property
 	def datatypes_available(self):
 		"""
 		Returns a list of all data types present in the dataset
@@ -211,6 +216,12 @@ class QiDataSet(object):
 			    _raw_metadata,
 			    "files_type",
 			    self._files_type
+			)
+
+			setattr(
+			    _raw_metadata,
+			    "context",
+			    self.context
 			)
 
 		# 	# Save data streams (they need to be a little be reworked to fit
@@ -607,6 +618,11 @@ class QiDataSet(object):
 						value = QiDataSet.AnnotationStatus[value]
 						self._annotation_content[(annotator,annot_type)]=value
 
+			if data.has_key("context"):
+				self._context = Context(**data["context"])
+			else:
+				self._context = Context()
+
 			for file_type, file_list in data["files_type"].iteritems():
 				self._files_type[file_type]=file_list
 
@@ -648,6 +664,7 @@ class QiDataSet(object):
 
 		else:
 			# if no content info was stored, infere it from the files
+			self._context = Context()
 			self.examineContent()
 		return self
 

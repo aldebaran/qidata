@@ -9,6 +9,7 @@ class _QidataEnumMixin(_enum.Enum):
 class MetadataObject(_VS):pass
 
 # Import all defined metadata objects
+from context import Context
 from property import Property
 from timestamp import TimeStamp
 from transform import Transform
