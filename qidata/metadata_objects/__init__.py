@@ -11,8 +11,10 @@ class MetadataObject(_VS):pass
 # Import all defined metadata objects
 from property import Property
 from timestamp import TimeStamp
+from transform import Transform
 
 __all__=[
   "Property",
   "TimeStamp",
+  "Transform",
 ]
