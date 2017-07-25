@@ -39,7 +39,7 @@ class DataType(_BaseEnum):
 	# FRAME      = 6 #: Special file describing an "atomic" piece of data
 	IMAGE      = 2 #: For all images (used for PNG and JPG extensions)
 	IMAGE_2D   = 3 #: For 2D images
-	# IMG_3D     = 4 #: For 3D images
+	IMAGE_3D     = 4 #: For 3D images
 	# IMG_STEREO = 5 #: For stereo images
 
 	def __str__(self):
