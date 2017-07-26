@@ -60,7 +60,7 @@ def test_qidata_sensor_object():
 
 	# Make sure there is a default timestamp
 	assert(TimeStamp(0,0) == qidata_object.timestamp)
-	pos = qidata_object.position
+	pos = qidata_object.transform
 	assert(0 == pos.translation.x)
 	assert(0 == pos.translation.y)
 	assert(0 == pos.translation.z)
@@ -81,7 +81,7 @@ def test_qidata_sensor_object():
 		ro_qidata_object.timestamp = TimeStamp(10,0)
 
 	with pytest.raises(ReadOnlyException):
-		ro_qidata_object.position = Transform()
+		ro_qidata_object.transform = Transform()
 
 	with pytest.raises(ReadOnlyException):
 		ro_qidata_object.type = DataType.AUDIO

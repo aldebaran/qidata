@@ -51,26 +51,25 @@ class QiDataSensorObject(QiDataObject):
 				raise TypeError("%s is not a valid DataType"%new_type)
 
 	@property
-	def position(self):
+	def transform(self):
 		"""
 		Returns the position of the sensor which created the current data
 		in a global frame.
 
 		:rtype: qidata.metadata_objects.Transform
 		"""
-		return getattr(self,
-		               "_position",
-		               Transform(translation=dict(x=0,y=0,z=0),
-		                         rotation=dict(x=0,y=0,z=0,w=1))
-		              )
+		if not hasattr(self, "_position"):
+			self._position = Transform(translation=dict(x=0,y=0,z=0),
+			                           rotation=dict(x=0,y=0,z=0,w=1))
+		return self._position
 
-	@position.setter
+	@transform.setter
 	@throwIfReadOnly
-	def position(self, new_pos):
-		if isinstance(new_pos, Transform):
-			self._position = new_pos
+	def transform(self, new_tf):
+		if isinstance(new_tf, Transform):
+			self._position = new_tf
 		else:
-			raise TypeError("Wrong type given to update position property")
+			raise TypeError("Wrong type given to update transform property")
 
 	@property
 	def timestamp(self):
@@ -79,7 +78,9 @@ class QiDataSensorObject(QiDataObject):
 
 		:rtype: qidata.metadata_objects.TimeStamp
 		"""
-		return getattr(self, "_timestamp", TimeStamp(0,0))
+		if not hasattr(self, "_timestamp"):
+			self._timestamp = TimeStamp(0,0)
+		return self._timestamp
 
 	@timestamp.setter
 	@throwIfReadOnly

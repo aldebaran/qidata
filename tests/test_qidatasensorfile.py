@@ -40,23 +40,10 @@ def test_qidata_sensor_file(jpg_file_path):
 	                            )
 	with SensorFileForTests(jpg_file_path, "w") as f:
 		f.timestamp = ts
-		f.position = p
+		f.transform = p
 		f.type = DataType.AUDIO
 
 	with SensorFileForTests(jpg_file_path, "r") as f:
 		assert(ts == f.timestamp)
-		assert(p == f.position)
+		assert(p == f.transform)
 		assert(DataType.AUDIO == f.type)
-
-	# Open file with context manager in "r" mode and check annotation is there
-	# with FileForTests(jpg_file_path, "r") as f:
-	# 	assert(
-	# 	  dict(
-	# 	    jdoe=dict(
-	# 	      Property=[
-	# 	        [metadata_objects.Property(key="prop", value="10"), None],
-	# 	        [metadata_objects.Property(key="prop", value="10"), 1],
-	# 	      ],
-	# 	    ),
-	# 	  ) == f.annotations
-	# 	)

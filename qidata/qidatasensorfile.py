@@ -26,7 +26,7 @@ class QiDataSensorFile(QiDataSensorObject, QiDataFile):
 		if self.mode != "r":
 			_raw_metadata = self._xmp_file.metadata[QIDATA_SENSOR_NS]
 			setattr(_raw_metadata, "data_type", self.type)
-			setattr(_raw_metadata, "position", self.position)
+			setattr(_raw_metadata, "transform", self.transform)
 			setattr(_raw_metadata, "timestamp", self.timestamp)
 
 		super(QiDataSensorFile, self).close()
@@ -40,7 +40,7 @@ class QiDataSensorFile(QiDataSensorObject, QiDataFile):
 			data = _raw_metadata.value
 			xmp_tools._removePrefixes(data)
 			self._type = DataType[data["data_type"]]
-			self._position = Transform(**data["position"])
+			self._position = Transform(**data["transform"])
 			self._timestamp = TimeStamp(**data["timestamp"])
 
 	# ──────────────
@@ -51,6 +51,6 @@ class QiDataSensorFile(QiDataSensorObject, QiDataFile):
 		res_str += "File name: " + self.name + "\n"
 		res_str += "Object type: " + unicode(self.type) + "\n"
 		res_str += "Object timestamp: " + unicode(self.timestamp) + "\n"
-		res_str += "Object transform: " + unicode(self.position) + "\n"
+		res_str += "Object transform: " + unicode(self.transform) + "\n"
 		res_str += QiDataObject.__unicode__(self)
 		return res_str
