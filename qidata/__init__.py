@@ -40,6 +40,7 @@ class DataType(_BaseEnum):
 	IMAGE      = 2 #: For all images (used for PNG and JPG extensions)
 	IMAGE_2D   = 3 #: For 2D images
 	IMAGE_3D     = 4 #: For 3D images
+	IMAGE_IR     = 5 #: For IR images
 	# IMG_STEREO = 5 #: For stereo images
 
 	def __str__(self):
