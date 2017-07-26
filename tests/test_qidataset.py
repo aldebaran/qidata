@@ -328,14 +328,14 @@ def test_data_stream(folder_with_annotations):
 			d.addToStream("cam2d", ((0,500000000),"JPG_file20.jpg"))
 		assert("Given file is not in the dataset" == e.value.message)
 
-		with QiDataSet(folder_with_annotations, "r") as a:
-			assert(
-			    {
-			        "cam2d":{(0,000000000):"Annotated_JPG_file.jpg",
-			                 (0,500000000):"JPG_file.jpg"},
-			        "audio":{(1,500000000):"WAV_file.wav"}
-			    } == d.getAllStreams()
-			)
+	with QiDataSet(folder_with_annotations, "r") as d:
+		assert(
+		    {
+		        "cam2d":{(0,000000000):"Annotated_JPG_file.jpg",
+		                 (0,500000000):"JPG_file.jpg"},
+		        "audio":{(1,500000000):"WAV_file.wav"}
+		    } == d.getAllStreams()
+		)
 
 def test_data_frame(folder_with_annotations):
 	with QiDataSet(folder_with_annotations, "w") as d:

@@ -224,16 +224,16 @@ class QiDataSet(object):
 			    self.context
 			)
 
-		# 	# Save data streams (they need to be a little be reworked to fit
-		# 	# XMP base rules, namely numbers cannot be keys so we add the
-		# 	# letter "t" in front of the timestamps)
-		# 	tmp_streams = dict()
-		# 	for stream_name, stream in self._streams.iteritems():
-		# 		tmp_streams[stream_name] = (stream[0],dict())
-		# 		for (timestamp,filename) in stream[1].iteritems():
-		# 			tmp_streams[stream_name][1]["t%d.%09d"%timestamp] = filename
+			# Save data streams (they need to be a little be reworked to fit
+			# XMP base rules, namely numbers cannot be keys so we add the
+			# letter "t" in front of the timestamps)
+			tmp_streams = dict()
+			for stream_name, stream in self._streams.iteritems():
+				tmp_streams[stream_name] = (stream[0],dict())
+				for (timestamp,filename) in stream[1].iteritems():
+					tmp_streams[stream_name][1]["t%d.%09d"%timestamp] = filename
 
-		# 	setattr(_raw_metadata, "streams", tmp_streams)
+			setattr(_raw_metadata, "streams", tmp_streams)
 
 		self._xmp_file.close()
 		for f in self._frames:
@@ -650,17 +650,17 @@ class QiDataSet(object):
 		# 			files_info[str(file_type)].append(path)
 		# 		self._content._type_content = dict(files_info)
 
-			# # If streams are defined, load them. We have to go through the
-			# # whole structure to make sure that timestamps are properly
-			# # converted to float (after removal of the appended prefix letter
-			# # and filenames must be converted to string, as this is the type we
-			# # use, but they are saved as unicode)
-			# if data.has_key("streams") and len(data["streams"])>0:
-			# 	for stream_name, stream in data["streams"].iteritems():
-			# 		self._streams[stream_name] = [DataType[stream[0]],dict()]
-			# 		for (timestamp,filename) in stream[1].iteritems():
-			# 			_ts = tuple(map(int, timestamp[1:].split(".")))
-			# 			self._streams[stream_name][1][_ts] = str(filename)
+			# If streams are defined, load them. We have to go through the
+			# whole structure to make sure that timestamps are properly
+			# converted to float (after removal of the appended prefix letter
+			# and filenames must be converted to string, as this is the type we
+			# use, but they are saved as unicode)
+			if data.has_key("streams") and len(data["streams"])>0:
+				for stream_name, stream in data["streams"].iteritems():
+					self._streams[stream_name] = [DataType[stream[0]],dict()]
+					for (timestamp,filename) in stream[1].iteritems():
+						_ts = tuple(map(int, timestamp[1:].split(".")))
+						self._streams[stream_name][1][_ts] = str(filename)
 
 		else:
 			# if no content info was stored, infere it from the files
