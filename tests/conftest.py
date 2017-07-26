@@ -37,6 +37,7 @@ DATASET_WITH_NEW_ANNOTATIONS = "C0_annotated_file_added" # B + newly annotated f
 FOLDER_WITH_ANNOTATIONS = "C1_folder_with_one_annotated_file" # A + annotated file
 JPG_PHOTO = "SpringNebula.jpg"
 WAV_SOUND = "Trumpet.wav"
+ROSBAG_ASUS = "Michal_Asus_2016-02-19-15-25-46.bag"
 
 #[MODULE CONTENT]--------------------------------------------------------------
 
