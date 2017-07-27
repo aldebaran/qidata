@@ -24,7 +24,7 @@ for _ep in _pkg.iter_entry_points(group="qidata.commands"):
 # except:
 # 	pass
 
-class VersionAction(Action):
+class VersionAction(argparse.Action):
 	def __init__(self, option_strings, dest, nargs, **kwargs):
 		super(VersionAction, self).__init__(option_strings, dest, nargs=0, **kwargs)
 	def __call__(self, parser, namespace, values, option_string):
@@ -43,5 +43,3 @@ def parser():
 	parser.add_argument("-v", "--version", action=VersionAction, nargs=0,
 	                    help="print qidata release version number")
 	return parser
-
-main_parser = parser()

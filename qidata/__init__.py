@@ -16,37 +16,17 @@
 
 # Standard libraries
 from enum import Enum as _Enum
+import os as _os
 import pkg_resources as _pkg
 
 # Local modules
 import metadata_objects
 
-_metadata_list = metadata_objects.__all__
+# ––––––––––––––––––––––––––––
+# Convenience version variable
 
-# Load all plugins and mount them on our dynamic module
-for _ep in _pkg.iter_entry_points(group="qidata.metadata.definition"):
-	_name = _pkg.EntryPoint.pattern.match(str(_ep)).groupdict()["name"]
-
-	# Add the class's name to metadata type list
-	_metadata_list.append(_name)
-
-	# Add the class to module's attributes
-	setattr(metadata_objects, _name, _ep.load())
-
-	# Reset the class module and name
-	getattr(metadata_objects, _name).__module__ = "qidata.metadata_objects"
-	getattr(metadata_objects, _name).__name__ = _name
-
-for _ep in _pkg.iter_entry_points(group="qidata.metadata.package"):
-	_name = _pkg.EntryPoint.pattern.match(str(_ep)).groupdict()["name"]
-
-	# Add the module to module's attributes
-	setattr(metadata_objects, _name, _ep.load())
-
-	# Add the module to global module cache
-	getattr(metadata_objects, _name).__name__ = _dyn_mod_name+"."+_name
-	_sys.modules[_dyn_mod_name+"."+_name] = getattr(metadata_objects, _name)
-
+VERSION = open(_os.path.join(_os.path.dirname(_os.path.realpath(__file__)),
+                             "VERSION")).read().split()[0]
 
 # ––––––––––––––––––––––
 # Define convenient enum
@@ -77,6 +57,34 @@ class DataType(_BaseEnum):
 # –––––––––––––––––––––––––––––––––
 # Define supported metatadata types
 
+_metadata_list = metadata_objects.__all__
+
+# Load all plugins and mount them on metadata_objects module
+for _ep in _pkg.iter_entry_points(group="qidata.metadata.definition"):
+	_name = _pkg.EntryPoint.pattern.match(str(_ep)).groupdict()["name"]
+
+	# Add the class's name to metadata type list
+	_metadata_list.append(_name)
+
+	# Add the class to module's attributes
+	setattr(metadata_objects, _name, _ep.load())
+
+	# Reset the class module and name
+	getattr(metadata_objects, _name).__module__ = "qidata.metadata_objects"
+	getattr(metadata_objects, _name).__name__ = _name
+
+for _ep in _pkg.iter_entry_points(group="qidata.metadata.package"):
+	_name = _pkg.EntryPoint.pattern.match(str(_ep)).groupdict()["name"]
+
+	# Add the module to module's attributes
+	setattr(metadata_objects, _name, _ep.load())
+
+	# Add the module to global module cache
+	getattr(metadata_objects, _name).__name__ = "qidata.metadata_objects."+_name
+	_sys.modules["qidata.metadata_objects."+_name] = getattr(metadata_objects,
+	                                                         _name)
+
+
 # Make sure there is at least one definition
 if len(_metadata_list) == 0:
 	_msg = "No metadata definition could be found."
@@ -86,6 +94,9 @@ if len(_metadata_list) == 0:
 # Create MetadataType enum
 MetadataType = _BaseEnum("MetadataType", _metadata_list)
 MetadataType.__doc__ = "Metadata object types provided by qidata"
+
+# ––––––––––––––––––––––––––––––
+# Define metadata object factory
 
 def makeMetadataObject(metadata_object_type, data=None):
 	"""
@@ -106,6 +117,6 @@ def makeMetadataObject(metadata_object_type, data=None):
 		raise TypeError("Requested metadata object (%s) does not exist"
 		                % metadata_object_type)
 
-# Import submodules import definitions
+# Make some submodules stuff directly accessible from qidata package
 from qidatafile import QiDataFile, ClosedFileException
 from qidataset import QiDataSet, isDataset

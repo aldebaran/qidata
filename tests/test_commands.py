@@ -7,6 +7,7 @@ import argparse
 
 # Local modules
 from qidata.command_line import (file_commands,
+                                 main,
                                  set_commands)
 
 @pytest.mark.parametrize("command_args",
@@ -152,3 +153,8 @@ def test_set_command(command_args, expected,set_command_parser):
 	res = parsed_arguments.func(parsed_arguments)
 	print res
 	assert(expected == res)
+
+def test_main_command():
+  parser = main.parser()
+  with pytest.raises(SystemExit):
+    parser.parse_args(["-v"])
