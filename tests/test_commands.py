@@ -100,3 +100,62 @@ def test_failing_set_command(command_args):
 	parsed_arguments = parser.parse_args(command_args)
 	with pytest.raises(SystemExit):
 		parsed_arguments.func(parsed_arguments)
+
+@pytest.mark.parametrize("command_args,expected",
+                          [
+                            (
+                              [
+                                "set",
+                                "show",
+                                "tests/data/Michal_Asus_2016-02-19-15-25-46"
+                              ],
+"""Dataset path: tests/data/Michal_Asus_2016-02-19-15-25-46
+Available types: 
+├─ 0: IMAGE_2D
+├─ 1: IMAGE_3D
+└─ 2: IMAGE_IR
+Available streams: 
+├─ depth: 52 files
+├─ front: 40 files
+└─ ir: 52 files
+Defined frames: 141
+Context: 
+├─ recording_location: 
+│  ├─ country: UNSPECIFIED
+│  ├─ city: ""
+│  ├─ latitude: None
+│  ├─ longitude: None
+│  └─ tags: []
+├─ recording_datetime: 
+│  ├─ year: None
+│  ├─ month: None
+│  ├─ day: None
+│  ├─ hour: None
+│  ├─ starting_timestamp: None
+│  └─ length: None
+├─ recording_device: 
+│  ├─ device_model: UNSPECIFIED
+│  ├─ device_id: ""
+│  └─ sw_version: ""
+├─ recorder_names: []
+├─ environmental_description: 
+│  ├─ category: UNSPECIFIED
+│  ├─ light_conditions: 
+│  │  ├─ outdoor_light: UNSPECIFIED
+│  │  ├─ indoor_light: UNSPECIFIED
+│  │  └─ ambient_luminosity: None
+│  └─ sound_conditions: 
+│     ├─ ambient_sound_reverberation: None
+│     └─ ambient_sound_level: None
+└─ tags: []
+Available annotations: 
+"""
+                            ),
+                          ]
+                        )
+def test_set_command(command_args, expected):
+	parser = main.parser()
+	parsed_arguments = parser.parse_args(command_args)
+	res = parsed_arguments.func(parsed_arguments)
+	print res
+	assert(expected == res)

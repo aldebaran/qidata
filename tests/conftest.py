@@ -37,6 +37,7 @@ DATASET_WITH_NEW_ANNOTATIONS = "C0_annotated_file_added" # B + newly annotated f
 FOLDER_WITH_ANNOTATIONS = "C1_folder_with_one_annotated_file" # A + annotated file
 JPG_PHOTO = "SpringNebula.jpg"
 WAV_SOUND = "Trumpet.wav"
+FULL_DATASET = "Michal_Asus_2016-02-19-15-25-46"
 ROSBAG_ASUS = "Michal_Asus_2016-02-19-15-25-46.bag"
 
 #[MODULE CONTENT]--------------------------------------------------------------
@@ -94,3 +95,6 @@ def dataset_with_new_annotations():
 def folder_with_annotations():
 	return sandboxed(FOLDER_WITH_ANNOTATIONS)
 
+@pytest.fixture(scope="function")
+def full_dataset():
+	return sandboxed(FULL_DATASET)

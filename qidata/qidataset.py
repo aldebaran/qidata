@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 # Standard libraries
+from collections import OrderedDict
 import copy
 import glob
 import os
 
 # Third-party libraries
 from xmp.xmp import XMPFile, registerNamespace
+from strong_typing._textualize import textualize_sequence, textualize_mapping
 
 # Local modules
 from qidata import qidatafile, qidataframe, DataType, _BaseEnum
@@ -134,6 +136,11 @@ class QiDataSet(object):
 
 	@property
 	def context(self):
+		"""
+		Describes the context around the data sets.
+
+		:rtype: qidata.metadata_objects.context.Context
+		"""
 		return self._context
 
 	@property
@@ -676,3 +683,41 @@ class QiDataSet(object):
 
 	def __exit__(self, type, value, traceback):
 		self.close()
+
+	# ──────────────
+	# Textualization
+
+	def __str__(self):
+		return unicode(self).encode(encoding="utf-8")
+
+	def __unicode__(self):
+		# Path
+		res_str = ""
+		res_str += "Dataset path: " + self.name + "\n"
+
+		# Types
+		_da = [str(i) for i in self.datatypes_available]
+		_da.sort()
+		res_str += "Available types: " + textualize_sequence(_da) + "\n"
+
+		# Streams
+		_sn = self._streams.keys()
+		_sn.sort()
+		print _sn
+		_s = OrderedDict(
+		                  [(name, "%d files"%len(self._streams[name][1]))\
+		                      for name in _sn]
+		                )
+		res_str += "Available streams: " + textualize_mapping(_s) + "\n"
+
+		# Frames
+		res_str += "Defined frames: %d\n"%len(self._frames)
+
+		# Context
+		res_str += "Context: " + unicode(self.context) + "\n"
+
+		# Annotations
+		res_str += "Available annotations: " + textualize_sequence(
+		                                           self.annotations_available
+		                                       ) + "\n"
+		return res_str
