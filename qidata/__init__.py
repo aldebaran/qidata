@@ -37,6 +37,16 @@ for _ep in _pkg.iter_entry_points(group="qidata.metadata.definition"):
 	getattr(metadata_objects, _name).__module__ = "qidata.metadata_objects"
 	getattr(metadata_objects, _name).__name__ = _name
 
+for _ep in _pkg.iter_entry_points(group="qidata.metadata.package"):
+	_name = _pkg.EntryPoint.pattern.match(str(_ep)).groupdict()["name"]
+
+	# Add the module to module's attributes
+	setattr(metadata_objects, _name, _ep.load())
+
+	# Add the module to global module cache
+	getattr(metadata_objects, _name).__name__ = _dyn_mod_name+"."+_name
+	_sys.modules[_dyn_mod_name+"."+_name] = getattr(metadata_objects, _name)
+
 
 # ––––––––––––––––––––––
 # Define convenient enum
