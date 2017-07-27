@@ -16,9 +16,27 @@
 
 # Standard libraries
 from enum import Enum as _Enum
+import pkg_resources as _pkg
 
 # Local modules
-from metadata_objects import __all__
+import metadata_objects
+
+_metadata_list = metadata_objects.__all__
+
+# Load all plugins and mount them on our dynamic module
+for _ep in _pkg.iter_entry_points(group="qidata.metadata.definition"):
+	_name = _pkg.EntryPoint.pattern.match(str(_ep)).groupdict()["name"]
+
+	# Add the class's name to metadata type list
+	_metadata_list.append(_name)
+
+	# Add the class to module's attributes
+	setattr(metadata_objects, _name, _ep.load())
+
+	# Reset the class module and name
+	getattr(metadata_objects, _name).__module__ = "qidata.metadata_objects"
+	getattr(metadata_objects, _name).__name__ = _name
+
 
 # ––––––––––––––––––––––
 # Define convenient enum
@@ -48,8 +66,6 @@ class DataType(_BaseEnum):
 
 # –––––––––––––––––––––––––––––––––
 # Define supported metatadata types
-
-_metadata_list = __all__
 
 # Make sure there is at least one definition
 if len(_metadata_list) == 0:
