@@ -33,9 +33,9 @@ def _unicodeListToBuiltInList(list_to_convert):
 		raise TypeError("_unicodeListToBuiltInList can only handle lists")
 	for i in range(0,len(list_to_convert)):
 		if isinstance(list_to_convert[i], list):
-			XMPHandlerMixin._unicodeListToBuiltInList(list_to_convert[i])
+			_unicodeListToBuiltInList(list_to_convert[i])
 		elif isinstance(list_to_convert[i], basestring):
-			list_to_convert[i] = XMPHandlerMixin._unicodeToBuiltInType(list_to_convert[i])
+			list_to_convert[i] = _unicodeToBuiltInType(list_to_convert[i])
 
 def _unicodeToBuiltInType(input_to_convert):
 	"""
