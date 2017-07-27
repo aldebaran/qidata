@@ -2,6 +2,7 @@
 # Standard library
 import pytest
 import argparse
+import subprocess
 
 # Third-party libraries
 
@@ -158,3 +159,6 @@ def test_main_command():
   parser = main.parser()
   with pytest.raises(SystemExit):
     parser.parse_args(["-v"])
+
+def test_main():
+  subprocess.check_call(["qidata", "-h"])

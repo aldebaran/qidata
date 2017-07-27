@@ -41,7 +41,7 @@ setup(
         "qidata_devices >= 0.0.3",
     ],
     package_data={"qidata":["VERSION"]},
-    scripts=['bin/qidata'],
+    # scripts=['bin/qidata'],
     entry_points={
         'qidata.metadata.definition': [
             'Face = qidata._metadata_objects.face:Face',
@@ -53,5 +53,8 @@ setup(
             'file = qidata.command_line.file_commands',
             'set = qidata.command_line.set_commands',
         ],
+        'console_scripts': [
+            'qidata = qidata.__main__:main'
+        ]
     }
 )
