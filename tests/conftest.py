@@ -15,8 +15,8 @@ import errno
 import shutil
 import pytest
 
-# from qidata import QiDataSet, qidatafile
-# from qidata.metadata_objects import Context
+from qidata.command_line import (file_commands,
+                                 set_commands)
 
 #[MODULE INFO]-----------------------------------------------------------------
 __author__ = "sambrose"
@@ -98,3 +98,11 @@ def folder_with_annotations():
 @pytest.fixture(scope="function")
 def full_dataset():
 	return sandboxed(FULL_DATASET)
+
+@pytest.fixture(scope="session")
+def file_command_parser():
+	return file_commands.make_command_parser()
+
+@pytest.fixture(scope="session")
+def set_command_parser():
+	return set_commands.make_command_parser()

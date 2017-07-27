@@ -49,5 +49,9 @@ setup(
             'Person = qidata._metadata_objects.person:Person',
             'Speech = qidata._metadata_objects.speech:Speech',
         ],
+        'qidata.commands': [
+            'file = qidata.command_line.file_commands',
+            'set = qidata.command_line.set_commands',
+        ],
     }
 )

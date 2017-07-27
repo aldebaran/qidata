@@ -48,5 +48,3 @@ def make_command_parser(parent_parser=argparse.ArgumentParser(description=DESCRI
 	show_parser.set_defaults(func=QiDataSetCommand.show)
 
 	return parent_parser
-
-dataset_parser = make_command_parser()

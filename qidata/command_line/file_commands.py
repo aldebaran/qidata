@@ -95,5 +95,3 @@ def make_command_parser(parent_parser=argparse.ArgumentParser(description=DESCRI
 	# version_parser.set_defaults(func=QiDataFilesCommand.version)
 
 	return parent_parser
-
-file_parser = make_command_parser()
