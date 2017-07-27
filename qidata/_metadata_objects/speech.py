@@ -1,22 +1,24 @@
 # -*- coding: utf-8 -*-
 
-# Standard library
+# Standard libraries
 from distutils.version import StrictVersion
 
-# strong_typing
-from strong_typing import VersionedStruct
-from strong_typing.typed_parameters import (IntegerParameter,
-                                            StringParameter)
+# Third-party libraries
+from strong_typing.typed_parameters import (IntegerParameter as _Int,
+                                            StringParameter as _Str)
 
-class Speech(VersionedStruct):
+# Local modules
+from qidata.metadata_objects import MetadataObject
+
+class Speech(MetadataObject):
 
     __ATTRIBUTES__ = [
-                       StringParameter(name="name",
-                              description="Name of the speaker",
-                              default=""),
-                       StringParameter(name="sentence",
-                              description="Sentence pronounced",
-                              default="")
+                       _Str(name="name",
+                            description="Name of the speaker",
+                            default=""),
+                       _Str(name="sentence",
+                            description="Sentence pronounced",
+                            default="")
     ]
 
     __ATT_VERSIONS__ = [None, None, None]
@@ -25,9 +27,9 @@ class Speech(VersionedStruct):
     __DESCRIPTION__="Contains annotation details for a speech"
 
     __DEPRECATED_ATT_N_VERSIONS__ = [
-                                      (IntegerParameter(name="id",
-                                               description="",
-                                               default=0), None, "0.2")
+                                      (_Int(name="id",
+                                            description="",
+                                            default=0), None, "0.2")
     ]
 
     # ───────────────────

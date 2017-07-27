@@ -2,24 +2,26 @@
 
 from distutils.version import StrictVersion
 
-# strong_typing
-from strong_typing import VersionedStruct
-from strong_typing.typed_parameters import (IntegerParameter,
-                                            StringParameter,
-                                            EnumParameter,
-                                            VectorParameter,
-                                            FloatParameter)
+# Third-party libraries
+from strong_typing.typed_parameters import (IntegerParameter as _Int,
+                                            StringParameter as _Str,
+                                            EnumParameter as _Enum,
+                                            VectorParameter as _Vect,
+                                            FloatParameter as _Float)
 
-class FacialPart(VersionedStruct):
+# Local modules
+from qidata.metadata_objects import MetadataObject
+
+class FacialPart(MetadataObject):
 
     __ATTRIBUTES__ = [
-                       VectorParameter(name="coordinates",
-                                       description="Coordinates of the face part",
-                                       type=int,
-                                       default=[]),
-                       FloatParameter(name="confidence",
-                                       description="",
-                                       default=0.0)
+                       _Vect(name="coordinates",
+                             description="Coordinates of the face part",
+                             type=int,
+                             default=[]),
+                       _Float(name="confidence",
+                              description="",
+                              default=0.0)
     ]
 
     __ATT_VERSIONS__ = [None, None]
@@ -27,19 +29,19 @@ class FacialPart(VersionedStruct):
     __VERSION__="0.1"
     __DESCRIPTION__="Contains a face part location with detection confidence"
 
-class Face(VersionedStruct):
+class Face(MetadataObject):
 
     __ATTRIBUTES__ = [
-                       StringParameter(name="name",
-                                       description="Name of the face's owner",
-                                       default=""),
-                       IntegerParameter(name="age",
-                                       description="Age of the face's owner",
-                                       default=0),
-                       EnumParameter(name="gender",
-                                       description="Gender of the face's owner",
-                                       choices=["female", "male"],
-                                       default="male"),
+                       _Str(name="name",
+                            description="Name of the face's owner",
+                            default=""),
+                       _Int(name="age",
+                            description="Age of the face's owner",
+                            default=0),
+                       _Enum(name="gender",
+                             description="Gender of the face's owner",
+                             choices=["female", "male"],
+                             default="male"),
     ]
 
     __ATT_VERSIONS__ = [None, None,"0.2"]
@@ -48,21 +50,21 @@ class Face(VersionedStruct):
     __DESCRIPTION__="Contains annotation details for a face"
 
     __DEPRECATED_ATT_N_VERSIONS__ = [
-                       (IntegerParameter(name="id",
-                                        description="A unique id given to this face through all relevant data",
-                                        default=0), None, "0.3"),
-                       (VectorParameter(name="expression",
-                                       description="Estimation of the person's expression",
-                                       type=float,
-                                       default=[]), "0.2", "0.4"),
-                       (VectorParameter(name="facial_parts",
-                                       description="Positions of faces features",
-                                       type=FacialPart,
-                                       default=[]), "0.2", "0.4"),
-                       (VectorParameter(name="smile",
-                                       description="Smile intensity",
-                                       type=float,
-                                       default=[]), "0.2", "0.4"),
+                       (_Int(name="id",
+                             description="A unique id given to this face through all relevant data",
+                             default=0), None, "0.3"),
+                       (_Vect(name="expression",
+                              description="Estimation of the person's expression",
+                              type=float,
+                              default=[]), "0.2", "0.4"),
+                       (_Vect(name="facial_parts",
+                              description="Positions of faces features",
+                              type=FacialPart,
+                              default=[]), "0.2", "0.4"),
+                       (_Vect(name="smile",
+                              description="Smile intensity",
+                              type=float,
+                              default=[]), "0.2", "0.4"),
     ]
 
     # ───────────────────

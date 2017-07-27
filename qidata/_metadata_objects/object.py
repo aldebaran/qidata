@@ -1,23 +1,24 @@
 # -*- coding: utf-8 -*-
 
-# strong_typing
-from strong_typing import VersionedStruct
-from strong_typing.typed_parameters import (IntegerParameter,
-                                            StringParameter)
+# Third-party libraries
+from strong_typing.typed_parameters import (IntegerParameter as _Int,
+                                            StringParameter as _Str)
 
+# Local modules
+from qidata.metadata_objects import MetadataObject
 
-class Object(VersionedStruct):
+class Object(MetadataObject):
 
     __ATTRIBUTES__ = [
-                       StringParameter(name="type",
-                                       description="redball, qrcode, landmark, ...",
-                                       default=""),
-                       StringParameter(name="value",
-                                       description="object description or decyphered value",
-                                       default=""),
-                       IntegerParameter(name="id",
-                                        description="ID of the object",
-                                        default=0)
+                       _Str(name="type",
+                            description="redball, qrcode, landmark, ...",
+                            default=""),
+                       _Str(name="value",
+                            description="object description or decyphered value",
+                            default=""),
+                       _Int(name="id",
+                            description="ID of the object",
+                            default=0)
     ]
 
     __ATT_VERSIONS__ = [None, None, None]

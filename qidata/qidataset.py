@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 
 # Standard libraries
-import __builtin__
-import os
+from collections import OrderedDict
 import copy
 import glob
+import os
 
 # Third-party libraries
 from xmp.xmp import XMPFile, registerNamespace
+from strong_typing._textualize import textualize_sequence, textualize_mapping
 
 # Local modules
-from qidata import DataType, qidatafile, qidataframe
-from qidata.qidataobject import QiDataObject
-from qidata.exceptions import ReadOnlyException, throwIfReadOnly
-from _mixin import XMPHandlerMixin
+from qidata import qidatafile, qidataframe, DataType, _BaseEnum
+from qidata.metadata_objects import Context
+from qidata.qidataobject import QiDataObject, throwIfReadOnly
+import _mixin as xmp_tools
 
 QIDATA_CONTENT_NS=u"http://softbank-robotics.com/qidataset/1"
 registerNamespace(QIDATA_CONTENT_NS, "qidataset")
@@ -21,121 +22,26 @@ registerNamespace(QIDATA_CONTENT_NS, "qidataset")
 METADATA_FILENAME = "metadata.xmp" # Place-holder
 
 def isDataset(path):
-    return os.path.isdir(path) and os.path.isfile(os.path.join(path, METADATA_FILENAME))
+    return os.path.isdir(path)\
+             and os.path.isfile(os.path.join(path, METADATA_FILENAME))
 
-def isMetadataFile(path):
-    return  os.path.isfile(path) and os.path.basename(path) == METADATA_FILENAME
+class QiDataSet(object):
 
-class QiDataSetContent:
-	"""
-	Describes the content of a dataset
-
-	It contains information about:
-	 - the available types of data
-	 - the annotators
-	 - the type of metadata contained
-	 - the "status" of the metadata
-
-	.. note::
-		"status" can be "partial" (``False``) or "total" (``True``).
-		It represents the completeness of a certain metadata.
-		For instance, if the "Face" metadata of "jdoe" is
-		"total", it means that all files have been annotated. This
-		is a very valuable information.
-
-		Imagine a file in the data set has no "Face" metadata. Does it
-		mean that there is no face visible in the file, or that the
-		annotator did not annotate that specific file ? When the
-		metadata is registered as "total", it means that every file
-		without a "Face" metadata has actually no face in it.
-
-	.. warning::
-		Because of what was just said, metadata CANNOT and MUST NOT
-		be declared "Total" automatically. The value of such a statement
-		can only be guaranteed if it emanates from a human.
-	"""
-
-	def __init__(self, files_info, metadata_info=dict(), **kwargs):
+	class AnnotationStatus(_BaseEnum):
 		"""
-		:param files_info: Contains the list of files of each type
-		:type files_info: dict
-		:param metadata_info: Status of the different metadatas
-		:type metadata_info: dict
-
-		Other keywords arguments are ignored
-
-		.. note::
-			metadata_info contains a 2-layer dict to describe the status
-			of all metadata types per annotator.
+		AnnotationStatus represents the completeness of an annotation.
+		For instance, if the "Face" metadata of "jdoe" is TOTAL, it means that
+		all files have been annotated. This is a very valuable information.
 
 		:Example:
-			>>> metadata_info["jdoe"]["Face"]
-			False # regarding Face metadata, jdoe did not totally annotate the dataset
+			Imagine a file in the dataset has no "Face" annotation. Does it
+			mean that there is no face visible in the file, or that the
+			annotator forgot to annotate that specific file ? When the
+			annotation is registered as TOTAL, it means that every file
+			without a "Face" annotation has actually no face in it.
 		"""
-		# Create data
-		self._data = dict()
-		for annotator, subdict in metadata_info.iteritems():
-			for annotation_type, status in subdict.iteritems():
-				self._data[(annotator, annotation_type)] = True if status =="True" else False
-
-		self._type_content = dict(files_info) #: map of data types to list of files
-
-		# _content is a list of triplet whose each is
-		# (annotator_name, annotation_type, annotation_is_total)
-
-	def toDict(self):
-		out = dict(metadata_info=dict(), files_info=self._type_content)
-		for k,v in self._data.iteritems():
-			if not out["metadata_info"].has_key(k[0]):
-				out["metadata_info"][k[0]] = dict()
-			out["metadata_info"][k[0]][k[1]] = v
-		return out
-
-	@property
-	def annotators(self):
-		"""
-		Returns the list of annotators that made at least one total
-		annotation
-		"""
-		return list(set([k[0] for k,v in self._data.iteritems() if v]))
-
-	@property
-	def annotation_types(self):
-		"""
-		Returns the list of annotations type that are totally annotated by at
-		least one annotator
-		"""
-		return list(set([k[1] for k,v in self._data.iteritems() if v]))
-
-	@property
-	def file_types(self):
-		"""
-		Returns the list of file types present in the dataset
-		"""
-		# dict values are the number of files for each type
-		# it will help to track dataset changes
-		return self._type_content.keys()
-
-	@property
-	def partial_annotations(self):
-		"""
-		Returns a list of tuple containing all non-total annotations
-		"""
-		return [k for k,v in self._data.iteritems() if not v]
-
-	def setMetadataTotalityStatus(self, annotator_name, metadata_type, is_total):
-		"""
-		Set an annotation's totality status over the dataset
-
-		.. warning:: This should always come from a human decision
-
-		:param annotator_name: The annotator who made the full annotation
-		:param metadata_type: The annotation type that was fully annotated
-		:param is_total: True if the annotation is covering the whole dataset
-		"""
-		self._data[(annotator_name,metadata_type)] = is_total
-
-class QiDataSet(QiDataObject, XMPHandlerMixin):
+		PARTIAL = 0
+		TOTAL = 1
 
 	# ───────────
 	# Constructor
@@ -162,61 +68,92 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 			present, one will be created. If there is one, it WILL NOT BE TRUNCATED
 			(unlike the regular "w" mode of file opening).
 		"""
-
-		metadata_path = os.path.join(folder_path, "metadata.xmp")
 		if not os.path.isdir(folder_path):
 			raise IOError("%s is not a valid folder"%folder_path)
+
 		self._folder_path = folder_path
+		metadata_path = os.path.join(folder_path, METADATA_FILENAME)
 		if not isDataset(folder_path):
 			if mode == "r" :
-				# This is not an existing qidata dataset and we are not allowed to create it
-				raise IOError("Given path is not a QiData dataset: metadata.xmp does not exist")
+				# This is not an existing qidata dataset and we are not allowed
+				# to create it
+				raise IOError(
+				  "Given path is not a QiData dataset: %s does not exist"%(
+				  	METADATA_FILENAME
+				  )
+				)
 			elif mode=="w":
 				# Folder is not a data set but we can turn it into one
 
 				# We need XMP to create an empty metadata.xmp
 				# Open it with xmp so that metadata.xmp is created
-				with XMPFile(os.path.join(folder_path, "metadata.xmp"), rw=True):
+				with XMPFile(metadata_path, rw=True):
 					pass
 
+		self._annotation_content = dict()
+		self._files_type = dict()
 		self._xmp_file = XMPFile(metadata_path, rw=(mode=="w"))
 		self._is_closed = True
 		self._streams = dict()
 		self._frames = list()
 		self._open()
 
-	# def __del__(self):
-	# 	if not self.closed:
-	# 		self.close()
-
 	# ──────────
 	# Properties
 
 	@property
-	def raw_data(self):
+	def annotations_available(self):
 		"""
-		Return a list with the data set's children and content
+		Returns a list of all annotations references that are present at least
+		once in the dataset, with their status
+
+		:Example:
+			>>> with QiDataSet("dummy/dataset", "r") as d:
+			>>>     d.annotations_available
+			>>> [("jdoe", "Property", QiDataSet.AnnotationStatus.PARTIAL)]
 		"""
-		return (self.children, self.content)
+		return copy.deepcopy(self._annotation_content)
 
 	@property
-	def type(self):
+	def annotators(self):
 		"""
-		Returns ``qidata.DataType.DATASET``
+		Returns the list of people who annotated at least one file of the
+		dataset
 		"""
-		return DataType.DATASET
+		return set([i[0] for i in self._annotation_content])
 
 	@property
-	def closed(self):
+	def children(self):
 		"""
-		True if the data set is closed
+		Return the list of supported files contained by the data set.
 		"""
-		return self._is_closed
+		ret = [fn
+		           for fn in os.listdir(self.name)
+		               if (qidatafile.isSupported(fn))
+		      ]
+		ret.sort()
+		return ret
+
+	@property
+	def context(self):
+		"""
+		Describes the context around the data sets.
+
+		:rtype: qidata.metadata_objects.context.Context
+		"""
+		return self._context
+
+	@property
+	def datatypes_available(self):
+		"""
+		Returns a list of all data types present in the dataset
+		"""
+		return set([DataType[i] for i in self._files_type.keys()])
 
 	@property
 	def mode(self):
 		"""
-		Specify the opening mode
+		Specify the file mode
 
 		"r" => read-only mode
 		"w" => read/write mode
@@ -225,87 +162,74 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 
 	@property
 	def read_only(self):
-		"""
-		States if the object is protected against modification
-		"""
 		return ("r" == self.mode)
 
 	@property
-	def path(self):
+	def name(self):
 		"""
 		Give the folder path
 		"""
 		return self._folder_path
 
-	@property
-	def children(self):
-		"""
-		Return the list of supported files and data sets contained
-		by the data set.
-		"""
-		ret = [fn
-		           for fn in os.listdir(self.path)
-		               if (qidatafile.isSupported(fn) or isDataset(fn))
-		      ]
-		ret.sort()
-		return ret
-
-	@property
-	def content(self):
-		"""
-		Return all information given or infered from the contained files
-		metadata
-
-		:rtype: ``qidata.qidataset.QiDataSetContent``
-
-		.. note::
-			This is especially useful to discriminate which data sets to use.
-			It is for instance possible to quickly find which data sets contains
-			"Face" annotations.
-		"""
-		return self._content
-
 	# ──────────
 	# Public API
 
-	def openChild(self, name, mode):
+	def createNewStream(self, name, timestamp_file_pairs):
 		"""
-		Open QiDataFile or QiDataSet contained here
+		Creates a new set of files which should be considered as part
+		of the same data stream
 
-		:param name: Name of the file or folder to open
-		:param mode: Opening mode (see ``qidata.QiDataFile`` and ``qidata.QiDataSet``)
-
-		.. note::
-			Opening the dataset in "r" mode does not prevent from opening its files in
-			"w" mode
+		:param name: Name given to the stream
+		:type name: str
+		:param timestamp_file_pairs: List of pairs of filename and timestamp
+		:type timestamp_file_pairs: list
+		:raises: AttributeError if an empty list is given
+		:raises: TypeError if the given files have different types
 		"""
-		path = os.path.join(self._folder_path, name)
-		if not name in self.children:
-			raise IOError("%s is not a child of the current dataset"%name)
-		if os.path.isfile(path):
-			return qidatafile.open(path, mode)
-		elif os.path.isdir(path):
-			return QiDataSet(path, mode)
-		else:
-			raise IOError("%s is neither a file nor a folder"%name)
+		if len(timestamp_file_pairs) == 0:
+			raise AttributeError(
+			        "At least one file is needed to create a stream"
+			      )
+		with self.openChild(timestamp_file_pairs[0][1]) as f:
+			data_type = f.type
+		for i in range(1,len(timestamp_file_pairs)):
+			if timestamp_file_pairs[i][1] in self._files_type[str(data_type)]:
+				continue
+			with self.openChild(timestamp_file_pairs[i][1]) as f:
+				if data_type == f.type:
+					continue
+			raise TypeError("Given files are not all of the same type")
+		self._streams[name] = (data_type, dict(timestamp_file_pairs))
 
 	def close(self):
 		"""
 		Closes the dataset after writing the metadata
 		"""
 		if self.mode != "r":
-			# Save annotations' metadata
-			self._save(self._xmp_file, self._annotations)
-
 			# Erase current dataset content's metadata
 			_raw_metadata = self._xmp_file.metadata[QIDATA_CONTENT_NS]
 			for key in _raw_metadata.attributes():
 				del _raw_metadata[key]
 
 			# Save new dataset content's metadata
-			content_dict = self._content.toDict()
-			for key in content_dict:
-				setattr(_raw_metadata, key, content_dict[key])
+			for (key, value) in self._annotation_content.iteritems():
+				setattr(
+				    _raw_metadata.annotation_content,
+				    key[0],
+				    {key[1]:value}
+				)
+
+			setattr(
+			    _raw_metadata,
+			    "files_type",
+			    self._files_type
+			)
+
+			setattr(
+			    _raw_metadata,
+			    "context",
+			    self.context
+			)
 
 			# Save data streams (they need to be a little be reworked to fit
 			# XMP base rules, namely numbers cannot be keys so we add the
@@ -323,22 +247,6 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 			f.close()
 		self._is_closed = True
 
-	def getAllFilesOfType(self, type_name):
-		"""
-		Returns all the file names of a specific type
-
-		:param type_name: Requested type
-		:type type_name: ``qidata.DataType`` or str
-		:return: List of filenames
-		"""
-		return self._content._type_content.get(str(type_name), [])
-
-	def reloadMetadata(self):
-		"""
-		Erase metadata changes by reloading saved metadata
-		"""
-		self.metadata = self._load(self._xmp_file)
-
 	def examineContent(self):
 		"""
 		Examine all dataset's files to infer content information.
@@ -351,113 +259,144 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		Once all files have been studied, remaining annotations will be updated
 		with any known status that might have been present before this function
 		was called.
-
-		This function updates the ``content`` property
 		"""
-		annotations_info = dict()
-		files_info = dict()
+		self._annotation_content = dict()
+		self._files_type = dict()
+		for name in self.children:
+			path = os.path.join(self._folder_path, name)
+			with qidatafile.open(path, "r") as _f:
+				for annotator, annotations in _f.annotations.iteritems():
+					for annotation_type in annotations.keys():
+						self._annotation_content[
+						  (
+						    annotator,
+						    annotation_type
+						  )
+						] = QiDataSet.AnnotationStatus.PARTIAL
+				if not self._files_type.has_key(str(_f.type)):
+					self._files_type[str(_f.type)] = []
+				self._files_type[str(_f.type)].append(name)
+		# files_info = dict()
 
-		# Keep track of the knowledge we have so far
-		if not hasattr(self, "_content"):
-			type_map = dict()
-			known_status = dict()
-		else:
-			type_map = self._content._type_content
-			known_status = self._content._data
+		# # Keep track of the knowledge we have so far
+		# if not hasattr(self, "_content"):
+		# 	type_map = dict()
+		# 	known_status = dict()
+		# else:
+		# 	type_map = self._content._type_content
+		# 	known_status = self._content._data
 
-		supported_subpaths = self.children
-		for path in supported_subpaths:
-			if isDataset(path):
-				# Avoid it for the moment
-				# But later we will have to handle sub-datasets
-				continue
+		# supported_subpaths = self.children
+		# for path in supported_subpaths:
+		# 	if isDataset(path):
+		# 		# Avoid it for the moment
+		# 		# But later we will have to handle sub-datasets
+		# 		continue
 
-			# Search if a specific type was set for this file
-			# If it does, then use it
-			# Otherwise, infer its type from the file extension
-			for data_type, file_list in type_map.iteritems():
-				if path in file_list:
-					file_type = data_type
+		# 	# Search if a specific type was set for this file
+		# 	# If it does, then use it
+		# 	# Otherwise, infer its type from the file extension
+		# 	for data_type, file_list in type_map.iteritems():
+		# 		if path in file_list:
+		# 			file_type = data_type
+		# 			break
+		# 	else:
+		# 		file_type = qidatafile.getFileDataType(path)
+
+		# 	# And then add that file in the appropriate category
+		# 	if not files_info.has_key(str(file_type)):
+		# 		files_info[str(file_type)] = []
+		# 	files_info[str(file_type)].append(path)
+
+			# # Finally, open the file to look for annotations
+			# with self.openChild(path, "r") as _child:
+			# 	for child_annotator in _child.annotations.keys():
+		# 			if not annotations_info.has_key(child_annotator):
+		# 				annotations_info[child_annotator] = dict()
+		# 			for metadata_type in _child.metadata[child_annotator]:
+		# 				annotations_info[child_annotator][metadata_type] = False
+
+		# # Create new content
+		# self._content = QiDataSetContent(files_info, annotations_info)
+
+		# # For each TOTAL status, update the new content
+		# # Indeed, a TOTAL status is an input from a human and therefore must
+		# # not be erased by the program.
+		# # Any PARTIAL status present before and not in the new
+		# # content would mean that NO file was found with this
+		# # annotation from this person => annotations were probably
+		# # removed => no need to re-add the information.
+		# for key, value in known_status.iteritems():
+		# 	if value == True:
+		# 		self._content._data[key] = True
+
+	@staticmethod
+	def filter(dataset_list,
+	           only_annotated_by=None,
+	           only_with_annotations=None,
+	           only_total_annotations=False):
+
+		"""
+		Filters out dataset not fitting the given criteria.
+
+		:param dataset_list: List of folders to filter
+		:type dataset_list: list
+		:param only_annotated_by: List of requested annotators
+		:type only_annotated_by: list
+		:param only_with_annotations: List of requested annotation types
+		:type only_with_annotations: list
+		:param only_total_annotations: States if only total annotations should
+		be considered
+		:type only_total_annotations: bool
+
+		:Example:
+			The following command will only accept datasets containing total
+			"Property" annotations made by "jdoe" or "jsmith"
+			>>> QiDataSet.filter(
+			...     dataset_lists,["jdoe", "jsmith"],["Property"], True)
+
+			The following command will only accept datasets containing "Dummy"
+			and "Property" annotations (total or partial) made by "jdoe"
+			exclusively
+			>>> QiDataSet.filter(
+			...     dataset_lists,["jdoe"],["Property","Dummy"], False)
+		"""
+		filtered = []
+
+		for dataset_path in dataset_list:
+			with QiDataSet(dataset_path,"r") as ds:
+				for a_ref, a_status in ds.annotations_available.iteritems():
+					if only_total_annotations\
+					   and a_status==QiDataSet.AnnotationStatus.PARTIAL:
+						continue
+					if only_annotated_by is not None\
+					   and not a_ref[0] in only_annotated_by:
+						continue
+					if only_with_annotations is not None\
+					   and not a_ref[1] in only_with_annotations:
+						continue
+					filtered.append(dataset_path)
 					break
-			else:
-				file_type = qidatafile.getFileDataType(path)
+		return filtered
 
-			# And then add that file in the appropriate category
-			if not files_info.has_key(str(file_type)):
-				files_info[str(file_type)] = []
-			files_info[str(file_type)].append(path)
-
-			# Finally, open the file to look for annotations
-			with self.openChild(path, "r") as _child:
-				for child_annotator in _child.metadata.keys():
-					if not annotations_info.has_key(child_annotator):
-						annotations_info[child_annotator] = dict()
-					for metadata_type in _child.metadata[child_annotator]:
-						annotations_info[child_annotator][metadata_type] = False
-
-		# Create new content
-		self._content = QiDataSetContent(files_info, annotations_info)
-
-		# For each TOTAL status, update the new content
-		# Indeed, a TOTAL status is an input from a human and therefore must
-		# not be erased by the program.
-		# Any PARTIAL status present before and not in the new
-		# content would mean that NO file was found with this
-		# annotation from this person => annotations were probably
-		# removed => no need to re-add the information.
-		for key, value in known_status.iteritems():
-			if value == True:
-				self._content._data[key] = True
-
-	def setTypeOfFile(self, filename, data_type):
+	def getAllFilesOfType(self, type_name):
 		"""
-		Changes the registered type of a file
+		Returns all the file names of a specific type
 
-		:param filename: Name of the file whose type will change
-		:param data_type: New data type
-		:type data_type: ``qidata.DataType`` or str
+		:param type_name: Requested type
+		:type type_name: ``qidata.DataType`` or str
+		:return: List of filenames
 		"""
-		# Check given type
 		try:
-			_ = DataType[data_type]
+			return copy.deepcopy(self._files_type[str(type_name)])
 		except KeyError:
+			# Check given type
 			try:
-				_ = DataType(data_type)
-			except ValueError:
-				raise TypeError("%s is not a valid DataType"%data_type)
-
-		# Search for file in current type mapping
-		for old_data_type in self._content.file_types:
-			try:
-				self._content._type_content[old_data_type].remove(filename)
-			except ValueError:
-				continue
-			if len(self._content._type_content[old_data_type]) == 0:
-				self._content._type_content.pop(old_data_type)
-			break
-		else:
-			# If not found check if the file is actually in the dataset
-			if not filename in self.children:
-				raise ValueError("%s is not part of this QiDataSet"%filename)
-
-		# Add the file in the type mapping
-		if not self._content._type_content.has_key(str(data_type)):
-			self._content._type_content[str(data_type)] = []
-		self._content._type_content[str(data_type)].append(filename)
-
-	def createNewStream(self, data_type, name, file_timestamp_pairs):
-		"""
-		Creates a new set of files which should be considered as part
-		of the same data stream
-
-		:param data_type: Type of the created data stream
-		:type data_type: ``qidata.DataType``
-		:param name: Name given to the stream
-		:type name: str
-		:param file_timestamp_pairs: List of pairs of filename and timestamp
-		:type file_timestamp_pairs: list
-		"""
-		self._streams[name] = (data_type, dict(file_timestamp_pairs))
+				_ = DataType[str(type_name)]
+			except KeyError:
+				raise TypeError("%s is not a valid DataType"%type_name)
+			# Type name is valid, but there is no file associated to it
+			return []
 
 	def getAllStreams(self):
 		"""
@@ -495,6 +434,7 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		:type stream_name: str
 		:return: The requested stream
 		:rtype: dict
+		:raises: KeyError if stream_name does not exist
 		"""
 		return copy.deepcopy(self._streams[stream_name][1])
 
@@ -517,8 +457,12 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		:type stream_name: str
 		:param file_timestamp_pair_to_add: Pair of filename and timestamp
 		:type file_timestamp_pair_to_add: tuple
+		:raises: KeyError if stream does not exist
+		:raises: ValueError if file is not in the dataset
 		"""
 		_tmp=file_timestamp_pair_to_add
+		if not _tmp[1] in self.children:
+			raise ValueError("Given file is not in the dataset")
 		self._streams[stream_name][1][_tmp[0]]=_tmp[1]
 
 	def removeFromStream(self, stream_name, file_to_remove):
@@ -529,12 +473,16 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		:type stream_name: str
 		:param file_to_remove: Name of the file to remove
 		:type file_to_remove: str
+		:raises: KeyError if stream does not exist
+		:raises: ValueError if file is not in the stream
 		"""
 		for (ts, filename) in self._streams[stream_name][1].iteritems():
 			if filename == file_to_remove:
 				self._streams[stream_name][1].pop(ts)
 				break
-			# si le stream devient vide, on devrait le supprimer
+		else:
+			raise ValueError("Given file is not in the stream")
+		# si le stream devient vide, on devrait le supprimer
 
 	@throwIfReadOnly
 	def createNewFrame(self, *files):
@@ -552,30 +500,6 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 		frame = qidataframe.QiDataFrame.create(files, self._folder_path)
 		self._frames.append(frame)
 		return frame
-
-	def getFrame(self, *files):
-		"""
-		Get an already created frame
-
-		:param files: files composing the researched frame
-		:param files: str
-		:return: Researched frame
-		:rtype: :class:``QiDataFrame``
-		:raises: IndexError if no frame matches the requested files
-		"""
-		try:
-			return [f for f in self._frames if set(files)==f._files][0]
-		except IndexError:
-			return None
-
-	def getAllFrames(self):
-		"""
-		Returns all created frames
-
-		:return: Every frames of the dataset
-		:rtype: list
-		"""
-		return copy.copy(self._frames)
 
 	@throwIfReadOnly
 	def removeFrame(self, *files):
@@ -604,18 +528,71 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 			f._is_valid=False
 			os.remove(f._file_path)
 
-	@staticmethod
-	def contentFromPath(folder_path):
+	def getAllFrames(self):
 		"""
-		Returns the content of a dataset at the given path
+		Returns all created frames
 
-		:param folder_path: Path from where to retrieve data set content
+		:return: Every frames of the dataset
+		:rtype: list
+		"""
+		return copy.copy(self._frames)
+
+	def getFrame(self, *files):
+		"""
+		Get an already created frame
+
+		:param files: files composing the researched frame
+		:param files: str
+		:return: Researched frame
+		:rtype: :class:``QiDataFrame``
+		:raises: IndexError if no frame matches the requested files
+		"""
+		try:
+			return [f for f in self._frames if set(files)==f._files][0]
+		except IndexError:
+			return None
+
+	def openChild(self, name):
+		"""
+		Open QiDataFile contained here
+
+		:param name: Name of the file or folder to open
+		:type name: str
 
 		.. note::
-			This is especially useful for filtering the datasets over one condition
+			The opening mode used to open children is the opening mode of the
+			QiDataSet itself
 		"""
-		with QiDataSet(folder_path) as _tmp:
-			return _tmp.content
+		path = os.path.join(self._folder_path, name)
+		if not name in self.children:
+			raise IOError("%s is not a child of the current dataset"%name)
+		if os.path.isfile(path):
+			return qidatafile.open(path, self.mode)
+		# elif os.path.isdir(path):
+		# 	return QiDataSet(path, self.mode)
+		else:
+			raise IOError("%s is neither a file nor a folder"%name)
+
+	def setAnnotationStatus(self, annotator_name, metadata_type, is_total):
+		"""
+		Set an annotation's status
+
+		:param annotator_name: The annotator who made the full annotation
+		:type annotator_name: str
+		:param metadata_type: The annotation type that was fully annotated
+		:type metadata_type: str
+		:param is_total: True if the annotation is covering the whole dataset
+		:type is_total: bool
+
+		.. warning::
+
+			Annotations CANNOT and MUST NOT be declared "Total" automatically.
+			The value of such a statement can only be guaranteed if it emanates
+			from a human.
+		"""
+		self._annotation_content[(annotator_name,metadata_type)] = \
+		  QiDataSet.AnnotationStatus.TOTAL\
+		   if is_total else QiDataSet.AnnotationStatus.PARTIAL
 
 	# ───────────
 	# Private API
@@ -634,38 +611,51 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 			)
 		self._xmp_file.__enter__()
 		self._is_closed = False
-		self.reloadMetadata()
 
 		# Load content info stored in metadata
 		_raw_metadata = self._xmp_file.metadata[QIDATA_CONTENT_NS]
 		if _raw_metadata.children:
 			data = _raw_metadata.value
-			XMPHandlerMixin._removePrefix(data)
-			self._content = QiDataSetContent(**data)
+			xmp_tools._removePrefixes(data)
+			self._annotation_content = dict()
+			if data.has_key("annotation_content"):
+				content = data["annotation_content"]
+				for annotator in content:
+					for annot_type, value in content[annotator].iteritems():
+						value = QiDataSet.AnnotationStatus[value]
+						self._annotation_content[(annotator,annot_type)]=value
 
-			# In a previous version, files_info was counting the number of file
-			# of each type. In the current version, we store for each type the
-			# list of all the corresponding files. This allows users to define
-			# more specific types than those which can be infered from the file
-			# extension.
-			# So if files_info is a string and not a list, it means it is an
-			# "old" version, therefore we need to rework it.
-			if len(data["files_info"])>0\
-			   and isinstance(data["files_info"].values()[0], basestring):
-				# Current file info is wrong
-				# Examine content to get proper file info
-				files_info = dict()
-				supported_subpaths = self.children
-				for path in supported_subpaths:
-					if isDataset(path):
-						# Avoid it for the moment
-						# But later we will have to handle sub-datasets
-						continue
-					file_type = qidatafile.getFileDataType(path)
-					if not files_info.has_key(str(file_type)):
-						files_info[str(file_type)] = []
-					files_info[str(file_type)].append(path)
-				self._content._type_content = dict(files_info)
+			if data.has_key("context"):
+				self._context = Context(**data["context"])
+			else:
+				self._context = Context()
+
+			for file_type, file_list in data["files_type"].iteritems():
+				self._files_type[file_type]=file_list
+
+		# 	# In a previous version, files_info was counting the number of file
+		# 	# of each type. In the current version, we store for each type the
+		# 	# list of all the corresponding files. This allows users to define
+		# 	# more specific types than those which can be infered from the file
+		# 	# extension.
+		# 	# So if files_info is a string and not a list, it means it is an
+		# 	# "old" version, therefore we need to rework it.
+		# 	if len(data["files_info"])>0\
+		# 	   and isinstance(data["files_info"].values()[0], basestring):
+		# 		# Current file info is wrong
+		# 		# Examine content to get proper file info
+		# 		files_info = dict()
+		# 		supported_subpaths = self.children
+		# 		for path in supported_subpaths:
+		# 			if isDataset(path):
+		# 				# Avoid it for the moment
+		# 				# But later we will have to handle sub-datasets
+		# 				continue
+		# 			file_type = qidatafile.getFileDataType(path)
+		# 			if not files_info.has_key(str(file_type)):
+		# 				files_info[str(file_type)] = []
+		# 			files_info[str(file_type)].append(path)
+		# 		self._content._type_content = dict(files_info)
 
 			# If streams are defined, load them. We have to go through the
 			# whole structure to make sure that timestamps are properly
@@ -681,6 +671,7 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 
 		else:
 			# if no content info was stored, infere it from the files
+			self._context = Context()
 			self.examineContent()
 		return self
 
@@ -692,3 +683,41 @@ class QiDataSet(QiDataObject, XMPHandlerMixin):
 
 	def __exit__(self, type, value, traceback):
 		self.close()
+
+	# ──────────────
+	# Textualization
+
+	def __str__(self):
+		return unicode(self).encode(encoding="utf-8")
+
+	def __unicode__(self):
+		# Path
+		res_str = ""
+		res_str += "Dataset path: " + self.name + "\n"
+
+		# Types
+		_da = [str(i) for i in self.datatypes_available]
+		_da.sort()
+		res_str += "Available types: " + textualize_sequence(_da) + "\n"
+
+		# Streams
+		_sn = self._streams.keys()
+		_sn.sort()
+		print _sn
+		_s = OrderedDict(
+		                  [(name, "%d files"%len(self._streams[name][1]))\
+		                      for name in _sn]
+		                )
+		res_str += "Available streams: " + textualize_mapping(_s) + "\n"
+
+		# Frames
+		res_str += "Defined frames: %d\n"%len(self._frames)
+
+		# Context
+		res_str += "Context: " + unicode(self.context) + "\n"
+
+		# Annotations
+		res_str += "Available annotations: " + textualize_sequence(
+		                                           self.annotations_available
+		                                       ) + "\n"
+		return res_str

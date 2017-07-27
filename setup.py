@@ -6,11 +6,18 @@ import os
 
 CONTAINING_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
-package_list = find_packages(where=CONTAINING_DIRECTORY)
+try:
+    from utils import get_version_from_tag
+    __version__ = get_version_from_tag()
+    open(os.path.join(CONTAINING_DIRECTORY,"qidata/VERSION"), "w").write(__version__)
+except ImportError:
+    __version__=open(os.path.join(CONTAINING_DIRECTORY,"qidata/VERSION")).read().split()[0]
+
+package_list = find_packages(where=os.path.join(CONTAINING_DIRECTORY))
 
 setup(
     name='qidata',
-    version=open(os.path.join(CONTAINING_DIRECTORY,"qidata/VERSION")).read().split()[0],
+    version=__version__,
     description='Metadata annotation tool',
     long_description=open(os.path.join(CONTAINING_DIRECTORY,'README.rst')).read(),
     url='https://gitlab.aldebaran.lan/qidata/qidata',
@@ -27,29 +34,28 @@ setup(
     keywords='metadata annotation tagging',
     packages=package_list,
     install_requires=[
+        "opencv-python >= 3.0",
         "setuptools >= 35.0.0",
         "enum34 >= 1.0.4",
         "strong_typing >= 0.1.4",
         "xmp >= 0.3",
-        "qidata_devices >= 0.0.3"
+        "qidata_devices >= 0.0.3",
     ],
-    package_data={"qidata":["VERSION", "../README.rst"]},
-    scripts=['bin/qidata'],
+    package_data={"qidata":["VERSION"]},
+    # scripts=['bin/qidata'],
     entry_points={
         'qidata.metadata.definition': [
             'Face = qidata._metadata_objects.face:Face',
             'Object = qidata._metadata_objects.object:Object',
             'Person = qidata._metadata_objects.person:Person',
             'Speech = qidata._metadata_objects.speech:Speech',
-            'Context = qidata._metadata_objects.context:Context',
-            'TimeStamp = qidata._metadata_objects.timestamp:TimeStamp',
-            'Transform = qidata._metadata_objects.transform:Transform',
         ],
-        'qidata.metadata.package': [
-            'context = qidata._metadata_objects.context',
-            'face = qidata._metadata_objects.face',
+        'qidata.commands': [
+            'file = qidata.command_line.file_commands',
+            'set = qidata.command_line.set_commands',
+        ],
+        'console_scripts': [
+            'qidata = qidata.__main__:main'
         ]
     }
 )
-
-# Doc requires Sphinx >=1.5.1

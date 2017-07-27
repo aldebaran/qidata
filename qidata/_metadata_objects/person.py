@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 
-# Standard library
+# Standard libraries
 from distutils.version import StrictVersion
 
-# strong_typing
-from strong_typing import VersionedStruct
-from strong_typing.typed_parameters import (IntegerParameter,
-                                            StringParameter)
+# Third-party libraries
+from strong_typing.typed_parameters import (IntegerParameter as _Int,
+                                            StringParameter as _Str)
 
-class Person(VersionedStruct):
+# Local modules
+from qidata.metadata_objects import MetadataObject
+
+class Person(MetadataObject):
 
 	__ATTRIBUTES__ = [
-	                   StringParameter(name="name",
-	                          description="Name of the person represented",
-	                          default="")
+	                   _Str(name="name",
+	                        description="Name of the person represented",
+	                        default="")
 	]
 	__ATT_VERSIONS__ = [None]
 
@@ -21,11 +23,16 @@ class Person(VersionedStruct):
 	__DESCRIPTION__="Contains annotation details for a person"
 
 	__DEPRECATED_ATT_N_VERSIONS__ = [
-	                                  (IntegerParameter(name="id",
-	                                           description="A unique id given to this person through all relevant data",
-	                                           default=0), None, "0.2")
+	  (
+	    _Int(
+	      name="id",
+	      description="A unique id given to this person through all relevant data",
+	      default=0
+	    ),
+		None,
+		"0.2"
+	  )
 	]
-
 
 	# ───────────────────
 	# Retro-compatibility

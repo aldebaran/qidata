@@ -1,45 +1,251 @@
 # -*- coding: utf-8 -*-
 
 # Standard Library
-import unittest
 import os
+import pytest
 
-from qidata.qidataobject import QiDataObject
-from qidata import qidatafile, qidataframe
-import utilities
+# Local modules
+from qidata.qidataobject import QiDataObject, ReadOnlyException
+from qidata import metadata_objects
 
-class QidataObjectTest(unittest.TestCase):
-    def test_attributes(self):
-        qidata_object = QiDataObject()
-        with self.assertRaises(NotImplementedError):
-            qidata_object.raw_data
-        assert(qidata_object.metadata == dict())
-        with self.assertRaises(NotImplementedError):
-            qidata_object.type
-        with self.assertRaises(NotImplementedError):
-            qidata_object.read_only
+def test_abstract():
+	with pytest.raises(TypeError):
+		qidata_object = QiDataObject()
 
-class QiDataObjectImplem:
-    def test_attributes(self):
-        self.qidata_object.raw_data
-        self.qidata_object.metadata
-        self.qidata_object.type
-        self.qidata_object.read_only
+class ObjectForTests(QiDataObject):
+	@property
+	def raw_data(self):
+		return None
 
-class QiDataFileAsObject(unittest.TestCase, QiDataObjectImplem):
+	@property
+	def read_only(self):
+		return False
 
-    def setUp(self):
-        self.jpg_path = utilities.sandboxed(utilities.JPG_PHOTO)
-        self.qidata_object = qidatafile.open(self.jpg_path)
+	def _isLocationValid(self, location):
+		return (location is None or location >= 0)
 
-    def tearDown(self):
-        self.qidata_object.close()
+class ReadOnlyObjectForTests(QiDataObject):
+	@property
+	def raw_data(self):
+		return None
 
-class QiDataFrameAsObject(unittest.TestCase, QiDataObjectImplem):
+	@property
+	def read_only(self):
+		return True
 
-    def setUp(self):
-        self.qidata_object = qidataframe.QiDataFrame.create(["a", "b"],".")
+	def _isLocationValid(self, location):
+		return (location is None or location >= 0)
 
-    def tearDown(self):
-        self.qidata_object.close()
-        os.remove(self.qidata_object._file_path)
+class FakeAnnotation():
+	pass
+
+class AnotherFakeAnnotation(metadata_objects.MetadataObject):
+	pass
+
+class Property(object):
+	pass
+
+def test_qidata_object():
+	qidata_object = ObjectForTests()
+
+	# Annotations should be empty
+	assert(dict() == qidata_object.annotations)
+
+	# They should stay empty when modifying the returned dict
+	annotations = qidata_object.annotations
+	annotations["test"] = 0
+	assert(dict() == qidata_object.annotations)
+
+	# Annotation is not settable
+	with pytest.raises(AttributeError):
+		qidata_object.annotations = annotations
+
+	# But it is still possible to add annotations
+	qidata_object.addAnnotation(
+	  "jdoe",
+	  metadata_objects.Property(key="test", value="0"),
+	  None
+	)
+	assert(
+	  dict(
+	    jdoe=dict(
+	      Property=[[metadata_objects.Property(key="test", value="0"), None]],
+	    ),
+	  ) == qidata_object.annotations
+	)
+	assert(["jdoe"] == qidata_object.annotators)
+
+	# However, only real metadata can be passed
+	with pytest.raises(TypeError):
+		qidata_object.addAnnotation("jdoe", FakeAnnotation(), None)
+
+	with pytest.raises(TypeError):
+		qidata_object.addAnnotation("jdoe", Property(), None)
+
+	with pytest.raises(TypeError):
+		qidata_object.addAnnotation("jdoe", AnotherFakeAnnotation(), None)
+
+	# Make sure Context, TimeStamp and Transform cannot be added, as they are
+	# reserved for special purposes
+	with pytest.raises(TypeError):
+		qidata_object.addAnnotation("jdoe", metadata_objects.Context(), None)
+
+	with pytest.raises(TypeError):
+		qidata_object.addAnnotation("jdoe", metadata_objects.Transform(), None)
+
+	with pytest.raises(TypeError):
+		qidata_object.addAnnotation("jdoe", metadata_objects.TimeStamp(), None)
+
+	# And the given location must be validated by our object
+	with pytest.raises(Exception):
+		qidata_object.addAnnotation(
+		  "jdoe",
+		  metadata_objects.Property(key="test", value="0"),
+		  -1
+		)
+
+	# Once added, we can still modify an annotation by changing the one on our
+	# side
+	a=metadata_objects.Property(key="another_prop", value="10")
+	qidata_object.addAnnotation("jdoe", a, None)
+	assert(
+	  dict(
+	    jdoe=dict(
+	      Property=[
+	        [metadata_objects.Property(key="test", value="0"), None],
+	        [metadata_objects.Property(key="another_prop", value="10"), None]
+	      ],
+	    ),
+	  ) == qidata_object.annotations
+	)
+	a.value = 11
+	assert(
+	  dict(
+	    jdoe=dict(
+	      Property=[
+	        [metadata_objects.Property(key="test", value="0"), None],
+	        [metadata_objects.Property(key="another_prop", value="11"), None]
+	      ],
+	    ),
+	  ) == qidata_object.annotations
+	)
+
+	# And it can also be removed
+	qidata_object.removeAnnotation("jdoe",a)
+	assert(
+	  dict(
+	    jdoe=dict(
+	      Property=[
+	        [metadata_objects.Property(key="test", value="0"), None],
+	      ],
+	    ),
+	  ) == qidata_object.annotations
+	)
+
+	# Add the same annotation multiple times, at different locations
+	qidata_object.addAnnotation("jdoe", a, 0)
+	qidata_object.addAnnotation("jdoe", a, 1)
+	qidata_object.addAnnotation("jdoe", a, 0)
+	qidata_object.addAnnotation("jdoe", a, None)
+	assert(
+	  dict(
+	    jdoe=dict(
+	      Property=[
+	        [metadata_objects.Property(key="test", value="0"), None],
+	        [metadata_objects.Property(key="another_prop", value="11"), 0],
+	        [metadata_objects.Property(key="another_prop", value="11"), 1],
+	        [metadata_objects.Property(key="another_prop", value="11"), 0],
+	        [metadata_objects.Property(key="another_prop", value="11"), None],
+	      ],
+	    ),
+	  ) == qidata_object.annotations
+	)
+	qidata_object.removeAnnotation("jdoe",a)
+	assert(
+	  dict(
+	    jdoe=dict(
+	      Property=[
+	        [metadata_objects.Property(key="test", value="0"), None],
+	        [metadata_objects.Property(key="another_prop", value="11"), 0],
+	        [metadata_objects.Property(key="another_prop", value="11"), 1],
+	        [metadata_objects.Property(key="another_prop", value="11"), 0],
+	      ],
+	    ),
+	  ) == qidata_object.annotations
+	)
+	qidata_object.removeAnnotation("jdoe",a)
+	assert(
+	  dict(
+	    jdoe=dict(
+	      Property=[
+	        [metadata_objects.Property(key="test", value="0"), None],
+	        [metadata_objects.Property(key="another_prop", value="11"), 1],
+	        [metadata_objects.Property(key="another_prop", value="11"), 0],
+	      ],
+	    ),
+	  ) == qidata_object.annotations
+	)
+
+	# Trying to remove stuff at the wrong location raises
+	with pytest.raises(ValueError):
+		qidata_object.removeAnnotation(
+		  "jdoe",
+		  metadata_objects.Property(key="test", value="0"),
+		  0
+		)
+	with pytest.raises(ValueError):
+		qidata_object.removeAnnotation("jdoe",a,2)
+
+	# Trying to remove other things raises exceptions
+	with pytest.raises(TypeError):
+		qidata_object.removeAnnotation("jdoe",FakeAnnotation())
+
+	with pytest.raises(TypeError):
+		qidata_object.removeAnnotation("jdoe",Property())
+
+	with pytest.raises(ValueError):
+		qidata_object.removeAnnotation("jsmith",a)
+
+	# When the last object is removed, empty sections are removed
+	qidata_object.removeAnnotation("jdoe",a)
+	qidata_object.removeAnnotation(
+	  "jdoe",
+	  metadata_objects.Property(key="test", value="0")
+	)
+	qidata_object.removeAnnotation("jdoe",a)
+	assert(
+	  dict() == qidata_object.annotations
+	)
+	qidata_object.addAnnotation("jdoe", a, 0)
+	qidata_object.removeAnnotation("jdoe", a, 0)
+	assert(
+	  dict() == qidata_object.annotations
+	)
+
+	# b=metadata_objects.TimeStamp(seconds=0, nanoseconds=1)
+	# qidata_object.addAnnotation("jdoe", b, 0)
+	# with pytest.raises(ValueError):
+	# 	qidata_object.removeAnnotation("jdoe", a, 0)
+
+def test_qidata_object_extra():
+	qidata_object = ObjectForTests()
+
+	# If we start by adding an annotation, everything should be fine
+	qidata_object.addAnnotation("jdoe", metadata_objects.Property(key="test", value="0"), None)
+	assert(
+	  dict(
+	    jdoe=dict(
+	      Property=[[metadata_objects.Property(key="test", value="0"), None]],
+	    ),
+	  ) == qidata_object.annotations
+	)
+
+def test_read_only_qidata_object():
+	qidata_object = ReadOnlyObjectForTests()
+
+	# Make sure "add" and "remove" cannot be used
+	a=metadata_objects.Property(key="another_prop", value="10")
+	with pytest.raises(ReadOnlyException):
+		qidata_object.addAnnotation("jdoe", a, None)
+	with pytest.raises(ReadOnlyException):
+		qidata_object.removeAnnotation("jdoe", a, None)
