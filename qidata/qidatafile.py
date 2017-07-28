@@ -10,6 +10,7 @@ QiDataFile factory to easily open files as QiDataObjects.
 # Standard libraries
 import abc
 import copy
+import os
 import re
 from collections import OrderedDict
 
@@ -66,7 +67,27 @@ class QiDataFile(QiDataObject):
 			The file is NEVER created if it does not exist. Besides, opening
 			an existing file in "w" mode does not overwrite it.
 		"""
+		# Store the given file path
 		self._file_path = file_path
+
+		if os.path.splitext(file_path)[1] == ".xmp":
+			# If file is a .xmp, just read it normally
+			pass
+		elif os.path.exists(file_path + ".xmp"):
+			# If there is an external annotation file, use it
+			file_path = file_path + ".xmp"
+		elif mode=="w":
+			# If there is no external annotation file but we are in "w" mode
+			# Copy the internal annotations in an external annotation file
+			file_path = file_path + ".xmp"
+			with XMPFile(self._file_path, "r") as _internal:
+				with XMPFile(file_path, rw=True) as _external:
+					_external.libxmp_metadata = _internal.libxmp_metadata
+		else:
+			# Open the interal annotations
+			pass
+
+		# And finally open the file
 		self._xmp_file = XMPFile(file_path, rw=(mode=="w"))
 		self._is_closed = True
 		self._open()
@@ -170,9 +191,9 @@ from qidata.qidataimagefile import QiDataImageFile
 from qidata.qidataaudiofile import QiDataAudioFile
 
 LOOKUP_ITEM_MODEL = {
-    re.compile(".*\.png"): QiDataImageFile,
-    re.compile(".*\.jpg"): QiDataImageFile,
-    re.compile(".*\.wav"): QiDataAudioFile,
+    re.compile(".*\.png$"): QiDataImageFile,
+    re.compile(".*\.jpg$"): QiDataImageFile,
+    re.compile(".*\.wav$"): QiDataAudioFile,
 }
 
 def isSupported(dataPath):

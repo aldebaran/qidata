@@ -15,8 +15,7 @@ import errno
 import shutil
 import pytest
 
-from qidata.command_line import (file_commands,
-                                 set_commands)
+from qidata.command_line import show_command
 
 #[MODULE INFO]-----------------------------------------------------------------
 __author__ = "sambrose"
@@ -35,6 +34,9 @@ NON_EMPTY_FOLDER   = "A_folder_with_files" # Folder with files but not a dataset
 DATASET   = "B_created_dataset" # QiDataSet with files added after creation
 DATASET_WITH_NEW_ANNOTATIONS = "C0_annotated_file_added" # B + newly annotated file
 FOLDER_WITH_ANNOTATIONS = "C1_folder_with_one_annotated_file" # A + annotated file
+JPG_WITH_INTERNAL_ANNOTATIONS = "Annotated_JPG_file.jpg"
+JPG_WITH_EXTERNAL_ANNOTATIONS = "JPG_with_external_annotations.jpg"
+JPG_EXTERNAL_ANNOTATIONS = "JPG_with_external_annotations.jpg.xmp"
 JPG_PHOTO = "SpringNebula.jpg"
 WAV_SOUND = "Trumpet.wav"
 FULL_DATASET = "Michal_Asus_2016-02-19-15-25-46"
@@ -99,9 +101,14 @@ def full_dataset():
 	return sandboxed(FULL_DATASET)
 
 @pytest.fixture(scope="session")
-def file_command_parser():
-	return file_commands.make_command_parser()
+def show_command_parser():
+	return show_command.make_command_parser()
 
-@pytest.fixture(scope="session")
-def set_command_parser():
-	return set_commands.make_command_parser()
+@pytest.fixture(scope="function")
+def jpg_with_internal_annotations():
+	return sandboxed(JPG_WITH_INTERNAL_ANNOTATIONS)
+
+@pytest.fixture(scope="function")
+def jpg_with_external_annotations():
+	sandboxed(JPG_EXTERNAL_ANNOTATIONS)
+	return sandboxed(JPG_WITH_EXTERNAL_ANNOTATIONS)

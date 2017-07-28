@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+# Standard libraries
+import os
+
 # Third-party libraries
 import pytest
 
@@ -29,6 +32,45 @@ class FileForTests(QiDataFile):
 
 	def _isLocationValid(self, location):
 		return (location is None or location >= 0)
+
+def test_file_read_and_write(jpg_with_external_annotations,
+                             jpg_with_internal_annotations):
+	with FileForTests(jpg_with_external_annotations, "r") as f:
+		assert(
+		  {
+		    "sambrose":{
+		      "Property":[
+		        [metadata_objects.Property("key", "value"), None]
+		      ]
+		    }
+		  } == f.annotations
+		)
+
+	with FileForTests(jpg_with_internal_annotations, "r") as f:
+		assert(
+		  {
+		    "sambrose":{
+		      "Property":[
+		        [metadata_objects.Property("key", "value"), None]
+		      ]
+		    }
+		  } == f.annotations
+		)
+
+	assert(not os.path.exists(jpg_with_internal_annotations+".xmp"))
+
+	with FileForTests(jpg_with_internal_annotations, "w") as f:
+		assert(
+		  {
+		    "sambrose":{
+		      "Property":[
+		        [metadata_objects.Property("key", "value"), None]
+		      ]
+		    }
+		  } == f.annotations
+		)
+
+	assert(os.path.exists(jpg_with_internal_annotations+".xmp"))
 
 def test_qidata_file(jpg_file_path):
 	# Open file in "w" mode and add annotation
