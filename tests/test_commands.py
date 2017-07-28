@@ -10,6 +10,7 @@ import subprocess
 from qidata.command_line import (file_commands,
                                  main,
                                  set_commands)
+from qidata import VERSION
 
 @pytest.mark.parametrize("command_args",
 	[
@@ -161,4 +162,40 @@ def test_main_command():
     parser.parse_args(["-v"])
 
 def test_main():
+  # Test something is printed
   subprocess.check_call(["qidata", "-h"])
+
+  # Test version print
+  assert(
+    VERSION+"\n" == subprocess.check_output(["qidata", "-v"],
+                                            stderr=subprocess.STDOUT)
+  )
+
+  # Test return of show function
+  res = """File name: tests/data/Annotated_JPG_file.jpg
+Object type: IMAGE
+Object timestamp: 
+├─ seconds: 0
+└─ nanoseconds: 0
+Object transform: 
+├─ translation: 
+│  ├─ x: 0.0
+│  ├─ y: 0.0
+│  └─ z: 0.0
+└─ rotation: 
+   ├─ x: 0.0
+   ├─ y: 0.0
+   ├─ z: 0.0
+   └─ w: 1.0
+Annotator: sambrose
+└─ Property
+   └─ 0:  (Location: None):
+      ├─ key: key
+      └─ value: value
+Image shape: (2232, 3968, 3)
+
+"""
+  assert(res == subprocess.check_output(["qidata",
+                                         "file",
+                                         "show",
+                                         "tests/data/Annotated_JPG_file.jpg"]))
