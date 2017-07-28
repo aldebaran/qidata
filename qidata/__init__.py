@@ -18,6 +18,7 @@
 from enum import Enum as _Enum
 import os as _os
 import pkg_resources as _pkg
+import re as _re
 
 # Local modules
 import metadata_objects
@@ -120,3 +121,71 @@ def makeMetadataObject(metadata_object_type, data=None):
 # Make some submodules stuff directly accessible from qidata package
 from qidatafile import QiDataFile, ClosedFileException
 from qidataset import QiDataSet, isDataset
+
+# ────────────────────
+# File opening factory
+
+from qidata import qidatasensorfile
+from qidata import qidataimagefile
+from qidata import qidataaudiofile
+
+_LOOKUP_ITEM_MODEL = {
+    _re.compile(".*\.png$"): qidataimagefile.QiDataImageFile,
+    _re.compile(".*\.jpg$"): qidataimagefile.QiDataImageFile,
+    _re.compile(".*\.wav$"): qidataaudiofile.QiDataAudioFile,
+}
+
+def isSupportedDataFile(file_path):
+	"""
+	Return True if path is a data file and can be opened as a QiDataFile
+
+	:param file_path: Path of the file to test
+	:type file_path: str
+	:return: True if file can be opened as a QiDataFile
+	:rtype: bool
+	"""
+	for pattern in _LOOKUP_ITEM_MODEL:
+		if pattern.match(file_path):
+			return True
+	return False
+
+def isSupported(data_path):
+	"""
+	Return True if path can be opened by qidata
+
+	:param data_path: Path to test
+	:type data_path: str
+	:return: True if path is supported by qidata
+	:rtype: bool
+	"""
+	return isSupportedDataFile(data_path)\
+	       or _os.path.isdir(data_path)\
+	       or _os.path.splitext(data_path)[1] == ".xmp"
+
+def open(file_path, mode="r"):
+	"""
+	Open a file with qidata
+	This is the preferred way to open a QiDatafile or a QiDataSet.
+
+	:param file_path: Path to the file or folder to open
+	:param mode: Mode of opening ("r" for reading, "w" for writing)
+	:rtype: qidata.QiDataFile or qidata.QiDataSet
+	:Example:
+		>>> import qidata
+		>>> myFile = qidata.open("path/to/file")
+
+	.. warning::
+
+		The mode behavior is different from the regular Python file mode.
+		The file is NEVER created if it does not exist. Besides, opening
+		an existing file in "w" mode does not overwrite it.
+	"""
+	path_splitted = _os.path.splitext(file_path)
+	if path_splitted[1] == ".xmp":
+		file_path = path_splitted[0]
+
+	for pattern in _LOOKUP_ITEM_MODEL:
+		if pattern.match(file_path):
+			return _LOOKUP_ITEM_MODEL[pattern](file_path, mode)
+
+	raise TypeError("Data type not supported by QiDataFile")

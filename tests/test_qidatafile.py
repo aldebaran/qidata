@@ -7,7 +7,8 @@ import os
 import pytest
 
 # Local modules
-from qidata import metadata_objects,DataType, qidatafile
+import qidata
+from qidata import metadata_objects,DataType
 from qidata import QiDataFile, ClosedFileException
 from qidata.qidataimagefile import QiDataImageFile
 from qidata.qidataaudiofile import QiDataAudioFile
@@ -156,11 +157,11 @@ def test_qidata_file(jpg_file_path):
 	]
 )
 def test_specialized_qidatafile(file_name, class_, datatype,valid_locs,invalid_locs):
-	with qidatafile.open(conftest.sandboxed(file_name), "r") as _f:
+	with qidata.open(conftest.sandboxed(file_name), "r") as _f:
 		assert(isinstance(_f,class_))
 		assert(datatype == _f.type)
 
-	with qidatafile.open(conftest.sandboxed(file_name), "w") as _f:
+	with qidata.open(conftest.sandboxed(file_name), "w") as _f:
 		a=metadata_objects.Property(key="prop", value="10")
 		_f.addAnnotation("jdoe", a, None)
 		for invalid_loc in invalid_locs:
@@ -172,7 +173,7 @@ def test_specialized_qidatafile(file_name, class_, datatype,valid_locs,invalid_l
 			_f.addAnnotation("jdoe", a, valid_loc)
 
 def test_specify_type(jpg_file_path):
-	with qidatafile.open(jpg_file_path, "w") as f:
+	with qidata.open(jpg_file_path, "w") as f:
 		assert(DataType.IMAGE == f.type)
 		f.type = DataType.IMAGE_2D
 		assert(DataType.IMAGE_2D == f.type)
@@ -181,5 +182,5 @@ def test_specify_type(jpg_file_path):
 		with pytest.raises(TypeError):
 			f.type = DataType.AUDIO
 
-	with qidatafile.open(jpg_file_path, "r") as f:
+	with qidata.open(jpg_file_path, "r") as f:
 		assert(DataType.IMAGE_2D == f.type)

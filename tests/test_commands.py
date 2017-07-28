@@ -7,21 +7,18 @@ import subprocess
 # Third-party libraries
 
 # Local modules
-from qidata.command_line import (file_commands,
-                                 main,
-                                 set_commands)
+from qidata.command_line import main
 from qidata import VERSION
 
 @pytest.mark.parametrize("command_args",
 	[
 		[
-			"show",
 			"tests/data/SpringNebula.jg"
 		],
 	]
 )
-def test_failing_file_command(command_args, file_command_parser):
-	parsed_arguments = file_command_parser.parse_args(command_args)
+def test_failing_file_command(command_args, show_command_parser):
+	parsed_arguments = show_command_parser.parse_args(command_args)
 	with pytest.raises(SystemExit):
 		parsed_arguments.func(parsed_arguments)
 
@@ -29,7 +26,6 @@ def test_failing_file_command(command_args, file_command_parser):
                           [
                             (
                               [
-                                "show",
                                 "tests/data/SpringNebula.jpg"
                               ],
 """File name: tests/data/SpringNebula.jpg
@@ -52,7 +48,60 @@ Image shape: (2232, 3968, 3)
                             ),
                             (
                               [
-                                "show",
+                                "tests/data/JPG_with_external_annotations.jpg"
+                              ],
+"""File name: tests/data/JPG_with_external_annotations.jpg
+Object type: IMAGE
+Object timestamp: 
+├─ seconds: 0
+└─ nanoseconds: 0
+Object transform: 
+├─ translation: 
+│  ├─ x: 0.0
+│  ├─ y: 0.0
+│  └─ z: 0.0
+└─ rotation: 
+   ├─ x: 0.0
+   ├─ y: 0.0
+   ├─ z: 0.0
+   └─ w: 1.0
+Annotator: sambrose
+└─ Property
+   └─ 0:  (Location: None):
+      ├─ key: key
+      └─ value: value
+Image shape: (2232, 3968, 3)
+"""
+                            ),
+                            (
+                              [
+                                "tests/data/JPG_with_external_annotations.jpg.xmp"
+                              ],
+"""File name: tests/data/JPG_with_external_annotations.jpg
+Object type: IMAGE
+Object timestamp: 
+├─ seconds: 0
+└─ nanoseconds: 0
+Object transform: 
+├─ translation: 
+│  ├─ x: 0.0
+│  ├─ y: 0.0
+│  └─ z: 0.0
+└─ rotation: 
+   ├─ x: 0.0
+   ├─ y: 0.0
+   ├─ z: 0.0
+   └─ w: 1.0
+Annotator: sambrose
+└─ Property
+   └─ 0:  (Location: None):
+      ├─ key: key
+      └─ value: value
+Image shape: (2232, 3968, 3)
+"""
+                            ),
+                            (
+                              [
                                 "tests/data/Annotated_JPG_file.jpg"
                               ],
 """File name: tests/data/Annotated_JPG_file.jpg
@@ -80,8 +129,8 @@ Image shape: (2232, 3968, 3)
                             ),
                           ]
                         )
-def test_file_command(command_args, expected, file_command_parser):
-	parsed_arguments = file_command_parser.parse_args(command_args)
+def test_file_command(command_args, expected, show_command_parser):
+	parsed_arguments = show_command_parser.parse_args(command_args)
 	res = parsed_arguments.func(parsed_arguments)
 	print res
 	assert(expected == res)
@@ -89,13 +138,12 @@ def test_file_command(command_args, expected, file_command_parser):
 @pytest.mark.parametrize("command_args",
 	[
 		[
-			"show",
 			"tests/data/unknown"
 		],
 	]
 )
-def test_failing_set_command(command_args, set_command_parser):
-	parsed_arguments = set_command_parser.parse_args(command_args)
+def test_failing_set_command(command_args, show_command_parser):
+	parsed_arguments = show_command_parser.parse_args(command_args)
 	with pytest.raises(SystemExit):
 		parsed_arguments.func(parsed_arguments)
 
@@ -103,7 +151,6 @@ def test_failing_set_command(command_args, set_command_parser):
                           [
                             (
                               [
-                                "show",
                                 "tests/data/Michal_Asus_2016-02-19-15-25-46"
                               ],
 """Dataset path: tests/data/Michal_Asus_2016-02-19-15-25-46
@@ -150,8 +197,8 @@ Available annotations:
                             ),
                           ]
                         )
-def test_set_command(command_args, expected,set_command_parser):
-	parsed_arguments = set_command_parser.parse_args(command_args)
+def test_set_command(command_args, expected,show_command_parser):
+	parsed_arguments = show_command_parser.parse_args(command_args)
 	res = parsed_arguments.func(parsed_arguments)
 	print res
 	assert(expected == res)
@@ -196,6 +243,5 @@ Image shape: (2232, 3968, 3)
 
 """
   assert(res == subprocess.check_output(["qidata",
-                                         "file",
                                          "show",
                                          "tests/data/Annotated_JPG_file.jpg"]))

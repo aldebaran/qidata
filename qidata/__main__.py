@@ -45,6 +45,9 @@ def main(args=None):
 	parsed_arguments = main_parser.parse_args(args)
 	try:
 		res = parsed_arguments.func(parsed_arguments)
+		if res is not None:
+			print res
+		return 0
 	except SystemExit:
 		raise
 	except BaseException as exception:
@@ -66,10 +69,6 @@ def main(args=None):
 			print "\t" + exception_message.replace("\n", "\n\t")
 
 		print "Send this to the maintainer for help"
-
-	if res is not None:
-		print res
-	return 0
 
 #––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––#
 

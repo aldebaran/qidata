@@ -67,28 +67,35 @@ class QiDataFile(QiDataObject):
 			The file is NEVER created if it does not exist. Besides, opening
 			an existing file in "w" mode does not overwrite it.
 		"""
-		# Store the given file path
-		self._file_path = file_path
-
 		if os.path.splitext(file_path)[1] == ".xmp":
 			# If file is a .xmp, just read it normally
-			pass
+			# If the filename without xmp extension is an existing
+			# file, then mark it as the real file opened
+			xmp_path = file_path
+			if os.path.exists(os.path.splitext(file_path)[0]):
+				file_path = os.path.splitext(file_path)[0]
+
 		elif os.path.exists(file_path + ".xmp"):
 			# If there is an external annotation file, use it
-			file_path = file_path + ".xmp"
+			xmp_path = file_path + ".xmp"
+
 		elif mode=="w":
 			# If there is no external annotation file but we are in "w" mode
 			# Copy the internal annotations in an external annotation file
-			file_path = file_path + ".xmp"
-			with XMPFile(self._file_path, "r") as _internal:
-				with XMPFile(file_path, rw=True) as _external:
+			xmp_path = file_path + ".xmp"
+			with XMPFile(file_path, "r") as _internal:
+				with XMPFile(xmp_path, rw=True) as _external:
 					_external.libxmp_metadata = _internal.libxmp_metadata
 		else:
 			# Open the interal annotations
-			pass
+			xmp_path = file_path
 
-		# And finally open the file
-		self._xmp_file = XMPFile(file_path, rw=(mode=="w"))
+
+		# Store the file path
+		self._file_path = file_path
+
+		# And prepare the xmp file
+		self._xmp_file = XMPFile(xmp_path, rw=(mode=="w"))
 		self._is_closed = True
 		self._open()
 
@@ -181,56 +188,3 @@ class QiDataFile(QiDataObject):
 		res_str += "File name: " + self.name + "\n"
 		res_str += QiDataObject.__unicode__(self)
 		return res_str
-
-
-# ─────────────────
-# Specialized files
-
-from qidata.qidatasensorfile import QiDataSensorFile
-from qidata.qidataimagefile import QiDataImageFile
-from qidata.qidataaudiofile import QiDataAudioFile
-
-LOOKUP_ITEM_MODEL = {
-    re.compile(".*\.png$"): QiDataImageFile,
-    re.compile(".*\.jpg$"): QiDataImageFile,
-    re.compile(".*\.wav$"): QiDataAudioFile,
-}
-
-def isSupported(dataPath):
-	"""
-	Return True if file extension can be opened as QiDataFile
-
-	:param path: Path of the file to test
-	:type path: str
-	:return: True if file is supported by qidata
-	:rtype: bool
-	"""
-	for pattern in LOOKUP_ITEM_MODEL:
-		if pattern.match(dataPath):
-			return True
-	return False
-
-def open(file_path, mode="r"):
-	"""
-	Open a file as a QiDataFile.
-	This is the preferred way to open a QiDatafile.
-
-	:param file_path: Path to the file to open
-	:param mode: Mode of opening ("r" for reading, "w" for writing)
-	:rtype: ``qidata.QiDataFile``
-	:Example:
-		>>> from qidata import qidatafile
-		>>> myFile = qidatafile.open("path/to/file")
-
-	.. warning::
-
-		The mode behavior is different from the regular Python file mode.
-		The file is NEVER created if it does not exist. Besides, opening
-		an existing file in "w" mode does not overwrite it.
-	"""
-	for pattern in LOOKUP_ITEM_MODEL:
-		if pattern.match(file_path):
-			return LOOKUP_ITEM_MODEL[pattern](file_path, mode)
-	raise TypeError("Data type not supported by QiDataFile")
-
-# __all__=["open", "QiDataFile"]

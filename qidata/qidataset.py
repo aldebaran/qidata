@@ -11,7 +11,8 @@ from xmp.xmp import XMPFile, registerNamespace
 from strong_typing._textualize import textualize_sequence, textualize_mapping
 
 # Local modules
-from qidata import qidatafile, qidataframe, DataType, _BaseEnum
+import qidata
+from qidata import qidataframe, DataType, _BaseEnum
 from qidata.metadata_objects import Context
 from qidata.qidataobject import QiDataObject, throwIfReadOnly
 import _mixin as xmp_tools
@@ -129,7 +130,7 @@ class QiDataSet(object):
 		"""
 		ret = [fn
 		           for fn in os.listdir(self.name)
-		               if (qidatafile.isSupported(fn))
+		               if (qidata.isSupportedDataFile(fn))
 		      ]
 		ret.sort()
 		return ret
@@ -264,7 +265,7 @@ class QiDataSet(object):
 		self._files_type = dict()
 		for name in self.children:
 			path = os.path.join(self._folder_path, name)
-			with qidatafile.open(path, "r") as _f:
+			with qidata.open(path, "r") as _f:
 				for annotator, annotations in _f.annotations.iteritems():
 					for annotation_type in annotations.keys():
 						self._annotation_content[
@@ -567,7 +568,7 @@ class QiDataSet(object):
 		if not name in self.children:
 			raise IOError("%s is not a child of the current dataset"%name)
 		if os.path.isfile(path):
-			return qidatafile.open(path, self.mode)
+			return qidata.open(path, self.mode)
 		# elif os.path.isdir(path):
 		# 	return QiDataSet(path, self.mode)
 		else:
