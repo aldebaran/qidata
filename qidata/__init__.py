@@ -119,6 +119,7 @@ def makeMetadataObject(metadata_object_type, data=None):
 		                % metadata_object_type)
 
 # Make some submodules stuff directly accessible from qidata package
+from qidataobject import ReadOnlyException
 from qidatafile import QiDataFile, ClosedFileException
 from qidataset import QiDataSet, isDataset
 
