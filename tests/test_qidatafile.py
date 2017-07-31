@@ -83,7 +83,7 @@ def test_qidata_file(jpg_file_path):
 
 	# Make sure that once the file is closed, we can't do any special operation
 	with pytest.raises(ClosedFileException):
-		f.reloadMetadata()
+		f.cancelChanges()
 
 	with pytest.raises(ClosedFileException):
 		f.addAnnotation("jdoe", a, 1)
@@ -105,7 +105,7 @@ def test_qidata_file(jpg_file_path):
 	f = FileForTests(jpg_file_path, "w")
 	f.removeAnnotation("jdoe", a, None)
 	f.removeAnnotation("jdoe", a, 1)
-	f.reloadMetadata()
+	f.cancelChanges()
 	assert(
 	  dict(
 	    jdoe=dict(

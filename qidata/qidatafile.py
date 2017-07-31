@@ -143,12 +143,12 @@ class QiDataFile(QiDataObject):
 		self._is_closed = True
 
 	@throwIfClosed
-	def reloadMetadata(self):
+	def cancelChanges(self):
 		"""
-		Erase metadata changes by reloading saved metadata
+		Erase changes by reloading metadata from file
 		"""
-		# Load annotations
-		self._annotations = xmp_tools._load_annotations(self._xmp_file)
+		# Re-load annotations
+		self._loadAnnotations()
 
 	@throwIfClosed
 	def addAnnotation(self, annotator, annotation, location=None):
@@ -168,8 +168,16 @@ class QiDataFile(QiDataObject):
 		# file.__init__(self, self._file_path, "r")
 		self._xmp_file.__enter__()
 		self._is_closed = False
-		self.reloadMetadata()
+		self._loadAnnotations()
 		return self
+
+	@throwIfClosed
+	def _loadAnnotations(self):
+		"""
+		Loads annotations
+		"""
+		# Load annotations
+		self._annotations = xmp_tools._load_annotations(self._xmp_file)
 
 	# ───────────────
 	# Context Manager

@@ -6,7 +6,7 @@ from xmp.xmp import XMPFile, registerNamespace
 # Local modules
 from qidata import DataType
 from qidata.metadata_objects import Transform, TimeStamp
-from qidata.qidatafile import QiDataFile
+from qidata.qidatafile import QiDataFile, throwIfClosed
 from qidata.qidataobject import QiDataObject
 from qidata.qidatasensorobject import QiDataSensorObject
 import _mixin as xmp_tools
@@ -31,8 +31,12 @@ class QiDataSensorFile(QiDataSensorObject, QiDataFile):
 
 		super(QiDataSensorFile, self).close()
 
-	def reloadMetadata(self):
-		super(QiDataSensorFile, self).reloadMetadata()
+	# ───────────
+	# Private API
+
+	@throwIfClosed
+	def _loadAnnotations(self):
+		super(QiDataSensorFile, self)._loadAnnotations()
 
 		# Load data type
 		_raw_metadata = self._xmp_file.metadata[QIDATA_SENSOR_NS]
