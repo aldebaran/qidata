@@ -48,8 +48,8 @@ def main(args=None):
 		if res is not None:
 			print res
 		return 0
-	except SystemExit:
-		raise
+	except SystemExit, ex:
+		raise ex
 	except BaseException as exception:
 		exc_type, exc_value, exc_traceback = sys.exc_info()
 
@@ -69,6 +69,7 @@ def main(args=None):
 			print "\t" + exception_message.replace("\n", "\n\t")
 
 		print "Send this to the maintainer for help"
+		return 1
 
 #––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––#
 
