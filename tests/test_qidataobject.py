@@ -36,6 +36,28 @@ class ReadOnlyObjectForTests(QiDataObject):
 	def _isLocationValid(self, location):
 		return (location is None or location >= 0)
 
+class ReadOnlyObjectWithAnnotationsForTests(QiDataObject):
+
+	def __init__(self):
+		self._annotations = dict(
+		  jdoe=dict(
+		    Property=[
+		      [metadata_objects.Property(key="prop", value="11"), 0]
+		    ]
+		  ),
+		)
+
+	@property
+	def raw_data(self):
+		return None
+
+	@property
+	def read_only(self):
+		return True
+
+	def _isLocationValid(self, location):
+		return (location is None or location >= 0)
+
 class FakeAnnotation():
 	pass
 
@@ -222,10 +244,50 @@ def test_qidata_object():
 	  dict() == qidata_object.annotations
 	)
 
-	# b=metadata_objects.TimeStamp(seconds=0, nanoseconds=1)
-	# qidata_object.addAnnotation("jdoe", b, 0)
-	# with pytest.raises(ValueError):
-	# 	qidata_object.removeAnnotation("jdoe", a, 0)
+	b=metadata_objects.Object("qrcode", "10", 1)
+	qidata_object.addAnnotation("jdoe", b, 0)
+	with pytest.raises(ValueError):
+		qidata_object.removeAnnotation("jdoe", a, 0)
+	qidata_object.addAnnotation("jdoe", a, 0)
+
+	assert(
+	  dict(
+	    jdoe=dict(
+	      Object=[
+	        [b, 0],
+	      ],
+	      Property=[
+	        [a, 0]
+	      ]
+	    ),
+	  ) == qidata_object.annotations
+	)
+
+	assert([] == qidata_object.getAnnotations("jsmith"))
+	assert([] == qidata_object.getAnnotations("jdoe", "Face"))
+
+	with pytest.raises(TypeError):
+		qidata_object.getAnnotations("jdoe", "Toto")
+
+	jdoe_annotations = qidata_object.getAnnotations("jdoe")
+	assert(2 == len(jdoe_annotations))
+	jdoe_annotations = qidata_object.getAnnotations("jdoe", "Property")
+	assert(1 == len(jdoe_annotations))
+	jdoe_prop = jdoe_annotations[0][0]
+	jdoe_prop.key = "better_key"
+	print qidata_object
+	assert(
+	  dict(
+	    jdoe=dict(
+	      Object=[
+	        [b, 0],
+	      ],
+	      Property=[
+	        [metadata_objects.Property(key="better_key", value="11"), 0]
+	      ]
+	    ),
+	  ) == qidata_object.annotations
+	)
 
 def test_qidata_object_extra():
 	qidata_object = ObjectForTests()
@@ -249,3 +311,20 @@ def test_read_only_qidata_object():
 		qidata_object.addAnnotation("jdoe", a, None)
 	with pytest.raises(ReadOnlyException):
 		qidata_object.removeAnnotation("jdoe", a, None)
+
+def test_read_only_cannot_be_modified():
+	qidata_object = ReadOnlyObjectWithAnnotationsForTests()
+
+	jdoe_annotations = qidata_object.getAnnotations("jdoe", "Property")
+	assert(1 == len(jdoe_annotations))
+	jdoe_prop = jdoe_annotations[0][0]
+	jdoe_prop.key = "better_key"
+	assert(
+	  dict(
+	    jdoe=dict(
+	      Property=[
+	        [metadata_objects.Property(key="prop", value="11"), 0]
+	      ]
+	    ),
+	  ) == qidata_object.annotations
+	)

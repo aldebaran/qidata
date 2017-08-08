@@ -120,6 +120,41 @@ class QiDataObject(object):
 		  [annotation, location]
 		)
 
+	def getAnnotations(self, annotator, annotation_type=None):
+		"""
+		Return the list of annotations made by ``annotator`` of type
+		``annotation_type``
+		"""
+		# Make sure self._annotations exists
+		assert(hasattr(self, "_annotations") or self.annotations is not None)
+
+		if not self._annotations.has_key(annotator):
+			return []
+
+		if annotation_type is not None:
+			# Check given type
+			try:
+				annotation_type = MetadataType[annotation_type]
+			except KeyError:
+				try:
+					annotation_type = MetadataType(annotation_type)
+				except ValueError:
+					raise TypeError(
+					          "%s is not a valid MetadataType"%annotation_type
+					      )
+
+			if not self._annotations[annotator].has_key(str(annotation_type)):
+				return []
+			else:
+				out = self._annotations[annotator][str(annotation_type)]
+		else:
+			out = [a for b in self._annotations[annotator].values() for a in b]
+
+		if self.read_only:
+			return copy.deepcopy(out)
+		else:
+			return out
+
 	@throwIfReadOnly
 	def removeAnnotation(self, annotator, annotation, location=None):
 		"""
@@ -161,7 +196,7 @@ class QiDataObject(object):
 		if not self._annotations.has_key(annotator):
 			raise ValueError("Annotator %s is unknown"%annotation_name)
 
-		# Search for a matching annotation, remove it one is found
+		# Search for a matching annotation, remove it if one is found
 		# Otherwise, raise
 		if self._annotations[annotator].has_key(annotation_name):
 			first_matching = None
