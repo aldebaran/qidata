@@ -14,6 +14,7 @@ def test_make_non_existing_metadata_object():
 
 def test_attributes():
 	for metadata_type in list(MetadataType):
+		created_object = makeMetadataObject(str(metadata_type))
 		created_object = makeMetadataObject(metadata_type)
 		copied_object = makeMetadataObject(metadata_type, created_object)
 		assert(created_object == copied_object)

@@ -106,10 +106,19 @@ def makeMetadataObject(metadata_object_type, data=None):
 	can be created by this method are the ones in `qidata.MetadataType`
 
 	:param metadata_object_type: requested object to build's name
-	:type metadata_object_type: str
+	:type metadata_object_type: str or qidata.MetadataType
 	:param data: data to prefill to created object
 	:type data: dict
 	"""
+	try:
+		metadata_object_type = MetadataType[metadata_object_type]
+	except KeyError:
+		try:
+			metadata_object_type = MetadataType(metadata_object_type)
+		except ValueError:
+			raise TypeError(
+			          "%s is not a valid MetadataType"%metadata_object_type
+			      )
 	if isinstance(metadata_object_type, MetadataType)\
 	  and hasattr(metadata_objects,metadata_object_type.name):
 		class_ = getattr(metadata_objects,metadata_object_type.name)
