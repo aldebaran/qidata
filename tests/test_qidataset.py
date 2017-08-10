@@ -10,7 +10,7 @@ from qidata.qidataframe import FrameIsInvalid
 from qidata.qidatafile import ClosedFileException
 from qidata.qidataobject import ReadOnlyException
 from qidata.qidataimagefile import QiDataImageFile
-from qidata.metadata_objects import Property
+from qidata.metadata_objects import Property, Context
 
 def test_wrong_path(jpg_file_path):
 	"""
@@ -405,3 +405,14 @@ def test_dataset_context(folder_with_annotations):
 
 	with QiDataSet(folder_with_annotations, "r") as _ds:
 		assert(["sambrose"] == _ds.context.recorder_names)
+		c=Context()
+		with pytest.raises(ReadOnlyException):
+			_ds.context = c
+
+	with QiDataSet(folder_with_annotations, "w") as _ds:
+		with pytest.raises(TypeError):
+			_ds.context = Property()
+		_ds.context = c
+
+	with QiDataSet(folder_with_annotations, "r") as _ds:
+		_ds.context.recorder_names = []

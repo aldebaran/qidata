@@ -144,6 +144,15 @@ class QiDataSet(object):
 		"""
 		return self._context
 
+	@context.setter
+	@throwIfReadOnly
+	def context(self, new_context):
+		if isinstance(new_context, Context):
+			self._context = new_context
+		else:
+			raise TypeError("Wrong type given to update context property")
+
+
 	@property
 	def datatypes_available(self):
 		"""
