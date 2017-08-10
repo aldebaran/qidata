@@ -106,7 +106,7 @@ class QiDataObject(object):
 
 		# Check if location is valid
 		if not self._isLocationValid(location):
-			raise Exception("Location is invalid")
+			raise Exception("Location %s is invalid"%str(location))
 
 		# Create a new annotator if unknown
 		if not self._annotations.has_key(annotator):

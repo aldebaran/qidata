@@ -167,7 +167,7 @@ def test_specialized_qidatafile(file_name, class_, datatype,valid_locs,invalid_l
 		for invalid_loc in invalid_locs:
 			with pytest.raises(Exception) as e:
 				_f.addAnnotation("jdoe", a, invalid_loc)
-			assert ('Location is invalid' == e.value.message)
+			assert('Location %s is invalid'%str(invalid_loc) == e.value.message)
 
 		for valid_loc in valid_locs:
 			_f.addAnnotation("jdoe", a, valid_loc)
