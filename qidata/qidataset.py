@@ -270,14 +270,14 @@ class QiDataSet(object):
 		with any known status that might have been present before this function
 		was called.
 		"""
-		self._annotation_content = dict()
+		_annotation_content = dict()
 		self._files_type = dict()
 		for name in self.children:
 			path = os.path.join(self._folder_path, name)
 			with qidata.open(path, "r") as _f:
 				for annotator, annotations in _f.annotations.iteritems():
 					for annotation_type in annotations.keys():
-						self._annotation_content[
+						_annotation_content[
 						  (
 						    annotator,
 						    annotation_type
@@ -286,6 +286,16 @@ class QiDataSet(object):
 				if not self._files_type.has_key(str(_f.type)):
 					self._files_type[str(_f.type)] = []
 				self._files_type[str(_f.type)].append(name)
+
+		# For all discovered annotation, grab the previously known status
+		# If an annotation had a status before but was not seen, it does not
+		# need to be kept, as the annotation probably disappeared from the
+		# dataset
+		for key in _annotation_content:
+			if self._annotation_content.has_key(key):
+				_annotation_content[key] = self._annotation_content[key]
+
+		self._annotation_content = _annotation_content
 		# files_info = dict()
 
 		# # Keep track of the knowledge we have so far

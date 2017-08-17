@@ -105,6 +105,15 @@ def test_annotation_status(folder_with_annotations):
 		    } == d.annotations_available
 		)
 
+	# Make sure an examination does not change our input
+	with QiDataSet(folder_with_annotations, "w") as d:
+		d.examineContent()
+		assert(
+		    {
+		        ("sambrose", "Property"): QiDataSet.AnnotationStatus.TOTAL
+		    } == d.annotations_available
+		)
+
 def test_dataset_filter(folder_with_annotations,
                         dataset_with_new_annotations,
                         dataset_with_non_annotated_files):
