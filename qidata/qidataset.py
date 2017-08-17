@@ -111,7 +111,7 @@ class QiDataSet(object):
 		:Example:
 			>>> with QiDataSet("dummy/dataset", "r") as d:
 			>>>     d.annotations_available
-			>>> [("jdoe", "Property", QiDataSet.AnnotationStatus.PARTIAL)]
+			>>> {("jdoe", "Property"): QiDataSet.AnnotationStatus.PARTIAL)}
 		"""
 		return copy.deepcopy(self._annotation_content)
 
