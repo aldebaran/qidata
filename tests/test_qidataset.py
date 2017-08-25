@@ -36,7 +36,7 @@ def test_dataset_creation(folder_with_non_annotated_files):
 
 	assert(isDataset(folder_with_non_annotated_files))
 	assert(os.path.exists(
-		      os.path.join(folder_with_non_annotated_files, "metadata.xmp"))
+	          os.path.join(folder_with_non_annotated_files, "metadata.xmp"))
 	       )
 
 def test_child_opening(dataset_with_non_annotated_files):

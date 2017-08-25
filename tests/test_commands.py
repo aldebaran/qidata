@@ -142,7 +142,7 @@ def test_file_command(command_args, expected, show_command_parser):
 		],
 	]
 )
-def test_failing_set_command(command_args, show_command_parser):
+def test_failing_show_command(command_args, show_command_parser):
 	parsed_arguments = show_command_parser.parse_args(command_args)
 	with pytest.raises(SystemExit):
 		parsed_arguments.func(parsed_arguments)
@@ -197,7 +197,7 @@ Available annotations:
                             ),
                           ]
                         )
-def test_set_command(command_args, expected,show_command_parser):
+def test_show_command(command_args, expected,show_command_parser):
 	parsed_arguments = show_command_parser.parse_args(command_args)
 	res = parsed_arguments.func(parsed_arguments)
 	print res

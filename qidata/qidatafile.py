@@ -83,11 +83,11 @@ class QiDataFile(QiDataObject):
 			# If there is no external annotation file but we are in "w" mode
 			# Copy the internal annotations in an external annotation file
 			xmp_path = file_path + ".xmp"
-			with XMPFile(file_path, "r") as _internal:
+			with XMPFile(file_path, rw=False) as _internal:
 				with XMPFile(xmp_path, rw=True) as _external:
 					_external.libxmp_metadata = _internal.libxmp_metadata
 		else:
-			# Open the interal annotations
+			# Open the internal annotations
 			xmp_path = file_path
 
 
