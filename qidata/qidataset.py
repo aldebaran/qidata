@@ -152,7 +152,6 @@ class QiDataSet(object):
 		else:
 			raise TypeError("Wrong type given to update context property")
 
-
 	@property
 	def datatypes_available(self):
 		"""
@@ -351,10 +350,11 @@ class QiDataSet(object):
 		# 		self._content._data[key] = True
 
 	@staticmethod
-	def filter(dataset_list,
-	           only_annotated_by=None,
-	           only_with_annotations=None,
-	           only_total_annotations=False):
+	def filter(
+	    dataset_list,
+	    only_annotated_by=None,
+	    only_with_annotations=None,
+	    only_total_annotations=False):
 
 		"""
 		Filters out dataset not fitting the given criteria.
@@ -718,7 +718,10 @@ class QiDataSet(object):
 		# Types
 		_da = [str(i) for i in self.datatypes_available]
 		_da.sort()
-		res_str += "Available types: " + textualize_sequence(_da) + "\n"
+		res_str += "Available types: " + textualize_sequence(
+		                                                     _da,
+		                                                     unicode
+		                                                    ) + "\n"
 
 		# Streams
 		_sn = self._streams.keys()
@@ -728,7 +731,10 @@ class QiDataSet(object):
 		                  [(name, "%d files"%len(self._streams[name][1]))\
 		                      for name in _sn]
 		                )
-		res_str += "Available streams: " + textualize_mapping(_s) + "\n"
+		res_str += "Available streams: " + textualize_mapping(
+		                                                      _s,
+		                                                      unicode
+		                                                     ) + "\n"
 
 		# Frames
 		res_str += "Defined frames: %d\n"%len(self._frames)
@@ -738,6 +744,7 @@ class QiDataSet(object):
 
 		# Annotations
 		res_str += "Available annotations: " + textualize_sequence(
-		                                           self.annotations_available
+		                                           self.annotations_available,
+		                                           unicode
 		                                       ) + "\n"
 		return res_str

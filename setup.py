@@ -37,7 +37,7 @@ setup(
         "opencv-python >= 3.0",
         "setuptools >= 35.0.0",
         "enum34 >= 1.0.4",
-        "strong_typing >= 0.1.4",
+        "strong_typing >= 0.2.2",
         "xmp >= 0.3",
         "qidata_devices >= 0.0.3",
     ],
