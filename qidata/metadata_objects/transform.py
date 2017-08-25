@@ -47,7 +47,7 @@ class Rotation(MetadataObject):
 
 	                   _Float(name="w",
 	                           description="Rotation quaternion's W coordinate",
-	                           default=0),
+	                           default=1),
 	]
 	__ATT_VERSIONS__ = [None]*4
 

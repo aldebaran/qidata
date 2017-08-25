@@ -59,8 +59,7 @@ class QiDataSensorObject(QiDataObject):
 		:rtype: qidata.metadata_objects.Transform
 		"""
 		if not hasattr(self, "_position"):
-			self._position = Transform(translation=dict(x=0,y=0,z=0),
-			                           rotation=dict(x=0,y=0,z=0,w=1))
+			self._position = Transform()
 		return self._position
 
 	@transform.setter
