@@ -286,6 +286,16 @@ class QiDataSet(object):
 					self._files_type[str(_f.type)] = []
 				self._files_type[str(_f.type)].append(name)
 
+		for _f in self.getAllFrames():
+			for annotator, annotations in _f.annotations.iteritems():
+				for annotation_type in annotations.keys():
+					_annotation_content[
+					  (
+					    annotator,
+					    annotation_type
+					  )
+					] = QiDataSet.AnnotationStatus.PARTIAL
+
 		# For all discovered annotation, grab the previously known status
 		# If an annotation had a status before but was not seen, it does not
 		# need to be kept, as the annotation probably disappeared from the
