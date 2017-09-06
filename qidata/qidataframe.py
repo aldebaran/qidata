@@ -113,26 +113,29 @@ class QiDataFrame(QiDataFile):
 
 	def _isLocationValid(self, location):
 		"""
-		TO DOC AND TEST
-
-		Should accept 3D bounding boxes
 		Checks if a location given with an annotation is correct
 
 		:param location: The location to evaluate
 		:type location: list or None
 
 		.. note::
-			The location is expected to be of the form [[0,0],[100,100]]. It
-			represents a rectangle, by the coordinates of its upper left and
-			lower right corners.
+			The location is expected to be a 3D bounding box, respecting the
+			form [[0.0,0.0,0.0],[100.0,100.0,100.0]]. It represents a cuboid, by
+			the coordinates of two opposite corner (and assuming all coordinates
+			of the first corner are lower than the ones of the second corner)
 		"""
 		if location is None: return True
 		try:
 			return (
-			  isinstance(location[0][0],int)\
-			    and isinstance(location[0][1],int)\
-			    and isinstance(location[1][0],int)\
-			    and isinstance(location[1][1],int)
+			  isinstance(location[0][0],float)\
+			    and isinstance(location[0][1],float)\
+			    and isinstance(location[0][2],float)\
+			    and isinstance(location[1][0],float)\
+			    and isinstance(location[1][1],float)\
+			    and isinstance(location[1][2],float)\
+			    and location[0][0] < location[1][0]\
+			    and location[0][1] < location[1][1]\
+			    and location[0][2] < location[1][2]
 			)
 		except Exception:
 			return False

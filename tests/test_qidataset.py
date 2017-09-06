@@ -360,6 +360,10 @@ def test_data_frame(folder_with_annotations):
 		assert([_f] == d.getAllFrames())
 		p = Property("key", "value")
 		_f.addAnnotation("jdoe", p, None)
+		with pytest.raises(Exception) as _e:
+			_f.addAnnotation("jdoe", p, 0)
+		assert("Location 0 is invalid" == _e.value.message)
+		_f.addAnnotation("jdoe", p, [[0.0,0.0,0.0],[1.0,1.0,1.0]])
 	assert(_f.closed)
 
 	with QiDataSet(folder_with_annotations, "r") as d:
@@ -371,10 +375,12 @@ def test_data_frame(folder_with_annotations):
 		assert(set(["JPG_file.jpg", "WAV_file.wav"]) == frames[0].files)
 		assert(frames[0].annotations.has_key("jdoe"))
 		assert(frames[0].annotations["jdoe"].has_key("Property"))
-		assert(1 == len(frames[0].annotations["jdoe"]["Property"]))
+		assert(2 == len(frames[0].annotations["jdoe"]["Property"]))
 		assert(None == frames[0].annotations["jdoe"]["Property"][0][1])
 		assert("key" == frames[0].annotations["jdoe"]["Property"][0][0].key)
 		assert("value" == frames[0].annotations["jdoe"]["Property"][0][0].value)
+		assert([[0.0,0.0,0.0],[1.0,1.0,1.0]]\
+		         == frames[0].annotations["jdoe"]["Property"][1][1])
 		with pytest.raises(ReadOnlyException):
 			d.removeFrame(frames[0])
 
