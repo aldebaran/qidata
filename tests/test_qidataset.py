@@ -114,6 +114,37 @@ def test_annotation_status(folder_with_annotations):
 		    } == d.annotations_available
 		)
 
+	# See that when setting an absent annotation, examineContent erase only
+	# partial annotations
+	with QiDataSet(folder_with_annotations, "w") as d:
+		d.setAnnotationStatus("sambrose", "Person", True)
+		assert(
+		    {
+		        ("sambrose", "Property"): QiDataSet.AnnotationStatus.TOTAL,
+		        ("sambrose", "Person"): QiDataSet.AnnotationStatus.TOTAL
+		    } == d.annotations_available
+		)
+		d.examineContent()
+		assert(
+		    {
+		        ("sambrose", "Property"): QiDataSet.AnnotationStatus.TOTAL,
+		        ("sambrose", "Person"): QiDataSet.AnnotationStatus.TOTAL
+		    } == d.annotations_available
+		)
+		d.setAnnotationStatus("sambrose", "Person", False)
+		assert(
+		    {
+		        ("sambrose", "Property"): QiDataSet.AnnotationStatus.TOTAL,
+		        ("sambrose", "Person"): QiDataSet.AnnotationStatus.PARTIAL
+		    } == d.annotations_available
+		)
+		d.examineContent()
+		assert(
+		    {
+		        ("sambrose", "Property"): QiDataSet.AnnotationStatus.TOTAL
+		    } == d.annotations_available
+		)
+
 def test_dataset_filter(folder_with_annotations,
                         dataset_with_new_annotations,
                         dataset_with_non_annotated_files):

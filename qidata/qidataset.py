@@ -297,12 +297,11 @@ class QiDataSet(object):
 					] = QiDataSet.AnnotationStatus.PARTIAL
 
 		# For all discovered annotation, grab the previously known status
-		# If an annotation had a status before but was not seen, it does not
-		# need to be kept, as the annotation probably disappeared from the
-		# dataset
-		for key in _annotation_content:
-			if self._annotation_content.has_key(key):
-				_annotation_content[key] = self._annotation_content[key]
+		# If an annotation had a status before but was not seen, it does
+		# need to be kept only if it was declared as TOTAL
+		for key in self._annotation_content:
+			if QiDataSet.AnnotationStatus.TOTAL == self._annotation_content[key]:
+				_annotation_content[key] = QiDataSet.AnnotationStatus.TOTAL
 
 		self._annotation_content = _annotation_content
 		# files_info = dict()
