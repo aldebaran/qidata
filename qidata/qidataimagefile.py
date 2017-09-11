@@ -8,6 +8,7 @@ QiDataSensorFile specialization for image files
 
 # Third-party libraries
 import cv2
+from image import Image
 
 # Local modules
 from qidata import DataType
@@ -18,7 +19,7 @@ class QiDataImageFile(QiDataSensorFile):
 	# Constructor
 
 	def __init__(self, file_path, mode = "r"):
-		self._raw_data = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
+		self._raw_data = Image(file_path)
 		QiDataSensorFile.__init__(self, file_path, mode)
 
 	# ──────────
@@ -70,5 +71,5 @@ class QiDataImageFile(QiDataSensorFile):
 
 	def __unicode__(self):
 		res_str = QiDataSensorFile.__unicode__(self)
-		res_str += "Image shape: " + str(self.raw_data.shape) + "\n"
+		res_str += "Image shape: " + str(self.raw_data.numpy_image.shape) + "\n"
 		return res_str
