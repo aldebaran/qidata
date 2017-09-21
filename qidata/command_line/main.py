@@ -17,13 +17,6 @@ for _ep in _pkg.iter_entry_points(group="qidata.commands"):
 	_name = _pkg.EntryPoint.pattern.match(str(_ep)).groupdict()["name"]
 	SUBCOMMANDS.append([_ep.load(), _name])
 
-
-# try:
-# 	from qidata_gui.apps.annotator.commands import main as AnnotationMain
-# 	SUBCOMMANDS.append([AnnotationMain, "annotate"])
-# except:
-# 	pass
-
 class VersionAction(argparse.Action):
 	def __init__(self, option_strings, dest, nargs, **kwargs):
 		super(VersionAction, self).__init__(option_strings, dest, nargs=0, **kwargs)

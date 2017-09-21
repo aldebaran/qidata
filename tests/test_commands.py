@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # Standard library
 import pytest
-import argparse
 import subprocess
 
 # Third-party libraries
@@ -17,7 +16,7 @@ from qidata import VERSION
 		],
 	]
 )
-def test_failing_file_command(command_args, show_command_parser):
+def test_failing_show_on_file_command(command_args, show_command_parser):
 	parsed_arguments = show_command_parser.parse_args(command_args)
 	with pytest.raises(SystemExit):
 		parsed_arguments.func(parsed_arguments)
@@ -129,7 +128,7 @@ Image shape: (2232, 3968, 3)
                             ),
                           ]
                         )
-def test_file_command(command_args, expected, show_command_parser):
+def test_show_on_file_command(command_args, expected, show_command_parser):
 	parsed_arguments = show_command_parser.parse_args(command_args)
 	res = parsed_arguments.func(parsed_arguments)
 	print res
@@ -142,7 +141,7 @@ def test_file_command(command_args, expected, show_command_parser):
 		],
 	]
 )
-def test_failing_show_command(command_args, show_command_parser):
+def test_failing_show_on_set_command(command_args, show_command_parser):
 	parsed_arguments = show_command_parser.parse_args(command_args)
 	with pytest.raises(SystemExit):
 		parsed_arguments.func(parsed_arguments)
@@ -197,7 +196,7 @@ Available annotations:
                             ),
                           ]
                         )
-def test_show_command(command_args, expected,show_command_parser):
+def test_show_on_set_command(command_args, expected,show_command_parser):
 	parsed_arguments = show_command_parser.parse_args(command_args)
 	res = parsed_arguments.func(parsed_arguments)
 	print res
