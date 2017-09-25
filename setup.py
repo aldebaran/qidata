@@ -40,7 +40,7 @@ setup(
         "strong_typing >= 0.2.2",
         "xmp >= 0.3",
         "qidata_devices >= 0.0.3",
-        "image.py >= 0.3.0",
+        "image.py >= 0.4.0",
     ],
     package_data={"qidata":["VERSION"]},
     # scripts=['bin/qidata'],

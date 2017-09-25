@@ -50,7 +50,7 @@ class DataType(_BaseEnum):
 	IMAGE_2D   = 3 #: For 2D images
 	IMAGE_3D     = 4 #: For 3D images
 	IMAGE_IR     = 5 #: For IR images
-	# IMG_STEREO = 5 #: For stereo images
+	IMAGE_STEREO = 6 #: For stereo images
 
 	def __str__(self):
 		return self.name
