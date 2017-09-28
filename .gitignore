@@ -1,8 +1,8 @@
-# Python setuptools
-*.egg-info/*
-dist/*
 build/*
-*.pyc
 .cache/*
+coverage/
 doc/_build/*
+dist/*
+*.egg-info/*
+*.pyc
 .tox/*
