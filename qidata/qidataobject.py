@@ -18,6 +18,9 @@ def throwIfReadOnly(f):
 		if self.read_only:
 			raise ReadOnlyException("This method cannot be used in read-only")
 		return f(*args)
+
+	# Keep the function docstring
+	wraps.__doc__ = f.__doc__
 	return wraps
 
 class QiDataObject(object):
