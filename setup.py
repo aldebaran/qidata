@@ -43,7 +43,6 @@ setup(
         "image.py >= 0.4.0",
     ],
     package_data={"qidata":["VERSION"]},
-    # scripts=['bin/qidata'],
     entry_points={
         'qidata.metadata.definition': [
             'Face = qidata._metadata_objects.face:Face',
