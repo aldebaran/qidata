@@ -47,6 +47,7 @@ from enum import Enum as _Enum
 import os as _os
 import pkg_resources as _pkg
 import re as _re
+import sys as _sys
 
 # Local modules
 import metadata_objects
