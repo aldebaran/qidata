@@ -34,7 +34,7 @@ It is probably not that much different. However, most of those tools were design
 in mind (machine learning for face detection or OCR, set of recorded speeches for speech recognition, music
 database for music classification). We on the other hand, tried our best to be as generic as possible, as our key
 goal is to work with robots, which could encounter many different situations and need many different algorithms.
-As a result, ``qidata` can work with images and video but also with lasers, sonars or audio. And most important,
+As a result, ``qidata`` can work with images and video but also with lasers, sonars or audio. And most important,
 ``qidata`` is thought to handle multi-modal data, whereas most annotation tools available cannot handle more than
 one data type.
 
