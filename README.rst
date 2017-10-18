@@ -42,18 +42,4 @@ one data type.
 Want to give it a try ?
 -----------------------
 
-``qidata`` is divided in two parts. The first one (``qidata``) is the core system, containing all functionalities
-and some command-line controls, the second (``qidata_gui``) containing a set of GUI interfaces to make it fun to
-use ! You can install only the first one on your computing farms, and install the second on your machines used by
-humans.
-
-::
-
-    pip install qidata --find-links=http://10.0.2.107/pypi --extra-index-url http://10.0.2.107/pypi --trusted-host 10.0.2.107
-    pip install qidata_gui --find-links=http://10.0.2.107/pypi --extra-index-url http://10.0.2.107/pypi --trusted-host 10.0.2.107
-
-
-Want to know more ?
--------------------
-
-Keep reading, it's just the beginning.
+Find the complete documentation `here <https://aldebaran.github.io/qidata_doc/>`_
